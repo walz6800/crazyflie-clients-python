@@ -68,7 +68,7 @@ class LogClientTab(TabToolbox, log_client_tab_class):
     _update = pyqtSignal(str)
 
     def __init__(self, helper):
-        super(LogClientTab, self).__init__(helper, 'Log Client')
+        super(LogClientTab, self).__init__(helper, self.tr('Log Client'))
         self.setupUi(self)
 
         self._update.connect(self.printText)

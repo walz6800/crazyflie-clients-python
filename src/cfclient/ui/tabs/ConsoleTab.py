@@ -55,7 +55,7 @@ class ConsoleTab(TabToolbox, console_tab_class):
     _update = pyqtSignal(str)
 
     def __init__(self, helper):
-        super(ConsoleTab, self).__init__(helper, 'Console')
+        super(ConsoleTab, self).__init__(helper, self.tr('Console'))
         self.setupUi(self)
 
         # Always wrap callbacks from Crazyflie API though QT Signal/Slots

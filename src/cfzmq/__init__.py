@@ -41,9 +41,10 @@ from cflib.crazyflie import Crazyflie
 from cflib.crazyflie.log import LogConfig
 
 import cfclient
+from cfclient.utils.cli_tr import tr, init_language
 
 if os.name == 'posix':
-    print('Disabling standard output for libraries!')
+    print(tr('Disabling standard output for libraries!'))
     stdout = os.dup(1)
     os.dup2(os.open('/dev/null', os.O_WRONLY), 1)
     sys.stdout = os.fdopen(stdout, 'w')
@@ -198,7 +199,7 @@ class _SrvThread(Thread):
                 resp["msg"] = str(e)
             except queue.Empty:
                 resp["status"] = 3
-                resp["msg"] = "Log configuration did not start"
+                resp["msg"] = tr("Log configuration did not start")
         if data["action"] == "start":
             try:
                 self._logging_configs[data["name"]].start()
@@ -206,10 +207,10 @@ class _SrvThread(Thread):
                 resp["status"] = 0
             except KeyError as e:
                 resp["status"] = 1
-                resp["msg"] = "{} config not found".format(str(e))
+                resp["msg"] = tr("{} config not found").format(str(e))
             except queue.Empty:
                 resp["status"] = 2
-                resp["msg"] = "Log configuration did not stop"
+                resp["msg"] = tr("Log configuration did not stop")
         if data["action"] == "stop":
             try:
                 self._logging_configs[data["name"]].stop()
@@ -217,10 +218,10 @@ class _SrvThread(Thread):
                 resp["status"] = 0
             except KeyError as e:
                 resp["status"] = 1
-                resp["msg"] = "{} config not found".format(str(e))
+                resp["msg"] = tr("{} config not found").format(str(e))
             except queue.Empty:
                 resp["status"] = 2
-                resp["msg"] = "Log configuration did not stop"
+                resp["msg"] = tr("Log configuration did not stop")
         if data["action"] == "delete":
             try:
                 self._logging_configs[data["name"]].delete()
@@ -228,10 +229,10 @@ class _SrvThread(Thread):
                 resp["status"] = 0
             except KeyError as e:
                 resp["status"] = 1
-                resp["msg"] = "{} config not found".format(str(e))
+                resp["msg"] = tr("{} config not found").format(str(e))
             except queue.Empty:
                 resp["status"] = 2
-                resp["msg"] = "Log configuration did not stop"
+                resp["msg"] = tr("Log configuration did not stop")
 
         return resp
 
@@ -255,8 +256,7 @@ class _SrvThread(Thread):
             resp["msg"] = str(e)
         except queue.Empty:
             resp["status"] = 3
-            resp["msg"] = "Timeout when setting parameter" \
-                          "{}".format(data["name"])
+            resp["msg"] = tr("Timeout when setting parameter {}").format(data["name"])
         return resp
 
     def _all_param_update(self, name, value):
@@ -296,7 +296,7 @@ class _SrvThread(Thread):
                 response = self._handle_param(cmd)
             else:
                 response["status"] = 0xFF
-                response["msg"] = "Unknown command {}".format(cmd["cmd"])
+                response["msg"] = tr("Unknown command {}").format(cmd["cmd"])
             self._socket.send_json(response)
 
 
@@ -357,17 +357,18 @@ class ZMQServer():
 
 def main():
     """Main Crazyflie ZMQ application"""
+    init_language("zh_CN")
     import argparse
 
     parser = argparse.ArgumentParser(prog="cfzmq")
     parser.add_argument("-u", "--url", action="store", dest="url", type=str,
                         default="tcp://127.0.0.1",
-                        help="URL where ZMQ will accept connections")
+                        help=tr("URL where ZMQ will accept connections"))
     parser.add_argument("-d", "--debug", action="store_true", dest="debug",
-                        help="Enable debug output")
+                        help=tr("Enable debug output"))
     parser.add_argument("-p", "--port", action="store", dest="port", type=int,
                         default=2000,
-                        help="Base port to used for ZMQ sockets")
+                        help=tr("Base port to used for ZMQ sockets"))
     (args, _) = parser.parse_known_args()
 
     if args.debug:

@@ -221,7 +221,7 @@ class LogBlockModel(QAbstractItemModel):
     def headerData(self, section, orientation, role):
         """Re-implemented method to get the headers"""
         if role == Qt.ItemDataRole.DisplayRole:
-            return self._column_headers[section]
+            return self.tr(self._column_headers[section])
 
     def rowCount(self, parent):
         """Re-implemented method to get the number of rows for a given index"""
@@ -326,7 +326,7 @@ class LogBlockTab(TabToolbox, logblock_tab_class):
 
     def __init__(self, helper):
         """Initialize the tab"""
-        super(LogBlockTab, self).__init__(helper, 'Log Blocks')
+        super(LogBlockTab, self).__init__(helper, self.tr('Log Blocks'))
         self.setupUi(self)
 
         self._helper.cf.log.block_added_cb.add_callback(self._block_added)

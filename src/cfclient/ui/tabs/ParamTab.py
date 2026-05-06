@@ -172,7 +172,7 @@ class ParamBlockModel(QAbstractItemModel):
     def headerData(self, section, orientation, role):
         """Re-implemented method to get the headers"""
         if role == Qt.ItemDataRole.DisplayRole:
-            return self._column_headers[section]
+            return self.tr(self._column_headers[section])
 
     def rowCount(self, parent):
         """Re-implemented method to get the number of rows for a given index"""
@@ -225,7 +225,7 @@ class ParamBlockModel(QAbstractItemModel):
             if index.column() == 2:
                 return node.access
             if index.column() == 3:
-                return 'Yes' if node.persistent else 'No'
+                return self.tr('Yes') if node.persistent else self.tr('No')
             if index.column() == 4:
                 return node.value
             if index.column() == 5:
@@ -340,7 +340,7 @@ class ParamTab(TabToolbox, param_tab_class):
 
     def __init__(self, helper):
         """Create the parameter tab"""
-        super(ParamTab, self).__init__(helper, 'Parameters')
+        super(ParamTab, self).__init__(helper, self.tr('Parameters'))
         self.setupUi(self)
 
         self.cf = helper.cf
@@ -387,7 +387,7 @@ class ParamTab(TabToolbox, param_tab_class):
         if default_value is not None:
             self.defaultValue.setText(str(default_value))
         else:
-            self.defaultValue.setText('-')
+            self.defaultValue.setText(self.tr('-'))
 
     def _persistent_button_cb(self, _):
         def success_cb(name, success):
@@ -406,7 +406,7 @@ class ParamTab(TabToolbox, param_tab_class):
             self.cf.param.persistent_get_state(name, state_cb)
 
         complete = self.paramDetailsLabel.text()
-        if self.persistentButton.text() == 'Clear':
+        if self.persistentButton.text() == self.tr('Clear'):
             self.cf.param.persistent_clear(complete, success_cb)
         else:
             self.cf.param.persistent_store(complete, success_cb)
@@ -418,9 +418,9 @@ class ParamTab(TabToolbox, param_tab_class):
         if state.is_stored:
             self.storedValue.setText(str(state.stored_value))
         else:
-            self.storedValue.setText('Not stored')
+            self.storedValue.setText(self.tr('Not stored'))
 
-        self.persistentButton.setText('Clear' if state.is_stored else 'Store')
+        self.persistentButton.setText(self.tr('Clear') if state.is_stored else self.tr('Store'))
 
     def _set_param_value(self):
         name = self.paramDetailsLabel.text()
@@ -474,7 +474,7 @@ class ParamTab(TabToolbox, param_tab_class):
             self.currentValue.setText(value)
             self.currentValue.setStyleSheet('')
             self.currentValue.setCursorPosition(0)
-            self.defaultValue.setText('-')
+            self.defaultValue.setText(self.tr('-'))
             self.cf.param.get_default_value(complete, lambda _, value: self._param_default_signal.emit(value))
 
             writable = elem.get_readable_access() == 'RW'
@@ -495,7 +495,7 @@ class ParamTab(TabToolbox, param_tab_class):
         self._clear_param_button.setEnabled(enabled)
 
     def _load_param_button_clicked(self):
-        names = QFileDialog.getOpenFileName(self, 'Open file', cfclient.config_path, FILE_REGEX_YAML)
+        names = QFileDialog.getOpenFileName(self, self.tr('Open file'), cfclient.config_path, FILE_REGEX_YAML)
 
         if names[0] == '':
             return
@@ -505,7 +505,7 @@ class ParamTab(TabToolbox, param_tab_class):
         def _is_persistent_stored_callback(complete_name, success):
             if not success:
                 print(f'Persistent params: failed to store {complete_name}!')
-                QMessageBox.about(self, 'Warning', f'Failed to persistently store {complete_name}!')
+                QMessageBox.about(self, self.tr('Warning'), self.tr('Failed to persistently store %s!') % complete_name)
             else:
                 print(f'Persistent params: stored {complete_name}!')
 
@@ -517,16 +517,16 @@ class ParamTab(TabToolbox, param_tab_class):
                     _set_param_names.append(param)
                 except Exception:
                     print(f'Failed to set {param}!')
-                    QMessageBox.about(self, 'Warning', f'Failed to set {param}!')
+                    QMessageBox.about(self, self.tr('Warning'), self.tr('Failed to set %s!') % param)
                 print(f'Set {param}!')
                 self.cf.param.persistent_store(param, _is_persistent_stored_callback)
 
         self._update_param_io_buttons()
         dlg = QMessageBox(self)
-        dlg.setWindowTitle("Info")
+        dlg.setWindowTitle(self.tr("Info"))
         _parameters_and_values = [f"{_param_name}:{parameters[_param_name].stored_value}"
                                   for _param_name in _set_param_names]
-        dlg.setText('Loaded persistent parameters from file:\n' + "\n".join(_parameters_and_values))
+        dlg.setText(self.tr('Loaded persistent parameters from file:\n') + "\n".join(_parameters_and_values))
         dlg.setIcon(QMessageBox.Icon.NoIcon)
         dlg.exec()
 
@@ -573,7 +573,7 @@ class ParamTab(TabToolbox, param_tab_class):
 
     def _dump_param_button_clicked(self):
         stored_persistent_params = self._get_all_stored_persistent_params()
-        names = QFileDialog.getSaveFileName(self, 'Save file', cfclient.config_path, FILE_REGEX_YAML)
+        names = QFileDialog.getSaveFileName(self, self.tr('Save file'), cfclient.config_path, FILE_REGEX_YAML)
         if names[0] == '':
             return
         if not names[0].endswith(".yaml"):
@@ -583,10 +583,10 @@ class ParamTab(TabToolbox, param_tab_class):
 
         ParamFileManager.write(filename, stored_persistent_params)
         dlg = QMessageBox(self)
-        dlg.setWindowTitle('Info')
+        dlg.setWindowTitle(self.tr('Info'))
         _parameters_and_values = [f"{_param_name}: {stored_persistent_params[_param_name].stored_value}"
                                   for _param_name in stored_persistent_params.keys()]
-        dlg.setText('Dumped persistent parameters to file:\n' + "\n".join(_parameters_and_values))
+        dlg.setText(self.tr('Dumped persistent parameters to file:\n') + "\n".join(_parameters_and_values))
         dlg.setIcon(QMessageBox.Icon.NoIcon)
         dlg.exec()
 
@@ -605,8 +605,8 @@ class ParamTab(TabToolbox, param_tab_class):
 
     def _clear_stored_persistent_params_button_clicked(self):
         dlg = QMessageBox(self)
-        dlg.setWindowTitle("Clear Stored Parameters Confirmation")
-        dlg.setText("Are you sure you want to clear your stored persistent parameters?")
+        dlg.setWindowTitle(self.tr("Clear Stored Parameters Confirmation"))
+        dlg.setText(self.tr("Are you sure you want to clear your stored persistent parameters?"))
         dlg.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
         button = dlg.exec()
 

@@ -46,7 +46,7 @@ class LogTab(TabToolbox, param_tab_class):
     disconnectedSignal = pyqtSignal(str)
 
     def __init__(self, helper):
-        super(LogTab, self).__init__(helper, 'Log TOC')
+        super(LogTab, self).__init__(helper, self.tr('Log TOC'))
         self.setupUi(self)
 
         self.cf = helper.cf
@@ -58,7 +58,7 @@ class LogTab(TabToolbox, param_tab_class):
         else:
             self.logTree.setStyleSheet('QTreeWidget { alternate-background-color: #e9e9e9; }')
 
-        self.logTree.setHeaderLabels(['Name', 'ID', 'Unpack', 'Storage', 'Description'])
+        self.logTree.setHeaderLabels([self.tr('Name'), self.tr('ID'), self.tr('Unpack'), self.tr('Storage'), self.tr('Description')])
         self.logTree.header().resizeSection(0, 150)
         self.logTree.setSortingEnabled(True)
         self.logTree.sortItems(0, Qt.SortOrder.AscendingOrder)

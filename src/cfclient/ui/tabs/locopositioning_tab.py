@@ -376,7 +376,7 @@ class LocoPositioningTab(TabToolbox, locopositioning_tab_class):
     _anchor_data_updated_signal = pyqtSignal(object)
 
     def __init__(self, helper):
-        super(LocoPositioningTab, self).__init__(helper, 'Loco Positioning')
+        super(LocoPositioningTab, self).__init__(helper, self.tr('Loco Positioning'))
         self.setupUi(self)
 
         self._anchors = {}
@@ -712,9 +712,9 @@ class LocoPositioningTab(TabToolbox, locopositioning_tab_class):
 
     def _logging_error(self, log_conf, msg):
         """Callback from the log layer when an error occurs"""
-        QMessageBox.about(self, "LocoPositioningTab error",
-                          "Error when using log config",
-                          " [{0}]: {1}".format(log_conf.name, msg))
+        QMessageBox.about(self, self.tr("LocoPositioningTab error"),
+                          self.tr("Error when using log config"),
+                          self.tr(" [{0}]: {1}").format(log_conf.name, msg))
 
     def _start_polling_anchor_pos(self, crazyflie):
         """Set up a timer to poll anchor positions from the memory sub

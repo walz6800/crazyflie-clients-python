@@ -33,7 +33,7 @@ import logging
 from enum import Enum
 
 from PyQt6 import uic
-from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtCore import Qt, pyqtSignal, QCoreApplication
 from PyQt6.QtWidgets import QMessageBox
 
 import cfclient
@@ -56,24 +56,24 @@ flight_tab_class = uic.loadUiType(cfclient.module_path +
 
 MAX_THRUST = 65536.0
 
-TOOLTIP_ALTITUDE_HOLD = """\
+TOOLTIP_ALTITUDE_HOLD = QCoreApplication.translate("FlightTab", """\
 Keeps the Crazyflie at its current altitude.
 Thrust control becomes height velocity control. The Crazyflie
-uses the barometer for height control and uses body-fixed coordinates."""
+uses the barometer for height control and uses body-fixed coordinates.""")
 
-TOOLTIP_POSITION_HOLD = """\
+TOOLTIP_POSITION_HOLD = QCoreApplication.translate("FlightTab", """\
 Keeps the Crazyflie at its current 3D position. Pitch/Roll/
-Thrust control becomes X/Y/Z velocity control. Uses world coordinates."""
+Thrust control becomes X/Y/Z velocity control. Uses world coordinates.""")
 
-TOOLTIP_HEIGHT_HOLD = """\
+TOOLTIP_HEIGHT_HOLD = QCoreApplication.translate("FlightTab", """\
 When activated, keeps the Crazyflie at 40cm above the ground.
 Thrust control becomes height velocity control. Requires a height
-sensor like the Z-Ranger deck or flow deck. Uses body-fixed coordinates.."""
+sensor like the Z-Ranger deck or flow deck. Uses body-fixed coordinates..""")
 
-TOOLTIP_HOVER = """\
+TOOLTIP_HOVER = QCoreApplication.translate("FlightTab", """\
 When activated, keeps the Crazyflie at 40cm above the ground and tries to
 keep the position in X and Y as well. Thrust control becomes height velocity
-control. Requires a flow deck. Uses body-fixed coordinates."""
+control. Requires a flow deck. Uses body-fixed coordinates.""")
 
 
 class CommanderAction(Enum):
@@ -119,7 +119,7 @@ class FlightTab(TabToolbox, flight_tab_class):
     LOG_NAME_SUPERVISOR_INFO = 'supervisor.info'
 
     def __init__(self, helper):
-        super(FlightTab, self).__init__(helper, 'Flight Control')
+        super(FlightTab, self).__init__(helper, self.tr('Flight Control'))
         self.setupUi(self)
 
         self.disconnectedSignal.connect(self.disconnected)
@@ -266,8 +266,8 @@ class FlightTab(TabToolbox, flight_tab_class):
             self._helper.cf.high_level_commander.go_to(0, 0, -move_dist, 0, move_dist / move_vel, relative=True)
 
     def _logging_error(self, log_conf, msg):
-        QMessageBox.about(self, "Log error",
-                          "Error when starting log config [%s]: %s" % (
+        QMessageBox.about(self, self.tr("Log error"),
+                          self.tr("Error when starting log config [%s]: %s") % (
                               log_conf.name, msg))
 
     def _log_data_received(self, timestamp, data, logconf):
@@ -310,10 +310,10 @@ class FlightTab(TabToolbox, flight_tab_class):
                 (self._helper.inputDeviceReader.get_assisted_control() ==
                  self._helper.inputDeviceReader.ASSISTED_CONTROL_HEIGHTHOLD)):
 
-            self.targetRoll.setText(("%0.2f deg" % roll))
-            self.targetPitch.setText(("%0.2f deg" % pitch))
-            self.targetYaw.setText(("%0.2f deg/s" % yaw))
-            self.targetHeight.setText(("%.2f m" % height))
+            self.targetRoll.setText(self.tr("%0.2f deg") % roll)
+            self.targetPitch.setText(self.tr("%0.2f deg") % pitch)
+            self.targetYaw.setText(self.tr("%0.2f deg/s") % yaw)
+            self.targetHeight.setText(self.tr("%.2f m") % height)
             self.ai.setHover(height, self.is_visible())
 
             self._change_input_labels(using_hover_assist=False)
@@ -323,19 +323,23 @@ class FlightTab(TabToolbox, flight_tab_class):
                 (self._helper.inputDeviceReader.get_assisted_control() ==
                  self._helper.inputDeviceReader.ASSISTED_CONTROL_HOVER)):
 
-            self.targetRoll.setText(("%0.2f m/s" % vy))
-            self.targetPitch.setText(("%0.2f m/s" % vx))
-            self.targetYaw.setText(("%0.2f deg/s" % yaw))
-            self.targetHeight.setText(("%.2f m" % height))
+            self.targetRoll.setText(self.tr("%0.2f m/s") % vy)
+            self.targetPitch.setText(self.tr("%0.2f m/s") % vx)
+            self.targetYaw.setText(self.tr("%0.2f deg/s") % yaw)
+            self.targetHeight.setText(self.tr("%.2f m") % height)
             self.ai.setHover(height, self.is_visible())
 
             self._change_input_labels(using_hover_assist=True)
 
     def _change_input_labels(self, using_hover_assist):
         if using_hover_assist:
-            pitch, roll, yaw = 'Velocity X', 'Velocity Y', 'Velocity Z'
+            pitch = self.tr('Velocity X')
+            roll = self.tr('Velocity Y')
+            yaw = self.tr('Velocity Z')
         else:
-            pitch, roll, yaw = 'Pitch', 'Roll', 'Yaw'
+            pitch = self.tr('Pitch')
+            roll = self.tr('Roll')
+            yaw = self.tr('Yaw')
 
         self.inputPitchLabel.setText(pitch)
         self.inputRollLabel.setText(roll)
@@ -344,7 +348,7 @@ class FlightTab(TabToolbox, flight_tab_class):
     def _update_supervisor_and_arming(self, connected):
         if not connected:
             self.armButton.setStyleSheet("")
-            self.armButton.setText("Arm")
+            self.armButton.setText(self.tr("Arm"))
             self.armButton.setEnabled(False)
             self._supervisor_state.setText("")
             self._supervisor_state.setStyleSheet("")
@@ -352,49 +356,49 @@ class FlightTab(TabToolbox, flight_tab_class):
 
         self._supervisor_state.setText("")
         if self._is_tumbled():
-            self._supervisor_state.setText("Tumbled")
+            self._supervisor_state.setText(self.tr("Tumbled"))
 
         if self._is_locked():
             self.armButton.setText("")
             self.armButton.setEnabled(False)
             self.armButton.setStyleSheet("")
-            self._supervisor_state.setText("Locked-please reboot")
+            self._supervisor_state.setText(self.tr("Locked-please reboot"))
             self._supervisor_state.setStyleSheet("background-color: red")
             return
         else:
             self._supervisor_state.setStyleSheet("")
 
         if self._is_crashed():
-            self.armButton.setText("Recover")
+            self.armButton.setText(self.tr("Recover"))
             if self._is_tumbled():
                 self.armButton.setEnabled(False)
                 self.armButton.setStyleSheet("")
-                self._supervisor_state.setText("Crashed, flip over to recover")
+                self._supervisor_state.setText(self.tr("Crashed, flip over to recover"))
             else:
                 self.armButton.setEnabled(True)
                 self.armButton.setStyleSheet("background-color: red")
-                self._supervisor_state.setText("Crashed, click Recover")
+                self._supervisor_state.setText(self.tr("Crashed, click Recover"))
 
             self._supervisor_state.setStyleSheet("background-color: red")
             return
 
         if self._is_flying():
             self.armButton.setEnabled(True)
-            self.armButton.setText("Emergency stop")
+            self.armButton.setText(self.tr("Emergency stop"))
             self.armButton.setStyleSheet("background-color: red")
-            self._supervisor_state.setText("Flying")
+            self._supervisor_state.setText(self.tr("Flying"))
             return
 
         if self._is_armed():
             self.armButton.setStyleSheet("background-color: red")
             if self._auto_arming():
                 self.armButton.setEnabled(False)
-                self.armButton.setText("Auto armed")
+                self.armButton.setText(self.tr("Auto armed"))
             else:
                 self.armButton.setEnabled(True)
-                self.armButton.setText("Disarm")
+                self.armButton.setText(self.tr("Disarm"))
         else:
-            self.armButton.setText("Arm")
+            self.armButton.setText(self.tr("Arm"))
             if self._can_arm():
                 self.armButton.setEnabled(True)
                 self.armButton.setStyleSheet("background-color: lightgreen")
@@ -410,7 +414,7 @@ class FlightTab(TabToolbox, flight_tab_class):
 
         if self._can_fly_deprecated == 0:
             self.commanderBox.setEnabled(False)
-            self.commanderBox.setToolTip('The Crazyflie reports that flight is not possible')
+            self.commanderBox.setToolTip(self.tr('The Crazyflie reports that flight is not possible'))
             return
 
         # We cannot know if we have a positioning deck until we get params
@@ -425,14 +429,14 @@ class FlightTab(TabToolbox, flight_tab_class):
                 self.commanderBox.setEnabled(True)
                 break
         else:
-            self.commanderBox.setToolTip('You need a positioning deck to use Command Based Flight')
+            self.commanderBox.setToolTip(self.tr('You need a positioning deck to use Command Based Flight'))
             self.commanderBox.setEnabled(False)
             return
 
         # To prevent conflicting commands from the controller and the flight panel
         if JoystickReader().available_devices():
             self.commanderBox.setToolTip(
-                'Cannot use both a controller and Command Based Flight'
+                self.tr('Cannot use both a controller and Command Based Flight')
             )
             self.commanderBox.setEnabled(False)
             return
@@ -495,7 +499,7 @@ class FlightTab(TabToolbox, flight_tab_class):
         self.estimateY.setText("")
         self.estimateZ.setText("")
 
-        self.targetHeight.setText("Not Set")
+        self.targetHeight.setText(self.tr("Not Set"))
         self.ai.setHover(0, self.is_visible())
         self.targetHeight.setEnabled(False)
 
@@ -586,11 +590,11 @@ class FlightTab(TabToolbox, flight_tab_class):
         self.targetCalPitch.setValue(pitchCal)
 
     def updateInputControl(self, roll, pitch, yaw, thrust):
-        self.targetRoll.setText(("%0.2f deg" % roll))
-        self.targetPitch.setText(("%0.2f deg" % pitch))
-        self.targetYaw.setText(("%0.2f deg/s" % yaw))
-        self.targetThrust.setText(("%0.2f %%" %
-                                   self.thrustToPercentage(thrust)))
+        self.targetRoll.setText(self.tr("%0.2f deg") % roll)
+        self.targetPitch.setText(self.tr("%0.2f deg") % pitch)
+        self.targetYaw.setText(self.tr("%0.2f deg/s") % yaw)
+        self.targetThrust.setText(self.tr("%0.2f %%") %
+                                   self.thrustToPercentage(thrust))
         self.thrustProgress.setValue(int(thrust))
 
         self._change_input_labels(using_hover_assist=False)
@@ -696,10 +700,10 @@ class FlightTab(TabToolbox, flight_tab_class):
         self._update_supervisor_and_arming(True)
 
     def _populate_assisted_mode_dropdown(self):
-        self._assist_mode_combo.addItem("Altitude hold", 0)
-        self._assist_mode_combo.addItem("Position hold", 1)
-        self._assist_mode_combo.addItem("Height hold", 2)
-        self._assist_mode_combo.addItem("Hover", 3)
+        self._assist_mode_combo.addItem(self.tr("Altitude hold"), 0)
+        self._assist_mode_combo.addItem(self.tr("Position hold"), 1)
+        self._assist_mode_combo.addItem(self.tr("Height hold"), 2)
+        self._assist_mode_combo.addItem(self.tr("Hover"), 3)
 
         # Add the tooltips to the assist-mode items.
         self._assist_mode_combo.setItemData(0, TOOLTIP_ALTITUDE_HOLD, Qt.ItemDataRole.ToolTipRole)

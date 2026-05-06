@@ -169,7 +169,7 @@ class AnchorPositionDialog(QtWidgets.QWidget, anchor_postiong_widget_class):
         self._lps_tab = lps_tab
         self._helper = helper
 
-        self._headers = ['', 'id', 'x', 'y', 'z']
+        self._headers = ['', self.tr('id'), self.tr('x'), self.tr('y'), self.tr('z')]
         self._data_model = AnchorPositionConfigTableModel(self._headers, self)
         self._table_view.setModel(self._data_model)
 
@@ -198,7 +198,7 @@ class AnchorPositionDialog(QtWidgets.QWidget, anchor_postiong_widget_class):
 
     def _add_anchor_button_clicked(self):
         anchor_id, ok = QInputDialog.getInt(
-            self, "New anchor", "Enter id", min=0, max=255)
+            self, self.tr("New anchor"), self.tr("Enter id"), min=0, max=255)
         if ok:
             self._data_model.add_anchor(anchor_id)
 
@@ -213,7 +213,7 @@ class AnchorPositionDialog(QtWidgets.QWidget, anchor_postiong_widget_class):
         self._data_model.anchor_postions_updated(anchor_positions)
 
     def _load_button_clicked(self):
-        names = QFileDialog.getOpenFileName(self, 'Open file', self._helper.current_folder, FILE_REGEX_YAML)
+        names = QFileDialog.getOpenFileName(self, self.tr('Open file'), self._helper.current_folder, FILE_REGEX_YAML)
 
         if names[0] == '':
             return
@@ -235,7 +235,7 @@ class AnchorPositionDialog(QtWidgets.QWidget, anchor_postiong_widget_class):
         for id, pos in anchor_positions.items():
             data[id] = {'x': pos[0], 'y': pos[1], 'z': pos[2]}
 
-        names = QFileDialog.getSaveFileName(self, 'Save file', self._helper.current_folder, FILE_REGEX_YAML)
+        names = QFileDialog.getSaveFileName(self, self.tr('Save file'), self._helper.current_folder, FILE_REGEX_YAML)
 
         if names[0] == '':
             return

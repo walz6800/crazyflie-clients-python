@@ -43,6 +43,8 @@ from cfclient.utils.config_manager import ConfigManager
 from cfclient.utils.input import JoystickReader
 from cfclient.utils.logconfigreader import LogConfigReader
 from cfclient.utils.ui import UiUtils
+from cfclient.utils.i18n import I18nManager
+from cfclient.utils.cflib_translator import tr_cflib, init_cflib_translator
 from cfclient.utils.zmq_led_driver import ZMQLEDDriver
 from cfclient.utils.zmq_param import ZMQParamAccess
 from cflib.crazyflie import Crazyflie
@@ -131,8 +133,7 @@ class MainUI(QtWidgets.QMainWindow, main_window_class):
         self.scanner.start()
 
         # Create and start the Input Reader
-        self._statusbar_label = QLabel("No input-device found, insert one to"
-                                       " fly.")
+        self._statusbar_label = QLabel(self.tr("No input-device found, insert one to fly."))
         self.statusBar().addWidget(self._statusbar_label)
 
         #
@@ -260,10 +261,10 @@ class MainUI(QtWidgets.QMainWindow, main_window_class):
         self._initial_scan = True
         self._scan(self._connectivity_manager.get_address())
 
-        self.tabs_menu_item = QMenu("Tabs", self.menuView, enabled=True)
+        self.tabs_menu_item = QMenu(self.tr("Tabs"), self.menuView, enabled=True)
         self.menuView.addMenu(self.tabs_menu_item)
 
-        self.toolboxes_menu_item = QMenu("Toolboxes", self.menuView, enabled=True)
+        self.toolboxes_menu_item = QMenu(self.tr("Toolboxes"), self.menuView, enabled=True)
         self.menuView.addMenu(self.toolboxes_menu_item)
 
         self.loaded_tab_toolboxes = self.create_tab_toolboxes(self.tabs_menu_item,
@@ -293,7 +294,7 @@ class MainUI(QtWidgets.QMainWindow, main_window_class):
             self._all_mux_nodes += (node,)
             mux_subnodes = ()
             for name in m.supported_roles():
-                sub_node = QMenu("    {}".format(name),
+                sub_node = QMenu(self.tr("    {}").format(name),
                                  self._menu_inputdevice,
                                  enabled=False)
                 self._menu_inputdevice.addMenu(sub_node)
@@ -309,12 +310,15 @@ class MainUI(QtWidgets.QMainWindow, main_window_class):
         self._theme_group.setExclusive(True)
         self._theme_checkboxes = []
         for theme in UiUtils.THEMES:
-            node = QAction(theme, self.menuThemes, checkable=True)
+            node = QAction(self.tr(theme), self.menuThemes, checkable=True)
             node.setObjectName(theme)
             node.toggled.connect(self._theme_selected)
             self._theme_checkboxes.append(node)
             self._theme_group.addAction(node)
             self.menuThemes.addAction(node)
+
+        # Language switching menu
+        self._create_language_menu()
 
         # We only want to warn about USB permission once
         self._permission_warned = False
@@ -400,6 +404,89 @@ class MainUI(QtWidgets.QMainWindow, main_window_class):
             theme = 'Default'
         self._check_theme(theme)
 
+    def _create_language_menu(self):
+        """Create the language switching sub-menu under View."""
+        self._lang_menu = QMenu(self.tr("Language"), self.menuView, enabled=True)
+        self.menuView.addMenu(self._lang_menu)
+
+        self._lang_group = QActionGroup(self._lang_menu)
+        self._lang_group.setExclusive(True)
+        self._lang_checkboxes = []
+
+        current_lang = I18nManager.current_language()
+        for code, name in I18nManager.available_languages().items():
+            node = QAction(name, self._lang_menu, checkable=True)
+            node.setObjectName(code)
+            node.toggled.connect(self._language_selected)
+            self._lang_checkboxes.append(node)
+            self._lang_group.addAction(node)
+            self._lang_menu.addAction(node)
+            if code == current_lang:
+                node.setChecked(True)
+
+    def _language_selected(self, checked):
+        """Callback when a language is selected."""
+        if not checked:
+            return
+        lang_code = self.sender().objectName()
+        I18nManager.load_language(lang_code)
+        init_cflib_translator(lang_code)
+        from cfclient.utils.config import Config
+        Config().set("language", lang_code)
+        self._retranslate_ui()
+
+    def _retranslate_ui(self):
+        """Refresh all UI text after a language change."""
+        # Refresh all strings from main.ui
+        self.retranslateUi(self)
+
+        # Refresh connectivity manager button texts for current state
+        self._connectivity_manager._update_ui()
+
+        # Re-create dynamic menu titles
+        self.tabs_menu_item.setTitle(self.tr("Tabs"))
+        self.toolboxes_menu_item.setTitle(self.tr("Toolboxes"))
+        self._lang_menu.setTitle(self.tr("Language"))
+
+        # Update language menu item texts
+        lang_names = I18nManager.available_languages()
+        for cb in self._lang_checkboxes:
+            code = cb.objectName()
+            if code in lang_names:
+                cb.setText(lang_names[code])
+
+        # Update input device menu
+        for menu in self._all_role_menus:
+            role_menu = menu["rolemenu"]
+            for action in role_menu.actions():
+                if hasattr(action, 'data') and action.data():
+                    data = action.data()
+                    if isinstance(data, tuple) and len(data) >= 1:
+                        map_node = data[0]
+                        if map_node:
+                            map_node.setTitle(self.tr("    Input map"))
+
+        # Update theme menu items
+        from cfclient.utils.ui import UiUtils
+        themes = UiUtils.THEMES
+        for cb in self._theme_checkboxes:
+            obj_name = cb.objectName()
+            if obj_name in themes:
+                cb.setText(self.tr(obj_name))
+
+        # Refresh window title
+        self._update_ui_state()
+
+        # Refresh status bar
+        self._update_input_device_footer()
+
+        # Refresh all loaded tabs
+        for tab_toolbox in self.loaded_tab_toolboxes.values():
+            try:
+                tab_toolbox.retranslateUi(tab_toolbox)
+            except Exception:
+                pass
+
     def disable_input(self, disable):
         """
         Disable the gamepad input to be able to send setpoint from a tab
@@ -448,9 +535,9 @@ class MainUI(QtWidgets.QMainWindow, main_window_class):
 
     def _update_ui_state(self):
         if self.uiState == UIState.DISCONNECTED:
-            self.setWindowTitle("Not connected")
+            self.setWindowTitle(self.tr("Not connected"))
             canConnect = self._connectivity_manager.get_interface() is not None
-            self.menuItemConnect.setText("Connect to Crazyflie")
+            self.menuItemConnect.setText(self.tr("Connect to Crazyflie"))
             self.menuItemConnect.setEnabled(canConnect)
             self._connectivity_manager.set_state(ConnectivityManager.UIState.DISCONNECTED)
             self.batteryBar.setValue(3000)
@@ -460,9 +547,9 @@ class MainUI(QtWidgets.QMainWindow, main_window_class):
             self.esButton.setStyleSheet("")
             self.esButton.setEnabled(False)
         elif self.uiState == UIState.CONNECTED:
-            s = "Connected on %s" % self._connectivity_manager.get_interface()
+            s = self.tr("Connected on %s") % self._connectivity_manager.get_interface()
             self.setWindowTitle(s)
-            self.menuItemConnect.setText("Disconnect")
+            self.menuItemConnect.setText(self.tr("Disconnect"))
             self.menuItemConnect.setEnabled(True)
             self._connectivity_manager.set_state(ConnectivityManager.UIState.CONNECTED)
             self.logConfigAction.setEnabled(True)
@@ -473,13 +560,13 @@ class MainUI(QtWidgets.QMainWindow, main_window_class):
             if len(self.cf.mem.get_mems(MemoryElement.TYPE_I2C)) > 0:
                 self._menu_cf2_config.setEnabled(True)
         elif self.uiState == UIState.CONNECTING:
-            s = "Connecting to {} ...".format(self._connectivity_manager.get_interface())
+            s = self.tr("Connecting to {} ...").format(self._connectivity_manager.get_interface())
             self.setWindowTitle(s)
-            self.menuItemConnect.setText("Cancel")
+            self.menuItemConnect.setText(self.tr("Cancel"))
             self.menuItemConnect.setEnabled(True)
             self._connectivity_manager.set_state(ConnectivityManager.UIState.CONNECTING)
         elif self.uiState == UIState.SCANNING:
-            self.setWindowTitle("Scanning ...")
+            self.setWindowTitle(self.tr("Scanning ..."))
             self.menuItemConnect.setEnabled(False)
             self._connectivity_manager.set_state(ConnectivityManager.UIState.SCANNING)
 
@@ -613,21 +700,20 @@ class MainUI(QtWidgets.QMainWindow, main_window_class):
         logger.info("LED write done callback")
 
     def _logging_error(self, log_conf, msg):
-        QMessageBox.about(self, "Log error", "Error when starting log config"
-                                             " [{}]: {}".format(log_conf.name,
-                                                                msg))
+        QMessageBox.about(self, self.tr("Log error"),
+                          self.tr("Error when starting log config [{}]: {}").format(log_conf.name, tr_cflib(msg)))
 
     def _connection_lost(self, linkURI, msg):
         if self.isActiveWindow():
-            warningCaption = "Communication failure"
-            error = "Connection lost to {}: {}".format(linkURI, msg)
+            warningCaption = self.tr("Communication failure")
+            error = self.tr("Connection lost to {}: {}").format(linkURI, tr_cflib(msg))
             QMessageBox.critical(self, warningCaption, error)
             self.uiState = UIState.DISCONNECTED
             self._update_ui_state()
 
     def _connection_failed(self, linkURI, error):
-        msg = "Failed to connect on {}: {}".format(linkURI, error)
-        warningCaption = "Communication failure"
+        msg = self.tr("Failed to connect on {}: {}").format(linkURI, tr_cflib(error))
+        warningCaption = self.tr("Communication failure")
         QMessageBox.critical(self, warningCaption, msg)
         self.uiState = UIState.DISCONNECTED
         self._update_ui_state()
@@ -668,13 +754,13 @@ class MainUI(QtWidgets.QMainWindow, main_window_class):
                 radio.close()
             except usb.core.USBError as e:
                 if e.errno == 13:  # Permission denied
-                    link = "<a href='https://www.bitcraze.io/documentation/repository/crazyflie-lib-python/master/installation/usb_permissions/'>Install USB Permissions</a>" # noqa
+                    link = "<a href='https://www.bitcraze.io/documentation/repository/crazyflie-lib-python/master/installation/usb_permissions/'>" + self.tr("Install USB Permissions") + "</a>" # noqa
                     msg = QMessageBox()
                     msg.setIcon(QMessageBox.Icon.Information)
                     msg.setTextFormat(Qt.TextFormat.RichText)
-                    msg.setText("Could not access Crazyradio")
+                    msg.setText(self.tr("Could not access Crazyradio"))
                     msg.setInformativeText(link)
-                    msg.setWindowTitle("Crazyradio permissions")
+                    msg.setWindowTitle(self.tr("Crazyradio permissions"))
                     msg.exec()
                     self._permission_warned = True
             except Exception as e:
@@ -686,7 +772,7 @@ class MainUI(QtWidgets.QMainWindow, main_window_class):
 
     def _display_input_device_error(self, error):
         self.cf.close_link()
-        QMessageBox.critical(self, "Input device error", error)
+        QMessageBox.critical(self, self.tr("Input device error"), error)
 
     def _mux_selected(self, checked):
         """Called when a new mux is selected. The menu item contains a
@@ -714,9 +800,8 @@ class MainUI(QtWidgets.QMainWindow, main_window_class):
     def _get_dev_status(self, device):
         msg = "{}".format(device.name)
         if device.supports_mapping:
-            map_name = "No input mapping"
+            map_name = self.tr("No input mapping")
             if device.input_map:
-                # Display the friendly name instead of the config file name
                 map_name = ConfigManager().get_display_name(device.input_map_name)
             msg += " ({})".format(map_name)
         return msg
@@ -729,20 +814,20 @@ class MainUI(QtWidgets.QMainWindow, main_window_class):
 
         if len(self.joystickReader.available_devices()) > 0:
             mux = self.joystickReader._selected_mux
-            msg = "Using {} mux with ".format(mux.name)
+            msg = self.tr("Using {} mux with ").format(mux.name)
             for key in list(mux._devs.keys())[:-1]:
                 if mux._devs[key]:
                     msg += "{}, ".format(self._get_dev_status(mux._devs[key]))
                 else:
-                    msg += "N/A, "
+                    msg += self.tr("N/A") + ", "
             # Last item
             key = list(mux._devs.keys())[-1]
             if mux._devs[key]:
                 msg += "{}".format(self._get_dev_status(mux._devs[key]))
             else:
-                msg += "N/A"
+                msg += self.tr("N/A")
         else:
-            msg = "No input device found"
+            msg = self.tr("No input device found")
         self._statusbar_label.setText(msg)
 
     def _inputdevice_selected(self, checked):
@@ -808,7 +893,7 @@ class MainUI(QtWidgets.QMainWindow, main_window_class):
 
                 map_node = None
                 if d.supports_mapping:
-                    map_node = QMenu("    Input map", role_menu, enabled=False)
+                    map_node = QMenu(self.tr("    Input map"), role_menu, enabled=False)
                     map_group = QActionGroup(role_menu)
                     map_group.setExclusive(True)
                     # Connect device node to map node for easy

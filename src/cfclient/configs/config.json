@@ -19,7 +19,8 @@
     "ui_update_period": 100,
     "enable_zmq_input": false,
     "enable_zmq_param": false,
-    "enable_zmq_led": false
+    "enable_zmq_led": false,
+    "language": "zh_CN"
   },
   "read-only" : {
     "normal_slew_limit": 45,

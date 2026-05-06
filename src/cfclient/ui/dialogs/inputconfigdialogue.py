@@ -71,68 +71,68 @@ class InputConfigDialogue(QtWidgets.QWidget, inputconfig_widget_class):
 
         self.detectPitch.clicked.connect(
             lambda: self._axis_detect(
-                "pitch", "Pitch axis",
-                "Center the pitch axis then do max %s pitch",
-                ["forward", "backward"]))
+                "pitch", self.tr("Pitch axis"),
+                self.tr("Center the pitch axis then do max %s pitch"),
+                [self.tr("forward"), self.tr("backward")]))
         self.detectRoll.clicked.connect(
             lambda: self._axis_detect(
-                "roll", "Roll axis",
-                "Center the roll axis and then do max %s roll",
-                ["right", "left"]))
+                "roll", self.tr("Roll axis"),
+                self.tr("Center the roll axis and then do max %s roll"),
+                [self.tr("right"), self.tr("left")]))
         self.detectYaw.clicked.connect(
             lambda: self._axis_detect(
-                "yaw", "Yaw axis",
-                "Center the yaw axis and then do max %s yaw",
-                ["right", "left"]))
+                "yaw", self.tr("Yaw axis"),
+                self.tr("Center the yaw axis and then do max %s yaw"),
+                [self.tr("right"), self.tr("left")]))
         self.detectThrust.clicked.connect(
             lambda: self._axis_detect(
-                "thrust", "Thrust axis",
-                "Center the thrust axis, and then do max thrust"))
+                "thrust", self.tr("Thrust axis"),
+                self.tr("Center the thrust axis, and then do max thrust")))
         self.detectPitchPos.clicked.connect(
             lambda: self._button_detect(
-                "pitchPos", "Pitch Cal Positive",
-                "Press the button for Pitch postive calibration"))
+                "pitchPos", self.tr("Pitch Cal Positive"),
+                self.tr("Press the button for Pitch postive calibration")))
         self.detectPitchNeg.clicked.connect(
             lambda: self._button_detect(
-                "pitchNeg", "Pitch Cal Negative",
-                "Press the button for Pitch negative calibration"))
+                "pitchNeg", self.tr("Pitch Cal Negative"),
+                self.tr("Press the button for Pitch negative calibration")))
         self.detectRollPos.clicked.connect(
             lambda: self._button_detect(
-                "rollPos", "Roll Cal Positive",
-                "Press the button for Roll positive calibration"))
+                "rollPos", self.tr("Roll Cal Positive"),
+                self.tr("Press the button for Roll positive calibration")))
         self.detectRollNeg.clicked.connect(
             lambda: self._button_detect(
-                "rollNeg", "Roll Cal Negative",
-                "Press the button for Roll negative calibration"))
+                "rollNeg", self.tr("Roll Cal Negative"),
+                self.tr("Press the button for Roll negative calibration")))
         self.detectKillswitch.clicked.connect(
             lambda: self._button_detect(
-                "estop", "Disarm/Kill",
-                "Press the button to disarm/kill (will disable motors)"))
+                "estop", self.tr("Disarm/Kill"),
+                self.tr("Press the button to disarm/kill (will disable motors)")))
         self.detectArm.clicked.connect(
             lambda: self._button_detect(
-                "arm", "Arm system",
-                "Press the button to arm the system (will enable motor ouput)"))
+                "arm", self.tr("Arm system"),
+                self.tr("Press the button to arm the system (will enable motor ouput)")))
         self.detectAlt1.clicked.connect(
             lambda: self._button_detect(
-                "alt1", "Alternative function 1",
-                "The alternative function 1 that will do a callback"))
+                "alt1", self.tr("Alternative function 1"),
+                self.tr("The alternative function 1 that will do a callback")))
         self.detectAlt2.clicked.connect(
             lambda: self._button_detect(
-                "alt2", "Alternative function 2",
-                "The alternative function 2 that will do a callback"))
+                "alt2", self.tr("Alternative function 2"),
+                self.tr("The alternative function 2 that will do a callback")))
         self.detectExitapp.clicked.connect(
             lambda: self._button_detect(
-                "exitapp", "Exit application",
-                "Press the button for exiting the application"))
+                "exitapp", self.tr("Exit application"),
+                self.tr("Press the button for exiting the application")))
         self._detect_assisted_control.clicked.connect(
             lambda: self._button_detect(
-                "assistedControl", "Assisted control",
-                "Press the button for assisted control mode activation "
-                "(releasing returns to manual mode)"))
+                "assistedControl", self.tr("Assisted control"),
+                self.tr("Press the button for assisted control mode activation "
+                        "(releasing returns to manual mode)")))
         self.detectMuxswitch.clicked.connect(
             lambda: self._button_detect(
-                "muxswitch", "Mux Switch",
-                "Press the button for mux switching"))
+                "muxswitch", self.tr("Mux Switch"),
+                self.tr("Press the button for mux switching")))
 
         self.configButton.clicked.connect(self._start_configuration)
         self.loadButton.clicked.connect(self._load_config_from_file)
@@ -207,9 +207,9 @@ class InputConfigDialogue(QtWidgets.QWidget, inputconfig_widget_class):
         self._mined_axis = []
         self._popup = QMessageBox()
         self._popup.directions = directions
-        self._combined_button = QtWidgets.QPushButton('Combined Axis ' +
-                                                      'Detection')
-        self.cancelButton = QtWidgets.QPushButton('Cancel')
+        self._combined_button = QtWidgets.QPushButton(self.tr('Combined Axis ') +
+                                                      self.tr('Detection'))
+        self.cancelButton = QtWidgets.QPushButton(self.tr('Cancel'))
         self._popup.addButton(self.cancelButton, QMessageBox.ButtonRole.DestructiveRole)
         self._popup.setWindowTitle(caption)
         self._popup.setWindowFlags(Qt.WindowType.Dialog | Qt.WindowType.MSWindowsFixedSizeDialogHint)
@@ -377,8 +377,8 @@ class InputConfigDialogue(QtWidgets.QWidget, inputconfig_widget_class):
             self._map = loaded_map
         else:
             logger.warning("Could not load configfile [%s]", config_name)
-            self._show_error("Could not load config",
-                             "Could not load config [%s]" % config_name)
+            self._show_error(self.tr("Could not load config"),
+                             self.tr("Could not load config [%s]") % config_name)
         self._check_and_enable_saving()
 
     def _delete_configuration(self):

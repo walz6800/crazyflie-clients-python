@@ -128,18 +128,19 @@ def main():
         logger.critical("No PyQT6 installation found, exiting!")
         sys.exit(1)
 
-    # Disable printouts from STL
-    if os.name == 'posix':
-        stdout = os.dup(1)
-        os.dup2(os.open('/dev/null', os.O_WRONLY), 1)
-        sys.stdout = os.fdopen(stdout, 'w')
-        logger.info("Disabling STL printouts")
+    # Disable printouts from STL (skip in frozen mode — no console to redirect)
+    if not getattr(sys, 'frozen', False):
+        if os.name == 'posix':
+            stdout = os.dup(1)
+            os.dup2(os.open('/dev/null', os.O_WRONLY), 1)
+            sys.stdout = os.fdopen(stdout, 'w')
+            logger.info("Disabling STL printouts")
 
-    if os.name == 'nt':
-        stdout = os.dup(1)
-        os.dup2(os.open('NUL', os.O_WRONLY), 1)
-        sys.stdout = os.fdopen(stdout, 'w')
-        logger.info("Disabling STL printouts")
+        if os.name == 'nt':
+            stdout = os.dup(1)
+            os.dup2(os.open('NUL', os.O_WRONLY), 1)
+            sys.stdout = os.fdopen(stdout, 'w')
+            logger.info("Disabling STL printouts")
 
     if sys.platform == 'darwin':
         try:
@@ -159,7 +160,10 @@ def main():
         sys.exit(0)
 
     # Start up the main user-interface
-    from .ui.main import MainUI
+    if getattr(sys, 'frozen', False):
+        from cfclient.ui.main import MainUI
+    else:
+        from .ui.main import MainUI
     from PyQt6.QtWidgets import QApplication
     from PyQt6.QtGui import QIcon
 
@@ -170,8 +174,21 @@ def main():
     app.setStyle("Fusion")
     from cfclient.utils.ui import UiUtils
 
+    # Load translation
+    from cfclient.utils.i18n import I18nManager
+    i18n = I18nManager()
+    try:
+        from cfclient.utils.config import Config
+        lang = Config().get("language")
+    except Exception:
+        lang = "zh_CN"
+    i18n.load_language(lang)
+
+    from cfclient.utils.cflib_translator import init_cflib_translator
+    init_cflib_translator(lang)
+
     app.setWindowIcon(QIcon(cfclient.module_path + "/ui/icons/icon-256.png"))
-    app.setApplicationName("Crazyflie client")
+    app.setApplicationName(app.translate("gui", "Crazyflie client"))
     # Make sure the right icon is set in Windows 7+ taskbar
     if os.name == 'nt':
         import ctypes

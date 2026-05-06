@@ -64,9 +64,9 @@ class LogConfigDialogue(QtWidgets.QWidget, logconfig_widget_class):
         self.setupUi(self)
         self.helper = helper
 
-        self.logTree.setHeaderLabels(['Name', 'ID', 'Type', 'Size'])
-        self.varTree.setHeaderLabels(['Name', 'ID', 'Type', 'Size'])
-        self.categoryTree.setHeaderLabels(['Categories'])
+        self.logTree.setHeaderLabels([self.tr('Name'), self.tr('ID'), self.tr('Type'), self.tr('Size')])
+        self.varTree.setHeaderLabels([self.tr('Name'), self.tr('ID'), self.tr('Type'), self.tr('Size')])
+        self.categoryTree.setHeaderLabels([self.tr('Categories')])
 
         self.logTree.setSortingEnabled(True)
         self.varTree.setSortingEnabled(True)
@@ -108,9 +108,9 @@ class LogConfigDialogue(QtWidgets.QWidget, logconfig_widget_class):
         self.deleteBtn.clicked.connect(self._delete_config)
 
         # set tooltips
-        self.createCategoryBtn.setToolTip('Create a new category')
-        self.createConfigBtn.setToolTip('Create a new log-config')
-        self.deleteBtn.setToolTip('Delete category')
+        self.createCategoryBtn.setToolTip(self.tr('Create a new category'))
+        self.createConfigBtn.setToolTip(self.tr('Create a new log-config'))
+        self.deleteBtn.setToolTip(self.tr('Delete category'))
 
         # enable right-click context-menu
         self.categoryTree.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
@@ -240,15 +240,15 @@ class LogConfigDialogue(QtWidgets.QWidget, logconfig_widget_class):
 
         item = self.categoryTree.itemAt(point)
         if item:
-            createConfig = menu.addAction('Create new log configuration')
-            edit = menu.addAction('Edit name')
+            createConfig = menu.addAction(self.tr('Create new log configuration'))
+            edit = menu.addAction(self.tr('Edit name'))
 
             if item.parent():
-                delete = menu.addAction('Delete config')
+                delete = menu.addAction(self.tr('Delete config'))
             else:
-                delete = menu.addAction('Delete category')
+                delete = menu.addAction(self.tr('Delete category'))
         else:
-            createCategory = menu.addAction('Create new Category')
+            createCategory = menu.addAction(self.tr('Create new Category'))
 
         action = menu.exec_(self.categoryTree.mapToGlobal(point))
 
@@ -392,8 +392,8 @@ class LogConfigDialogue(QtWidgets.QWidget, logconfig_widget_class):
                 self.currentSize = (self.currentSize +
                                     int(leaf.text(SIZE_FIELD)))
 
-        self.packetSizeText.setText('%s/%s bytes' % (self.currentSize,
-                                                     MAX_LOG_SIZE))
+        self.packetSizeText.setText(self.tr('%s/%s bytes') % (self.currentSize,
+                                                              MAX_LOG_SIZE))
 
         if self.currentSize > MAX_LOG_SIZE:
             self.packetSize.setMaximum(int(self.currentSize / MAX_LOG_SIZE * 100))
@@ -537,14 +537,14 @@ class LogConfigDialogue(QtWidgets.QWidget, logconfig_widget_class):
                     self.helper.logConfigReader.saveLogConfigFile(
                                                             category,
                                                             updatedConfig)
-                    self.statusText.setText('Log config succesfully saved!')
+                    self.statusText.setText(self.tr('Log config succesfully saved!'))
                     self._config_saved_timer.start(4000)
                     if self.closeOnSave.isChecked():
                         self.close()
 
                 except Exception as e:
-                    self.showErrorPopup("Error when saving file",
-                                        "Error: %s" % e)
+                    self.showErrorPopup(self.tr("Error when saving file"),
+                                        self.tr("Error: %s") % e)
 
         # The name of the config is changed due to displaying
         # it as category/config-name in the plotter-tab.

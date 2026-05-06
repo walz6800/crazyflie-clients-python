@@ -133,7 +133,7 @@ class PlotTab(TabToolbox, plot_tab_class):
     ]
 
     def __init__(self, helper):
-        super(PlotTab, self).__init__(helper, 'Plotter')
+        super(PlotTab, self).__init__(helper, self.tr('Plotter'))
         self.setupUi(self)
 
         self._log_error_signal.connect(self._logging_error)
@@ -246,7 +246,7 @@ class PlotTab(TabToolbox, plot_tab_class):
     def _logging_error(self, log_conf, msg):
         """Callback from the log layer when an error occurs"""
         QMessageBox.about(
-            self, "Plot error", "Error when starting log config [%s]: %s" % (
+            self, self.tr("Plot error"), self.tr("Error when starting log config [%s]: %s") % (
                 log_conf.name, msg))
 
     def _log_data_received(self, timestamp, data, logconf):

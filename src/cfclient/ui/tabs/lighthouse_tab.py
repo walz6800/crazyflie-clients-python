@@ -295,7 +295,7 @@ class LighthouseTab(TabToolbox, lighthouse_tab_class):
     _calibration_read_signal = pyqtSignal(object)
 
     def __init__(self, helper):
-        super(LighthouseTab, self).__init__(helper, 'Lighthouse Positioning')
+        super(LighthouseTab, self).__init__(helper, self.tr('Lighthouse Positioning'))
         self.setupUi(self)
 
         # Always wrap callbacks from Crazyflie API though QT Signal/Slots
@@ -514,9 +514,9 @@ class LighthouseTab(TabToolbox, lighthouse_tab_class):
 
     def _logging_error(self, log_conf, msg):
         """Callback from the log layer when an error occurs"""
-        QMessageBox.about(self, "LighthouseTab error",
-                          "Error when using log config",
-                          " [{0}]: {1}".format(log_conf.name, msg))
+        QMessageBox.about(self, self.tr("LighthouseTab error"),
+                          self.tr("Error when using log config"),
+                          self.tr(" [{0}]: {1}").format(log_conf.name, msg))
 
     def _update_graphics(self):
         if self.is_visible() and self.is_lighthouse_deck_active:
@@ -547,11 +547,11 @@ class LighthouseTab(TabToolbox, lighthouse_tab_class):
     def _update_status_label(self, status):
         text = ''
         if status == self.STATUS_NOT_RECEIVING:
-            text = 'Not receiving'
+            text = self.tr('Not receiving')
         elif status == self.STATUS_MISSING_DATA:
-            text = 'No geo/calib'
+            text = self.tr('No geo/calib')
         elif status == self.STATUS_TO_ESTIMATOR:
-            text = 'LH ready'
+            text = self.tr('LH ready')
 
         self._status_status.setText(text)
 
@@ -661,18 +661,17 @@ class LighthouseTab(TabToolbox, lighthouse_tab_class):
                         # else just have red or green.
                         if stats_indicator_id == 2:
                             label.setStyleSheet(STYLE_BLUE_BACKGROUND)
-                            label.setToolTip('Calibration data from cache')
+                            label.setToolTip(self.tr('Calibration data from cache'))
 
                             calib_confirm = bs in self._bs_stats[stats_id + 1]
                             calib_updated = bs in self._bs_stats[stats_id + 2]
 
                             if calib_confirm:
                                 label.setStyleSheet(STYLE_GREEN_BACKGROUND)
-                                label.setToolTip('Calibration data verified')
+                                label.setToolTip(self.tr('Calibration data verified'))
                             if calib_updated:
                                 label.setStyleSheet(STYLE_ORANGE_BACKGROUND)
-                                label.setToolTip('Calibration data updated, the geometry probably needs to be ' +
-                                                 're-estimated')
+                                label.setToolTip(self.tr('Calibration data updated, the geometry probably needs to be re-estimated'))
                         else:
                             label.setStyleSheet(STYLE_GREEN_BACKGROUND)
                     else:
@@ -680,7 +679,7 @@ class LighthouseTab(TabToolbox, lighthouse_tab_class):
                         label.setToolTip('')
 
     def _load_sys_config_button_clicked(self):
-        names = QFileDialog.getOpenFileName(self, 'Open file', self._helper.current_folder, FILE_REGEX_YAML)
+        names = QFileDialog.getOpenFileName(self, self.tr('Open file'), self._helper.current_folder, FILE_REGEX_YAML)
 
         if names[0] == '':
             return
@@ -702,7 +701,7 @@ class LighthouseTab(TabToolbox, lighthouse_tab_class):
         self._save_sys_config(self._lh_geos, calibs, system_type)
 
     def _save_sys_config(self, geos, calibs, system_type):
-        names = QFileDialog.getSaveFileName(self, 'Save file', self._helper.current_folder, FILE_REGEX_YAML)
+        names = QFileDialog.getSaveFileName(self, self.tr('Save file'), self._helper.current_folder, FILE_REGEX_YAML)
 
         if names[0] == '':
             return

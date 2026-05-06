@@ -154,7 +154,7 @@ class BootloaderDialog(QtWidgets.QWidget, service_dialog_class):
 
         if pixmap.isNull():
             logger.warning(f"Failed to load image: {image_path}")
-            image_label.setText("Missing image")
+            image_label.setText(self.tr("Missing image"))
         else:
             scaled_pixmap = pixmap.scaled(
                 IMAGE_WIDTH, IMAGE_HEIGHT,
@@ -172,18 +172,18 @@ class BootloaderDialog(QtWidgets.QWidget, service_dialog_class):
             if self._cold_boot_error_message is not None:
                 self.setStatusLabel(self._cold_boot_error_message)
             else:
-                self.setStatusLabel("Not connected")
+                self.setStatusLabel(self.tr("Not connected"))
             self.coldBootButton.setEnabled(True)
             self.progressBar.setTextVisible(False)
             self.progressBar.setValue(0)
-            self.statusLabel.setText('Status: <b>IDLE</b>')
+            self.statusLabel.setText(self.tr('Status: <b>IDLE</b>'))
             self.setSourceSelectionUiEnabled(True)
             self._helper.connectivity_manager.set_enable(True)
         elif (state == self.UIState.COLD_CONNECTING):
             self._cold_boot_error_message = None
             self.resetButton.setEnabled(False)
             self.programButton.setEnabled(False)
-            self.setStatusLabel("Trying to connect cold bootloader, restart the Crazyflie to connect")
+            self.setStatusLabel(self.tr("Trying to connect cold bootloader, restart the Crazyflie to connect"))
             self.coldBootButton.setEnabled(False)
             self.setSourceSelectionUiEnabled(True)
             self._helper.connectivity_manager.set_enable(False)
@@ -193,8 +193,8 @@ class BootloaderDialog(QtWidgets.QWidget, service_dialog_class):
             if any(button.isChecked() for button in self._platform_filter_checkboxes):
                 self.programButton.setEnabled(True)
             else:
-                self.programButton.setToolTip("Select a platform before programming.")
-            self.setStatusLabel("Connected to bootloader")
+                self.programButton.setToolTip(self.tr("Select a platform before programming."))
+            self.setStatusLabel(self.tr("Connected to bootloader"))
             self.coldBootButton.setEnabled(False)
             self.imagePathBrowseButton.setEnabled(True)
             self.imagePathLine.setEnabled(True)
@@ -204,7 +204,7 @@ class BootloaderDialog(QtWidgets.QWidget, service_dialog_class):
             self._cold_boot_error_message = None
             self.resetButton.setEnabled(False)
             self.programButton.setEnabled(False)
-            self.setStatusLabel("Trying to connect in firmware mode")
+            self.setStatusLabel(self.tr("Trying to connect in firmware mode"))
             self.coldBootButton.setEnabled(False)
             self.setSourceSelectionUiEnabled(True)
             self._helper.connectivity_manager.set_enable(True)
@@ -216,20 +216,20 @@ class BootloaderDialog(QtWidgets.QWidget, service_dialog_class):
 
             if self._helper.cf.link_uri.startswith("usb://"):
                 self.programButton.setEnabled(False)
-                self.setStatusLabel("Connected using USB")
+                self.setStatusLabel(self.tr("Connected using USB"))
                 self.setSourceSelectionUiEnabled(False)
             else:
                 if any(button.isChecked() for button in self._platform_filter_checkboxes):
                     self.programButton.setEnabled(True)
                 else:
-                    self.programButton.setToolTip("Select a platform before programming.")
-                self.setStatusLabel("Connected in firmware mode")
+                    self.programButton.setToolTip(self.tr("Select a platform before programming."))
+                self.setStatusLabel(self.tr("Connected in firmware mode"))
                 self.setSourceSelectionUiEnabled(True)
         elif (state == self.UIState.FW_SCANNING):
             self._cold_boot_error_message = None
             self.resetButton.setEnabled(False)
             self.programButton.setEnabled(False)
-            self.setStatusLabel("Scanning")
+            self.setStatusLabel(self.tr("Scanning"))
             self.coldBootButton.setEnabled(False)
             self.setSourceSelectionUiEnabled(True)
             self._helper.connectivity_manager.set_enable(True)
@@ -237,13 +237,13 @@ class BootloaderDialog(QtWidgets.QWidget, service_dialog_class):
             self.resetButton.setEnabled(False)
             self.resetButton.setEnabled(False)
             self.programButton.setEnabled(False)
-            self.setStatusLabel("Flashing")
+            self.setStatusLabel(self.tr("Flashing"))
             self.coldBootButton.setEnabled(False)
             self.setSourceSelectionUiEnabled(False)
             self._helper.connectivity_manager.set_enable(False)
         elif (state == self.UIState.RESET):
             self._cold_boot_error_message = None
-            self.setStatusLabel("Resetting to firmware, disconnected")
+            self.setStatusLabel(self.tr("Resetting to firmware, disconnected"))
             self.resetButton.setEnabled(False)
             self.programButton.setEnabled(False)
             self.coldBootButton.setEnabled(False)
@@ -257,7 +257,7 @@ class BootloaderDialog(QtWidgets.QWidget, service_dialog_class):
         self.firmwareDropdown.setEnabled(enabled)
 
     def setStatusLabel(self, text):
-        self.connectionStatus.setText("Status: <b>%s</b>" % text)
+        self.connectionStatus.setText(self.tr("Status: <b>%s</b>") % text)
 
     def resetCopter(self):
         self.clt.resetCopterSignal.emit()
@@ -325,7 +325,7 @@ class BootloaderDialog(QtWidgets.QWidget, service_dialog_class):
 
         if not is_connected:
             self.programButton.setEnabled(False)
-            self.programButton.setToolTip("Connect your device before programming.")
+            self.programButton.setToolTip(self.tr("Connect your device before programming."))
             return
 
         current_tab = self.sourceTab.currentWidget()
@@ -335,7 +335,7 @@ class BootloaderDialog(QtWidgets.QWidget, service_dialog_class):
             self.programButton.setEnabled(has_file)
 
             self.programButton.setToolTip(
-                "" if has_file else "Choose a firmware file to program."
+                "" if has_file else self.tr("Choose a firmware file to program.")
             )
         else:
             any_platform_checked = any(
@@ -380,7 +380,7 @@ class BootloaderDialog(QtWidgets.QWidget, service_dialog_class):
         """ Callback when a release is successfully downloaded and
             save to release_path.
         """
-        self.downloadStatus.setText('Downloaded')
+        self.downloadStatus.setText(self.tr('Downloaded'))
         self.clt.program.emit(release_path, '')
 
     def _load_thread_connection_event(self, new_sate):
@@ -401,7 +401,7 @@ class BootloaderDialog(QtWidgets.QWidget, service_dialog_class):
     @pyqtSlot()
     def pathBrowse(self):
         names = QtWidgets.QFileDialog.getOpenFileName(
-            self, 'Release file to flash', self._helper.current_folder, "*.zip")
+            self, self.tr('Release file to flash'), self._helper.current_folder, "*.zip")
         if names[0] == '':
             return
 
@@ -413,7 +413,7 @@ class BootloaderDialog(QtWidgets.QWidget, service_dialog_class):
             self._update_program_button_state()
         else:
             msgBox = QtWidgets.QMessageBox()
-            msgBox.setText("Wrong file extention. Must be .zip.")
+            msgBox.setText(self.tr("Wrong file extention. Must be .zip."))
             msgBox.exec_()
 
     @pyqtSlot()
@@ -427,7 +427,7 @@ class BootloaderDialog(QtWidgets.QWidget, service_dialog_class):
         if self.sourceTab.currentWidget() == self.tabFromFile:
             if self.imagePathLine.text() == "":
                 msgBox = QtWidgets.QMessageBox()
-                msgBox.setText("Please choose an image file to program.")
+                msgBox.setText(self.tr("Please choose an image file to program."))
                 msgBox.exec_()
 
                 return
@@ -442,16 +442,16 @@ class BootloaderDialog(QtWidgets.QWidget, service_dialog_class):
 
             requested_release = self.firmwareDropdown.currentText()
             download_url = self._releases[requested_release]
-            self.downloadStatus.setText('Fetching...')
+            self.downloadStatus.setText(self.tr('Fetching...'))
             self.firmware_downloader.download_release(requested_release, download_url)
 
     @pyqtSlot(bool)
     def programDone(self, success):
         if success:
-            self.statusLabel.setText('Status: <b>Programing complete!</b>')
+            self.statusLabel.setText(self.tr('Status: <b>Programing complete!</b>'))
             self.downloadStatus.setText('')
         else:
-            self.statusLabel.setText('Status: <b>Programing failed!</b>')
+            self.statusLabel.setText(self.tr('Status: <b>Programing failed!</b>'))
 
         self.setUiState(self.UIState.DISCONNECTED)
         self.resetCopter()
@@ -459,7 +459,7 @@ class BootloaderDialog(QtWidgets.QWidget, service_dialog_class):
     @pyqtSlot(str, int)
     def statusUpdate(self, status, progress):
         logger.debug("Status: [%s] | %d", status, progress)
-        self.statusLabel.setText('Status: <b>' + status + '</b>')
+        self.statusLabel.setText(self.tr('Status: <b>%s</b>') % status)
         if progress >= 0:
             self.progressBar.setValue(int(progress))
 
@@ -522,7 +522,7 @@ class CrazyloadThread(QThread):
         try:
             success = self._bl.start_bootloader(warm_boot=False, cf=None)
             if not success:
-                self.failed_signal.emit("Could not connect to bootloader")
+                self.failed_signal.emit(self.tr("Could not connect to bootloader"))
             else:
                 self.connectedSignal.emit()
         except Exception as e:

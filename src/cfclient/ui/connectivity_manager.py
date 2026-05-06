@@ -45,8 +45,6 @@ class ConnectivityManager(QObject):
         CONNECTED = 2
         SCANNING = 3
 
-    INTERFACE_PROMPT_TEXT = 'Select an interface'
-
     connect_button_clicked = pyqtSignal()
     scan_button_clicked = pyqtSignal(object)
     connection_state_changed = pyqtSignal(object)
@@ -56,6 +54,9 @@ class ConnectivityManager(QObject):
         self._ui_elements = []
         self._state = self.UIState.DISCONNECTED
         self._is_enabled = True
+
+    def _prompt_text(self):
+        return self.tr("Select an interface")
 
     def register_ui_elements(self, ui_elements):
         self._ui_elements.append(ui_elements)
@@ -106,14 +107,14 @@ class ConnectivityManager(QObject):
             combo = ui_elements.interface_combo
 
             combo.clear()
-            combo.addItem(self.INTERFACE_PROMPT_TEXT)
+            combo.addItem(self._prompt_text())
             combo.addItems(interface_items)
             combo.setCurrentIndex(new_index)
 
     def get_interface(self):
         if len(self._ui_elements) > 0:
             interface = self._ui_elements[0].interface_combo.currentText()
-            if interface == self.INTERFACE_PROMPT_TEXT:
+            if interface == self._prompt_text():
                 self._selected_interface = None
             else:
                 return interface
@@ -149,7 +150,7 @@ class ConnectivityManager(QObject):
 
     def _interface_combo_current_index_changed_handler(self, interface):
         interface_s = str(interface)
-        can_connect = interface != self.INTERFACE_PROMPT_TEXT
+        can_connect = interface != self._prompt_text()
         for ui_elements in self._ui_elements:
             combo = ui_elements.interface_combo
             if combo.currentText != interface_s:
@@ -161,32 +162,32 @@ class ConnectivityManager(QObject):
             if self._state == self.UIState.DISCONNECTED:
                 can_connect = self.get_interface() is not None
                 for ui_elements in self._ui_elements:
-                    ui_elements.connect_button.setText("Connect")
-                    ui_elements.connect_button.setToolTip("Connect to the Crazyflie on the selected interface (Ctrl+I)")
+                    ui_elements.connect_button.setText(self.tr("Connect"))
+                    ui_elements.connect_button.setToolTip(self.tr("Connect to the Crazyflie on the selected interface (Ctrl+I)"))
                     ui_elements.connect_button.setEnabled(can_connect)
-                    ui_elements.scan_button.setText("Scan")
+                    ui_elements.scan_button.setText(self.tr("Scan"))
                     ui_elements.scan_button.setEnabled(True)
                     ui_elements.address_spinner.setEnabled(True)
                     ui_elements.interface_combo.setEnabled(True)
             elif self._state == self.UIState.CONNECTED:
                 for ui_elements in self._ui_elements:
-                    ui_elements.connect_button.setText("Disconnect")
-                    ui_elements.connect_button.setToolTip("Disconnect from the Crazyflie (Ctrl+I)")
+                    ui_elements.connect_button.setText(self.tr("Disconnect"))
+                    ui_elements.connect_button.setToolTip(self.tr("Disconnect from the Crazyflie (Ctrl+I)"))
                     ui_elements.scan_button.setEnabled(False)
                     ui_elements.address_spinner.setEnabled(False)
                     ui_elements.interface_combo.setEnabled(False)
             elif self._state == self.UIState.CONNECTING:
                 for ui_elements in self._ui_elements:
-                    ui_elements.connect_button.setText("Cancel")
-                    ui_elements.connect_button.setToolTip("Cancel connecting to the Crazyflie")
+                    ui_elements.connect_button.setText(self.tr("Cancel"))
+                    ui_elements.connect_button.setToolTip(self.tr("Cancel connecting to the Crazyflie"))
                     ui_elements.scan_button.setEnabled(False)
                     ui_elements.address_spinner.setEnabled(False)
                     ui_elements.interface_combo.setEnabled(False)
             elif self._state == self.UIState.SCANNING:
                 for ui_elements in self._ui_elements:
-                    ui_elements.connect_button.setText("Connect")
+                    ui_elements.connect_button.setText(self.tr("Connect"))
                     ui_elements.connect_button.setEnabled(False)
-                    ui_elements.scan_button.setText("Scanning...")
+                    ui_elements.scan_button.setText(self.tr("Scanning..."))
                     ui_elements.scan_button.setEnabled(False)
                     ui_elements.address_spinner.setEnabled(False)
                     ui_elements.interface_combo.setEnabled(False)

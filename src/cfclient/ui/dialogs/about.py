@@ -45,37 +45,6 @@ __all__ = ['AboutDialog']
  about_widget_base_class) = (uic.loadUiType(cfclient.module_path +
                                             '/ui/dialogs/about.ui'))
 
-DEBUG_INFO_FORMAT = """
-<b>Cfclient</b><br>
-Cfclient version: {version}<br>
-System: {system}<br>
-Python: {pmajor}.{pminor}.{pmicro}<br>
-Qt: {qt_version}<br>
-PyQt: {pyqt_version}<br>
-<br>
-<b>Interface status</b><br>
-{interface_status}
-<br>
-<b>Input readers</b><br>
-{input_readers}
-<br>
-<b>Input devices</b><br>
-{input_devices}
-<br>
-<b>Crazyflie</b><br>
-Connected: {uri}<br>
-Firmware: {firmware}<br>
-<br>
-<b>Decks found</b><br>
-{decks}
-<br>
-<b>Sensors found</b><br>
-{imu_sensors}
-<br>
-<b>Sensors tests</b><br>
-{imu_sensor_tests}
-"""
-
 INTERFACE_FORMAT = "{}: {}<br>"
 INPUT_READER_FORMAT = "{} ({} devices connected)<br>"
 DEVICE_FORMAT = "{}: ({}) {}<br>"
@@ -137,7 +106,7 @@ class AboutDialog(QtWidgets.QWidget, about_widget_class):
             self._device_text += DEVICE_FORMAT.format(
                 d.reader_name, d.id, d.name)
         if len(self._device_text) == 0:
-            self._device_text = "None<br>"
+            self._device_text = self.tr("None") + "<br>"
 
         self._input_readers_text = ""
         # readers = self._helper.inputDeviceReader.getAvailableDevices()
@@ -145,36 +114,60 @@ class AboutDialog(QtWidgets.QWidget, about_widget_class):
             self._input_readers_text += INPUT_READER_FORMAT.format(
                 reader.name, len(reader.devices()))
         if len(self._input_readers_text) == 0:
-            self._input_readers_text = "None<br>"
+            self._input_readers_text = self.tr("None") + "<br>"
 
         if self._uri:
             self._firmware = FIRMWARE_FORMAT.format(
                 self._fw_rev0,
                 self._fw_rev1,
-                "MODIFIED" if self._fw_modified else "CLEAN")
+                self.tr("MODIFIED") if self._fw_modified else self.tr("CLEAN"))
 
             self._request_deck_data_update()
 
         self._update_debug_info_view()
 
     def _update_debug_info_view(self):
-        self._debug_out.setHtml(
-            DEBUG_INFO_FORMAT.format(
-                version=cfclient.VERSION,
-                system=sys.platform,
-                pmajor=sys.version_info.major,
-                pminor=sys.version_info.minor,
-                pmicro=sys.version_info.micro,
-                qt_version=QT_VERSION_STR,
-                pyqt_version=PYQT_VERSION_STR,
-                interface_status=self._interface_text,
-                input_devices=self._device_text,
-                input_readers=self._input_readers_text,
-                uri=self._uri,
-                firmware=self._firmware,
-                imu_sensors=self._imu_sensors_text,
-                imu_sensor_tests=self._imu_sensor_test_text,
-                decks=self._decks_text))
+        html = (
+            "<b>" + self.tr("Cfclient") + "</b><br>"
+            + self.tr("Cfclient version: {version}") + "<br>"
+            + self.tr("System: {system}") + "<br>"
+            + self.tr("Python: {pmajor}.{pminor}.{pmicro}") + "<br>"
+            + self.tr("Qt: {qt_version}") + "<br>"
+            + self.tr("PyQt: {pyqt_version}") + "<br>"
+            + "<br>"
+            + "<b>" + self.tr("Interface status") + "</b><br>"
+            + "{interface_status}" + "<br>"
+            + "<b>" + self.tr("Input readers") + "</b><br>"
+            + "{input_readers}" + "<br>"
+            + "<b>" + self.tr("Input devices") + "</b><br>"
+            + "{input_devices}" + "<br>"
+            + "<b>Crazyflie</b><br>"
+            + self.tr("Connected: {uri}") + "<br>"
+            + self.tr("Firmware: {firmware}") + "<br>"
+            + "<br>"
+            + "<b>" + self.tr("Decks found") + "</b><br>"
+            + "{decks}" + "<br>"
+            + "<b>" + self.tr("Sensors found") + "</b><br>"
+            + "{imu_sensors}" + "<br>"
+            + "<b>" + self.tr("Sensors tests") + "</b><br>"
+            + "{imu_sensor_tests}"
+        ).format(
+            version=cfclient.VERSION,
+            system=sys.platform,
+            pmajor=sys.version_info.major,
+            pminor=sys.version_info.minor,
+            pmicro=sys.version_info.micro,
+            qt_version=QT_VERSION_STR,
+            pyqt_version=PYQT_VERSION_STR,
+            interface_status=self._interface_text,
+            input_devices=self._device_text,
+            input_readers=self._input_readers_text,
+            uri=self._uri,
+            firmware=self._firmware,
+            imu_sensors=self._imu_sensors_text,
+            imu_sensor_tests=self._imu_sensor_test_text,
+            decks=self._decks_text)
+        self._debug_out.setHtml(html)
 
     def _connected(self, uri):
         """Callback when Crazyflie is connected"""
@@ -224,16 +217,16 @@ class AboutDialog(QtWidgets.QWidget, about_widget_class):
             mem.update(self._cb_deck_data_updated_signal.emit)
 
     def _deck_data_updated(self, deck_data):
-        name = 'N/A'
+        name = self.tr('N/A')
         if "Board name" in deck_data.elements:
             name = deck_data.elements["Board name"]
 
-        rev = 'N/A'
+        rev = self.tr('N/A')
         if "Board revision" in deck_data.elements:
             rev = deck_data.elements["Board revision"]
 
         # OWElement has addr attribute, DeckCtrlElement does not
-        addr = getattr(deck_data, 'addr', 'N/A')
+        addr = getattr(deck_data, 'addr', self.tr('N/A'))
         self._decks_text += DECK_FORMAT.format(name, rev, addr)
 
         self._update_debug_info_view()

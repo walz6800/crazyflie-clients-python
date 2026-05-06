@@ -34,10 +34,11 @@ import sys
 import cfclient.utils
 import cflib.crtp
 from cfclient.utils.input import JoystickReader
+from cfclient.utils.cli_tr import tr, init_language
 from cflib.crazyflie import Crazyflie
 
 if os.name == 'posix':
-    print('Disabling standard output for libraries!')
+    print(tr('Disabling standard output for libraries!'))
     stdout = os.dup(1)
     os.dup2(os.open('/dev/null', os.O_WRONLY), 1)
     sys.stdout = os.fdopen(stdout, 'w')
@@ -70,7 +71,7 @@ class HeadlessClient():
         """Set up the device reader"""
         # Set up the joystick reader
         devs = self._jr.available_devices()  # noqa, is this a bug?
-        print("Will use [%s] for input" % self._devs[input_device])
+        print(tr("Will use [%s] for input") % self._devs[input_device])
         self._jr.start_input(self._devs[input_device])
         self._jr.set_input_map(self._devs[input_device], input_config)
 
@@ -80,12 +81,12 @@ class HeadlessClient():
 
     def list_controllers(self):
         """List the available controllers and input mapping"""
-        print("\nAvailable controllers:")
+        print(tr("\nAvailable controllers:"))
         for i, dev in enumerate(self._devs):
-            print(" - Controller #{}: {}".format(i, dev))
-        print("\nAvailable input mapping:")
+            print(tr(" - Controller #{}: {}").format(i, dev))
+        print(tr("\nAvailable input mapping:"))
         for map in os.listdir(cfclient.config_path + '/input'):
-            print(" - " + map.split(".json")[0])
+            print(tr(" - ") + map.split(".json")[0])
 
     def connect_crazyflie(self, link_uri):
         """Connect to a Crazyflie on the given link uri"""
@@ -105,16 +106,16 @@ class HeadlessClient():
 
     def _connected(self, link):
         """Callback for a successful Crazyflie connection."""
-        print("Connected to {}".format(link))
+        print(tr("Connected to {}").format(link))
 
     def _connection_failed(self, link, message):
         """Callback for a failed Crazyflie connection"""
-        print("Connection failed on {}: {}".format(link, message))
+        print(tr("Connection failed on {}: {}").format(link, message))
         sys.exit(-1)
 
     def _input_dev_error(self, message):
         """Callback for an input device error"""
-        print("Error when reading device: {}".format(message))
+        print(tr("Error when reading device: {}").format(message))
         sys.exit(-1)
 
 
@@ -142,6 +143,8 @@ def main():
                         help="Only display available controllers and exit")
     (args, unused) = parser.parse_known_args()
 
+    init_language("zh_CN")
+
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)
     else:
@@ -157,7 +160,7 @@ def main():
                                       input_device=args.controller)
             headless.connect_crazyflie(link_uri=args.uri)
         else:
-            print("No input-device connected, exiting!")
+            print(tr("No input-device connected, exiting!"))
 
 
 if __name__ == "__main__":

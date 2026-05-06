@@ -33,8 +33,7 @@ import sys
 if not hasattr(sys, 'frozen'):
     module_path = os.path.dirname(__file__)
 else:
-    module_path = os.path.join(os.path.dirname(sys.executable),
-                               'lib', 'cfclient')
+    module_path = os.path.join(sys._MEIPASS, 'cfclient')
 config_path = AppDirs("cfclient", "Bitcraze").user_config_dir
 
 if not hasattr(sys, 'frozen'):
