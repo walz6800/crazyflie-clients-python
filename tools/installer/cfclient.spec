@@ -242,7 +242,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='cfclient',
+    name='wcfCtrlSystem',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

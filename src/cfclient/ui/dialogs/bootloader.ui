@@ -17,7 +17,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Crazyflie Service</string>
+   <string>ColonyFlie Service</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_3">
    <item row="0" column="1">
@@ -25,7 +25,7 @@
      <item>
       <widget class="QGroupBox" name="groupBox">
        <property name="title">
-        <string>Crazyflie connection</string>
+        <string>ColonyFlie connection</string>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
@@ -35,7 +35,7 @@
           </property>
           <widget class="QWidget" name="tab">
            <attribute name="title">
-            <string>Connect Crazyflie</string>
+            <string>Connect ColonyFlie</string>
            </attribute>
            <layout class="QVBoxLayout" name="verticalLayout_4">
             <item>
@@ -419,7 +419,7 @@
        <item>
         <widget class="QLabel" name="label">
          <property name="text">
-          <string>The Crazyflie may restart one or more times during the programming process </string>
+          <string>The ColonyFlie may restart one or more times during the programming process </string>
          </property>
         </widget>
        </item>

@@ -9,7 +9,7 @@
 #
 #  Copyright (C) 2011-2023 Bitcraze AB
 #
-#  Crazyflie Nano Quadcopter Client
+#  ColonyFlie Nano Quadcopter Client
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -376,7 +376,7 @@ class LocoPositioningTab(TabToolbox, locopositioning_tab_class):
     _anchor_data_updated_signal = pyqtSignal(object)
 
     def __init__(self, helper):
-        super(LocoPositioningTab, self).__init__(helper, self.tr('Loco Positioning'))
+        super(LocoPositioningTab, self).__init__(helper, self.tr('Wirless Positioning'))
         self.setupUi(self)
 
         self._anchors = {}
@@ -385,7 +385,7 @@ class LocoPositioningTab(TabToolbox, locopositioning_tab_class):
 
         self._display_mode = DisplayMode.estimated_position
 
-        # Always wrap callbacks from Crazyflie API though QT Signal/Slots
+        # Always wrap callbacks from ColonyFlie API though QT Signal/Slots
         # to avoid manipulating the UI when rendering it
         self._connected_signal.connect(self._connected)
         self._disconnected_signal.connect(self._disconnected)
@@ -455,7 +455,7 @@ class LocoPositioningTab(TabToolbox, locopositioning_tab_class):
         self._configure_anchor_positions_button.clicked.connect(
             self._show_anchor_postion_dialog)
 
-        # Connect the Crazyflie API callbacks to the signals
+        # Connect the ColonyFlie API callbacks to the signals
         self._helper.cf.connected.add_callback(
             self._connected_signal.emit)
 
@@ -521,8 +521,8 @@ class LocoPositioningTab(TabToolbox, locopositioning_tab_class):
         self._anchors = {}
 
     def _connected(self, link_uri):
-        """Callback when the Crazyflie has been connected"""
-        logger.debug("Crazyflie connected to {}".format(link_uri))
+        """Callback when the ColonyFlie has been connected"""
+        logger.debug("ColonyFlie connected to {}".format(link_uri))
         self._request_param_to_detect_loco_deck()
 
     def _request_param_to_detect_loco_deck(self):
@@ -608,8 +608,8 @@ class LocoPositioningTab(TabToolbox, locopositioning_tab_class):
                             self.PARAM_MODE_NM])
 
     def _disconnected(self, link_uri):
-        """Callback for when the Crazyflie has been disconnected"""
-        logger.debug("Crazyflie disconnected from {}".format(link_uri))
+        """Callback for when the ColonyFlie has been disconnected"""
+        logger.debug("ColonyFlie disconnected from {}".format(link_uri))
         self._stop_polling_anchor_pos()
         self._clear_state()
         self._update_graphics()
@@ -716,12 +716,12 @@ class LocoPositioningTab(TabToolbox, locopositioning_tab_class):
                           self.tr("Error when using log config"),
                           self.tr(" [{0}]: {1}").format(log_conf.name, msg))
 
-    def _start_polling_anchor_pos(self, crazyflie):
+    def _start_polling_anchor_pos(self, ColonyFlie):
         """Set up a timer to poll anchor positions from the memory sub
         system"""
         if not self._anchor_state_machine:
             self._anchor_state_machine = AnchorStateMachine(
-                crazyflie.mem,
+                ColonyFlie.mem,
                 self._anchor_active_id_list_updated_signal.emit,
                 None,
                 self._anchor_data_updated_signal.emit

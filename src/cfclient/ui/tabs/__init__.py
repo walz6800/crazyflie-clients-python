@@ -110,7 +110,7 @@ try:
 except Exception as e:
     LocoPositioningTab = None
     _import_errors.append(('LocoPositioningTab', str(e)))
-    logger.warning("Failed to load tab LocoPositioningTab: %s", e)
+    logger.warning("Failed to load tab WirelessPositioningTab: %s", e)
 
 try:
     from .LogClientTab import LogClientTab  # noqa: F401
@@ -124,7 +124,7 @@ try:
 except Exception as e:
     LighthouseTab = None
     _import_errors.append(('LighthouseTab', str(e)))
-    logger.warning("Failed to load tab LighthouseTab: %s", e)
+    logger.warning("Failed to load tab OpticsTab: %s", e)
 
 try:
     from .TuningTab import TuningTab  # noqa: F401

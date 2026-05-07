@@ -9,7 +9,7 @@
 #
 #  Copyright (C) 2022-2023 Bitcraze AB
 #
-#  Crazyflie Nano Quadcopter Client
+#  ColonyFlie Nano Quadcopter Client
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -27,7 +27,7 @@
 #  02110-1301, USA.
 
 """
-Shows data for the Lighthouse Positioning system
+Shows data for the Optics Positioning system
 """
 
 import logging
@@ -295,10 +295,10 @@ class LighthouseTab(TabToolbox, lighthouse_tab_class):
     _calibration_read_signal = pyqtSignal(object)
 
     def __init__(self, helper):
-        super(LighthouseTab, self).__init__(helper, self.tr('Lighthouse Positioning'))
+        super(LighthouseTab, self).__init__(helper, self.tr('Optics Positioning'))
         self.setupUi(self)
 
-        # Always wrap callbacks from Crazyflie API though QT Signal/Slots
+        # Always wrap callbacks from ColonyFlie API though QT Signal/Slots
         # to avoid manipulating the UI when rendering it
         self._connected_signal.connect(self._connected)
         self._disconnected_signal.connect(self._disconnected)
@@ -308,7 +308,7 @@ class LighthouseTab(TabToolbox, lighthouse_tab_class):
         self._geometry_read_signal.connect(self._geometry_read_cb)
         self._calibration_read_signal.connect(self._calibration_read_cb)
 
-        # Connect the Crazyflie API callbacks to the signals
+        # Connect the ColonyFlie API callbacks to the signals
         self._helper.cf.connected.add_callback(self._connected_signal.emit)
         self._helper.cf.disconnected.add_callback(self._disconnected_signal.emit)
 
@@ -385,8 +385,8 @@ class LighthouseTab(TabToolbox, lighthouse_tab_class):
         self._plot_layout.addWidget(self._plot_3d.native)
 
     def _connected(self, link_uri):
-        """Callback when the Crazyflie has been connected"""
-        logger.debug("Crazyflie connected to {}".format(link_uri))
+        """Callback when the ColonyFlie has been connected"""
+        logger.debug("ColonyFlie connected to {}".format(link_uri))
 
         self._basestation_geometry_dialog.reset()
         self._is_connected = True
@@ -397,7 +397,7 @@ class LighthouseTab(TabToolbox, lighthouse_tab_class):
         self._update_ui()
 
     def _lighthouse_deck_detected(self):
-        """Called when the lighthouse deck has been detected. Enables the tab,
+        """Called when the Optics deck has been detected. Enables the tab,
         starts logging and polling of the memory sub system as well as starts
         timers for updating graphics"""
         if not self.is_lighthouse_deck_active:
@@ -478,8 +478,8 @@ class LighthouseTab(TabToolbox, lighthouse_tab_class):
         self._update_basestation_status_indicators()
 
     def _disconnected(self, link_uri):
-        """Callback for when the Crazyflie has been disconnected"""
-        logger.debug("Crazyflie disconnected from {}".format(link_uri))
+        """Callback for when the ColonyFlie has been disconnected"""
+        logger.debug("ColonyFlie disconnected from {}".format(link_uri))
         self._clear_state()
         self._update_graphics()
         self._plot_3d.clear()
@@ -514,7 +514,7 @@ class LighthouseTab(TabToolbox, lighthouse_tab_class):
 
     def _logging_error(self, log_conf, msg):
         """Callback from the log layer when an error occurs"""
-        QMessageBox.about(self, self.tr("LighthouseTab error"),
+        QMessageBox.about(self, self.tr("OpticsTab error"),
                           self.tr("Error when using log config"),
                           self.tr(" [{0}]: {1}").format(log_conf.name, msg))
 
@@ -551,7 +551,7 @@ class LighthouseTab(TabToolbox, lighthouse_tab_class):
         elif status == self.STATUS_MISSING_DATA:
             text = self.tr('No geo/calib')
         elif status == self.STATUS_TO_ESTIMATOR:
-            text = self.tr('LH ready')
+            text = self.tr('OP ready')
 
         self._status_status.setText(text)
 
@@ -691,7 +691,7 @@ class LighthouseTab(TabToolbox, lighthouse_tab_class):
                                                                     names[0])
 
     def _save_sys_config_button_clicked(self):
-        # Get calibration data from the Crazyflie to complete the system config data set
+        # Get calibration data from the ColonyFlie to complete the system config data set
         # When the data is ready we get a callback on _calibration_read
         self._lh_memory_helper.read_all_calibs(self._calibration_read_signal.emit)
 

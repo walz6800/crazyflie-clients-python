@@ -9,7 +9,7 @@
 #
 #  Copyright (C) 2011-2023 Bitcraze AB
 #
-#  Crazyflie Nano Quadcopter Client
+#  ColonyFlie Nano Quadcopter Client
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -24,7 +24,7 @@
 #  this program; if not, write to the Free Software Foundation, Inc., 51
 #  Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
-The main file for the Crazyflie control application.
+The main file for the ColonyFlie control application.
 """
 import logging
 import sys
@@ -135,6 +135,11 @@ class MainUI(QtWidgets.QMainWindow, main_window_class):
         # Create and start the Input Reader
         self._statusbar_label = QLabel(self.tr("No input-device found, insert one to fly."))
         self.statusBar().addWidget(self._statusbar_label)
+
+        # Company name label in bottom-right corner
+        self._company_label = QLabel("广州维脉电子科技有限公司")
+        self._company_label.setStyleSheet("color: #888; padding-right: 6px;")
+        self.statusBar().addPermanentWidget(self._company_label)
 
         #
         # We use this hacky-trick to find out if we are in dark-mode and
@@ -537,7 +542,7 @@ class MainUI(QtWidgets.QMainWindow, main_window_class):
         if self.uiState == UIState.DISCONNECTED:
             self.setWindowTitle(self.tr("Not connected"))
             canConnect = self._connectivity_manager.get_interface() is not None
-            self.menuItemConnect.setText(self.tr("Connect to Crazyflie"))
+            self.menuItemConnect.setText(self.tr("Connect to ColonyFlie"))
             self.menuItemConnect.setEnabled(canConnect)
             self._connectivity_manager.set_state(ConnectivityManager.UIState.DISCONNECTED)
             self.batteryBar.setValue(3000)
@@ -754,7 +759,7 @@ class MainUI(QtWidgets.QMainWindow, main_window_class):
                 radio.close()
             except usb.core.USBError as e:
                 if e.errno == 13:  # Permission denied
-                    link = "<a href='https://www.bitcraze.io/documentation/repository/crazyflie-lib-python/master/installation/usb_permissions/'>" + self.tr("Install USB Permissions") + "</a>" # noqa
+                    link = "<a href='https://www.bitcraze.io/documentation/repository/ColonyFlie-lib-python/master/installation/usb_permissions/'>" + self.tr("Install USB Permissions") + "</a>" # noqa
                     msg = QMessageBox()
                     msg.setIcon(QMessageBox.Icon.Information)
                     msg.setTextFormat(Qt.TextFormat.RichText)

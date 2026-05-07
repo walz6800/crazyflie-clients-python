@@ -75,7 +75,7 @@
        <item>
         <widget class="QPushButton" name="_write_to_cf_button">
          <property name="text">
-          <string>Write to Crazyflie</string>
+          <string>Write to ColonyFlie</string>
          </property>
         </widget>
        </item>

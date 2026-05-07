@@ -17,7 +17,7 @@ INNO_SETUP = r'C:\Users\Administrator\AppData\Local\Programs\Inno Setup 6\ISCC.e
 
 def step1_build_exe():
     print("=" * 60)
-    print(" [1/2] Building cfclient.exe with PyInstaller")
+    print(" [1/2] Building wcfCtrlSystem.exe with PyInstaller")
     print("=" * 60)
     cmd = [sys.executable, '-m', 'PyInstaller', '--clean', '--noconfirm', SPEC_FILE]
     print(f"Running: {' '.join(cmd)}")
@@ -26,7 +26,7 @@ def step1_build_exe():
     if result.returncode != 0:
         print("\nPyInstaller build failed!")
         sys.exit(result.returncode)
-    print("OK: cfclient.exe built.\n")
+    print("OK: wcfCtrlSystem.exe built.\n")
 
 
 def step2_build_installer():
@@ -45,7 +45,7 @@ def step2_build_installer():
     if result.returncode != 0:
         print("\nInno Setup build failed!")
         sys.exit(result.returncode)
-    installer_path = os.path.join(PROJECT_DIR, 'dist', 'installer', 'CrazyflieClient_Setup.exe')
+    installer_path = os.path.join(PROJECT_DIR, 'dist', 'installer', 'wcfCtrlSystem_Setup.exe')
     print(f"\nOK: Installer built -> {installer_path}")
 
 
