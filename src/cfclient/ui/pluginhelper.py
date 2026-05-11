@@ -7,9 +7,9 @@
 #  +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
 #   ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
 #
-#  Copyright (C) 2011-2021 Bitcraze AB
+#  Copyright (C) 2011-2021 Waymark AB
 #
-#  Crazyflie Nano Quadcopter Client
+#  Aeroflie Nano Quadcopter Client
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -30,7 +30,7 @@ Used for passing objects to tabs and toolboxes.
 """
 import os
 
-__author__ = 'Bitcraze AB'
+__author__ = 'Waymark AB'
 __all__ = ['PluginHelper']
 
 

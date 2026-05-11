@@ -6,7 +6,7 @@ sort_order: 12
 
 ![cfclient plotter](/docs/images/tuning_tab.png)
 
-This tab is for tuning the PID controller on your Crazyflie platform.
+This tab is for tuning the PID controller on your Aeroflie platform.
 
 1. Select which part of the controller you want to tune (attitude (rate) or velocity/position)
 2. Check the 'link roll and pitch' or 'link x and y' button if you have a symetrical platform, or else it is best to tune those seperately

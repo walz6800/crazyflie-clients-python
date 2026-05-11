@@ -7,9 +7,9 @@
 #  +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
 #   ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
 #
-#  Copyright (C) 2011-2023 Bitcraze AB
+#  Copyright (C) 2011-2023 Waymark AB
 #
-#  Crazyflie Nano Quadcopter Client
+#  Aeroflie Nano Quadcopter Client
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -24,7 +24,7 @@
 #  this program; if not, write to the Free Software Foundation, Inc.,
 #  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
-Shows the Log TOC of available variables in the Crazyflie.
+Shows the Log TOC of available variables in the Aeroflie.
 """
 
 import cfclient
@@ -35,7 +35,7 @@ from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtCore import pyqtSlot
 from PyQt6.QtCore import Qt
 
-__author__ = 'Bitcraze AB'
+__author__ = 'Waymark AB'
 __all__ = ['LogTab']
 
 param_tab_class = uic.loadUiType(cfclient.module_path + "/ui/tabs/logTab.ui")[0]
@@ -46,7 +46,7 @@ class LogTab(TabToolbox, param_tab_class):
     disconnectedSignal = pyqtSignal(str)
 
     def __init__(self, helper):
-        super(LogTab, self).__init__(helper, self.tr('Log TOC'))
+        super(LogTab, self).__init__(helper, 'Log TOC')
         self.setupUi(self)
 
         self.cf = helper.cf
@@ -66,7 +66,7 @@ class LogTab(TabToolbox, param_tab_class):
         self.cf.connected.add_callback(self.connectedSignal.emit)
         self.connectedSignal.connect(self.connected)
 
-        # Clear the log TOC list when the Crazyflie is disconnected
+        # Clear the log TOC list when the Aeroflie is disconnected
         self.cf.disconnected.add_callback(self.disconnectedSignal.emit)
         self.disconnectedSignal.connect(self.disconnected)
 

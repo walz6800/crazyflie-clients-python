@@ -1,10 +1,10 @@
 ---
-title: Input-devices for the Crazyflie client
+title: Input-devices for the Aeroflie client
 page_id: inputdevices
 ---
 
-The Crazyflie graphical control client needs an input-device (joystick)
-with a minimum of 4 analogue axes to be able to pilot the Crazyflie. The
+The Aeroflie graphical control client needs an input-device (joystick)
+with a minimum of 4 analogue axes to be able to pilot the Aeroflie. The
 Playstation 3 controller is supported out of the box but the application
 supports creating new configurations that uses other controllers. This
 page details what controllers are supported out of the box, how to
@@ -16,12 +16,12 @@ create a new configurations and how to debug problems.
 
 Here\'s a few steps that you have to go though in order to get the
 input-device working. If any of the steps are not working then the
-input-device will not be usable for piloting the Crazyflie:
+input-device will not be usable for piloting the Aeroflie:
 
 -   The input-device needs to be recognized by the host operating
     system. This means that it should be seen in the operating system
     and be usable in other applications or utilities.
--   When using the Crazyflie graphical control client you need at least
+-   When using the Aeroflie graphical control client you need at least
     the correct mappings for roll/pitch/yaw/thrust. This can be checked
     by opening the *Flight Data* tab. If the input-device is found and
     opened then you should see values in the *Target* fields for

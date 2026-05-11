@@ -5,14 +5,14 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "cfclient"
 dynamic = ["version"]
-description = "Crazyflie PC client"
+description = "Aeroflie PC client"
 authors = [
-    { name = "Bitcraze and contributors", email = "contact@bitcraze.io" },
+    { name = "Waymark and contributors", email = "contact@waymark.io" },
 ]
 
 readme = {file = "README.md", content-type = "text/markdown"}
 license = { text = "GPLv2+" }
-keywords = ["quadcopter", "crazyflie"]
+keywords = ["quadcopter", "aeroflie"]
 
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -54,10 +54,10 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://www.bitcraze.io"
-Documentation = "https://www.bitcraze.io/documentation/repository/crazyflie-clients-python/master/"
-Repository = "https://github.com/bitcraze/crazyflie-clients-python"
-Issues = "https://github.com/bitcraze/crazyflie-clients-python/issues"
+Homepage = "#"
+Documentation = "#"
+Repository = "#"
+Issues = "#"
 
 [project.optional-dependencies]
 dev = ['pre-commit']

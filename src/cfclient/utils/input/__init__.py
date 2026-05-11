@@ -7,9 +7,9 @@
 #  +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
 #   ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
 #
-#  Copyright (C) 2011-2013 Bitcraze AB
+#  Copyright (C) 2011-2013 Waymark AB
 #
-#  Crazyflie Nano Quadcopter Client
+#  Aeroflie Nano Quadcopter Client
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -26,10 +26,10 @@
 #  Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 """
-Module to read input devices and send controls to the Crazyflie.
+Module to read input devices and send controls to the Aeroflie.
 
 This module reads input from joysticks or other input devices and sends control
-set-points to the Crazyflie. It can be configured in the UI.
+set-points to the Aeroflie. It can be configured in the UI.
 
 Various drivers can be used to read input device data. Currently is uses the
 PySDL2 driver, but in the future native support will be provided for Linux and
@@ -58,7 +58,7 @@ from .mux.nomux import NoMux
 from .mux.takeovermux import TakeOverMux
 from .mux.takeoverselectivemux import TakeOverSelectiveMux
 
-__author__ = 'Bitcraze AB'
+__author__ = 'Waymark AB'
 __all__ = ['JoystickReader']
 
 logger = logging.getLogger(__name__)
@@ -74,7 +74,7 @@ INPUT_READ_PERIOD = 0.01
 class JoystickReader(object):
     """
     Thread that will read input from devices/joysticks and send control-set
-    points to the Crazyflie
+    points to the Aeroflie
     """
     inputConfig = []
 
@@ -399,7 +399,7 @@ class JoystickReader(object):
                             if not data.assistedControl:
                                 # Reset height controller state to initial
                                 # target height both in the UI and in the
-                                # Crazyflie.
+                                # Aeroflie.
                                 # TODO: Implement a proper state update of the
                                 #       input layer
                                 self.heighthold_input_updated.\

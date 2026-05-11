@@ -5,8 +5,8 @@ page_id: dev_info_client
 
 
 This page contains generic information about various topics that might
-be interesting while developing for the Crazyflie Python client. The
-same kind of information is available here for the Crazyflie Python API.
+be interesting while developing for the Aeroflie Python client. The
+same kind of information is available here for the Aeroflie Python API.
 
 Here\'s a quick overview:
 
@@ -31,11 +31,11 @@ width="600"}
 The architecture for the input devices in the client strives to give as
 much flexibility as possible and to make cross platform compatibility
 smooth. It combines raw readings from input devices with input device
-mappings to create control values for the Crazyflie and the application.
+mappings to create control values for the Aeroflie and the application.
 It\'s also possible to input control values directly.
 
 Below is a walk though of every step of the process, from reading the
-device to sending the control values to the Crazyflie.
+device to sending the control values to the Aeroflie.
 
 ### InputDevice
 
@@ -83,7 +83,7 @@ To support the application there\'s a number of files around it, such as
 configuration and caching. All these use JSON to store information. All
 of the user configuration files are stored in a local config directory,
 hereafter refered to as <local_config_folder>.
-Its location is OS specific. To find your config directory, in the Crazyflie
+Its location is OS specific. To find your config directory, in the Aeroflie
 client, click on "Settings/Open config folder".
 Most of the files have default versions in the *src/cfclient/configs* directory
 that are either copied at the first start up or used in parallel as
@@ -125,7 +125,7 @@ configuration file.
 
 | Field                      | Format    | Comments |
 | -------------------------- | --------- | -------- |
-| link\_uri                  | string    | The last successfully connected Crazyflie URI. This is used to fill in the address in the top bar at startup|
+| link\_uri                  | string    | The last successfully connected Aeroflie URI. This is used to fill in the address in the top bar at startup|
 | auto\_reconnect            | boolean   | Set\'s if auto-reconnect is enabled or not|
 | ui\_update\_period         | int       | The minimum time (in ms) between UI updates for logging values|
 | open\_tabs                 | string    | A comma-separated list of the open tabs (using the tab.tabName attribute)|
@@ -192,16 +192,16 @@ accessed in the application.
 
 ### TOC cache files
 
-In order to speed up the connection procedure for the Crazyflie the TOCs
+In order to speed up the connection procedure for the Aeroflie the TOCs
 are cached ([more info on logging/parameter frameworks and
-TOC](https://www.bitcraze.io/documentation/repository/crazyflie-firmware/master/) ). The writable part of the TOC
+TOC](# ). The writable part of the TOC
 cache is located in *<local_config_folder>/cache* where each cache is saved in a file
 named after the CRC32 (in hex) of the TOC CRC32 (for example
-*1CB41680.json*). When the application connects to a Crazyflie the CRC32
+*1CB41680.json*). When the application connects to a Aeroflie the CRC32
 of the log and param TOC is requested. When the client receives it will
 check if a file with the correct name exists (in both the RW and the RO
 TOC cache). If it does it will load the cached TOC, if not it will start
-requesting the TOC from the Crazyflie and when it\'s done it will save
+requesting the TOC from the Aeroflie and when it\'s done it will save
 it in the cache.
 
 The TOC cache files are organized in a hierarchical manner after the
@@ -523,7 +523,7 @@ rotation and the right one controls CCW rotation.
 
 The user can configure custom logging configurations from the UI (more
 information on logging/parameter
-frameworks (/doc/crazyflie/dev/arch/logparam) ). These will be saved in
+frameworks (/doc/aeroflie/dev/arch/logparam) ). These will be saved in
 the *<local_config_folder>/log* directory, one file for each configuration. Default
 logging configurations are stored in the *src/cfclient/configs/log* and
 are copied into the user configuration directory on the first status (if

@@ -89,7 +89,7 @@ Available input mapping:</source>
     </message>
     <message>
       <location filename="..\ui\main.py" line="527" />
-      <source>Connect to Crazyflie</source>
+      <source>Connect to ColonyFlie</source>
       <translation type="unfinished" />
     </message>
     <message>
@@ -189,7 +189,7 @@ Available input mapping:</source>
     <name>gui</name>
     <message>
       <location filename="..\gui.py" line="187" />
-      <source>Crazyflie client</source>
+      <source>ColonyFlie client</source>
       <translation type="unfinished" />
     </message>
   </context>

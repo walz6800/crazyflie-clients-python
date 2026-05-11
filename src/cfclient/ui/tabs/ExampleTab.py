@@ -7,9 +7,9 @@
 #  +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
 #   ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
 #
-#  Copyright (C) 2011-2023 Bitcraze AB
+#  Copyright (C) 2011-2023 Waymark AB
 #
-#  Crazyflie Nano Quadcopter Client
+#  Aeroflie Nano Quadcopter Client
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -27,8 +27,8 @@
 #  02110-1301, USA.
 
 """
-An example template for a tab in the Crazyflie Client. It comes pre-configured
-with the necessary QT Signals to wrap Crazyflie API callbacks and also
+An example template for a tab in the Aeroflie Client. It comes pre-configured
+with the necessary QT Signals to wrap Aeroflie API callbacks and also
 connects the connected/disconnected callbacks.
 """
 
@@ -41,7 +41,7 @@ from PyQt6.QtWidgets import QMessageBox
 import cfclient
 from cfclient.ui.tab_toolbox import TabToolbox
 
-__author__ = 'Bitcraze AB'
+__author__ = 'Waymark AB'
 __all__ = ['ExampleTab']
 
 logger = logging.getLogger(__name__)
@@ -62,14 +62,14 @@ class ExampleTab(TabToolbox, example_tab_class):
         super(ExampleTab, self).__init__(helper, 'Example')
         self.setupUi(self)
 
-        # Always wrap callbacks from Crazyflie API though QT Signal/Slots
+        # Always wrap callbacks from Aeroflie API though QT Signal/Slots
         # to avoid manipulating the UI when rendering it
         self._connected_signal.connect(self._connected)
         self._disconnected_signal.connect(self._disconnected)
         self._log_data_signal.connect(self._log_data_received)
         self._param_updated_signal.connect(self._param_updated)
 
-        # Connect the Crazyflie API callbacks to the signals
+        # Connect the Aeroflie API callbacks to the signals
         self._helper.cf.connected.add_callback(
             self._connected_signal.emit)
 
@@ -77,14 +77,14 @@ class ExampleTab(TabToolbox, example_tab_class):
             self._disconnected_signal.emit)
 
     def _connected(self, link_uri):
-        """Callback when the Crazyflie has been connected"""
+        """Callback when the Aeroflie has been connected"""
 
-        logger.debug("Crazyflie connected to {}".format(link_uri))
+        logger.debug("Aeroflie connected to {}".format(link_uri))
 
     def _disconnected(self, link_uri):
-        """Callback for when the Crazyflie has been disconnected"""
+        """Callback for when the Aeroflie has been disconnected"""
 
-        logger.debug("Crazyflie disconnected from {}".format(link_uri))
+        logger.debug("Aeroflie disconnected from {}".format(link_uri))
 
     def _param_updated(self, name, value):
         """Callback when the registered parameter get's updated"""

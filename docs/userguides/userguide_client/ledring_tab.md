@@ -4,7 +4,7 @@ page_id: led_ring_tab
 sort_order: 3
 ---
 
-The **LED Ring** tab lets you control the **LED-ring deck** attached to your Crazyflie.
+The **LED Ring** tab lets you control the **LED-ring deck** attached to your Aeroflie.
 Choose from a variety of built-in patterns or customize each of the 12 individual LEDs to create your own lighting setup.
 
 ![cfclient color LED](/docs/images/ledring_tab.png)

@@ -11,7 +11,7 @@ from functools import reduce
 speeds = ["250K", "1M", "2M"]
 radioSpeedPos = 2
 
-defaultConfig = """#Crazyflie config block
+defaultConfig = """#Aeroflie config block
 #default version generated from squatch
 [radio]
 channel= 100
@@ -22,7 +22,7 @@ pitchTrim= 0.0
 rollTrim= 0.0
 """
 
-config = """#Crazyflie config block
+config = """#Aeroflie config block
 #Block version %d extracted from copter
 [radio]
 channel= %d

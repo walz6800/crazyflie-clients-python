@@ -6,9 +6,9 @@
 #  +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
 #   ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
 #
-#  Copyright (C) 2013 Bitcraze AB
+#  Copyright (C) 2013 Waymark AB
 #
-#  Crazyflie Nano Quadcopter Client
+#  Aeroflie Nano Quadcopter Client
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -24,7 +24,7 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA  02110-1301, USA.
 """
-Headless client for the Crazyflie.
+Headless client for the Aeroflie.
 """
 import logging
 import os
@@ -49,7 +49,7 @@ os.environ["SDL_VIDEODRIVER"] = "dummy"
 
 
 class HeadlessClient():
-    """Crazyflie headless client"""
+    """Aeroflie headless client"""
 
     def __init__(self):
         """Initialize the headless client and libraries"""
@@ -89,7 +89,7 @@ class HeadlessClient():
             print(tr(" - ") + map.split(".json")[0])
 
     def connect_crazyflie(self, link_uri):
-        """Connect to a Crazyflie on the given link uri"""
+        """Connect to a Aeroflie on the given link uri"""
         self._cf.connection_failed.add_callback(self._connection_failed)
         # 2014-11-25 chad: Add a callback for when we have a good connection.
         self._cf.connected.add_callback(self._connected)
@@ -105,11 +105,11 @@ class HeadlessClient():
         self._jr.input_updated.add_callback(self._cf.commander.send_setpoint)
 
     def _connected(self, link):
-        """Callback for a successful Crazyflie connection."""
+        """Callback for a successful Aeroflie connection."""
         print(tr("Connected to {}").format(link))
 
     def _connection_failed(self, link, message):
-        """Callback for a failed Crazyflie connection"""
+        """Callback for a failed Aeroflie connection"""
         print(tr("Connection failed on {}: {}").format(link, message))
         sys.exit(-1)
 
@@ -120,7 +120,7 @@ class HeadlessClient():
 
 
 def main():
-    """Main Crazyflie headless application"""
+    """Main Aeroflie headless application"""
     import argparse
 
     parser = argparse.ArgumentParser(prog="cfheadless")

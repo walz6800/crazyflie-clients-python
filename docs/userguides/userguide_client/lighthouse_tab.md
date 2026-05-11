@@ -7,18 +7,18 @@ sort_order: 10
 The Lighthouse Positioning tab shows information from the Lighthouse Positioning
 system when present. It is also used to configure and manage the system.
 For more information on how the Lighthouse system works, please see
-[the firmware documentation](https://www.bitcraze.io/documentation/repository/crazyflie-firmware/master/functional-areas/lighthouse/).
+the firmware documentation.
 
 ![cfclient positioning](/docs/images/cfclient_lh_main.png)
 
 The tab is divided into four sections:
 1.  3D view of the Crazyfle and the base stations
-2.  Crazyflie Status
+2.  Aeroflie Status
 3.  Base stations status
 4.  System management
 
 ### 3D view
-The view shows the position and orientation of the Crazyflie (blue) and the
+The view shows the position and orientation of the Aeroflie (blue) and the
 base stations (green). The ids of the base stations are displayed as a number and
 the status using colors. Green means that data from the base station is used
 in the position estimation.
@@ -26,9 +26,9 @@ in the position estimation.
 The graph can be rotated by clicking and draging, zoomed using the scroll wheel
 and moved by holding the shift key while clicking and draging.
 
-### Crazyflie status
+### Aeroflie status
 The overall status of the Lighthouse system is displayed as a text. The status is one of:
-*  **LH ready** - one or more base stations are received and the information is used to estimate the position of the Crazyflie
+*  **LH ready** - one or more base stations are received and the information is used to estimate the position of the Aeroflie
 *  **Not receiving** - no base station is received
 *  **No geo/calib** - calibration or geometry data is missing and position can not be estimated
 
@@ -70,15 +70,15 @@ This section us used to configure the system.
 * **Save system config**/**Load system config** - store and load system configuration
     to/from file. The system configuration contains system type, calibration and
     geometry data. When a system configuration is loaded from file it is automatically
-    written to the Crazyflie (and is stored in persistent memory). This is a
-    useful feature when configuring multiple Crazyflies for a system to make sure
+    written to the Aeroflie (and is stored in persistent memory). This is a
+    useful feature when configuring multiple Aeroflies for a system to make sure
     they all share the same coordinate system.
 
 ### Basestation Geometry Management
 
 ![cfclient positioning](/docs/images/base_station_geo_dialog.png){:align-center width="700"}
 
-1. This shows the current geometry of the basestations that are saved in the Crazyflie's memory. Either it is empty (no geometry in memory), or there are positions, or there are replacement postions. If you see an arrow like `N/A -> 2.3` or `2.0 -> 2.3`, that means that you just estimated a (new) basestation geometry but it has not been saved to the Crazyflie's permanent memory yet.
-2. *Estimate geometry*: This will open a wizard that will follow you through the steps of estimating the positions of the installed basestations. Check out the [getting started tutorial](https://www.bitcraze.io/documentation/tutorials/getting-started-with-lighthouse/) for more instructions. This is meant for 2+ basestations
+1. This shows the current geometry of the basestations that are saved in the Aeroflie's memory. Either it is empty (no geometry in memory), or there are positions, or there are replacement postions. If you see an arrow like `N/A -> 2.3` or `2.0 -> 2.3`, that means that you just estimated a (new) basestation geometry but it has not been saved to the Aeroflie's permanent memory yet.
+2. *Estimate geometry*: This will open a wizard that will follow you through the steps of estimating the positions of the installed basestations. Check out the getting started tutorial for more instructions. This is meant for 2+ basestations
 3. *Estimate geometry simple*. This is a simplerer basetation geometry estimation based on the PnP function of OpenCV. If it is grayed out, install `pip3 install opencv-python-headless`, but just beware of the incompatibility issues with the regular opencv python packages. This is meant for 1-2 basestations.
-4. *Write to Crazyflie*: This will write the just estimated basestation geometry (in (1) behind the arrow)) to the permanent memory of the Crazyflie.
+4. *Write to Aeroflie*: This will write the just estimated basestation geometry (in (1) behind the arrow)) to the permanent memory of the Aeroflie.

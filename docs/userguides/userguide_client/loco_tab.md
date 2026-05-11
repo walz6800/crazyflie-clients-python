@@ -15,22 +15,22 @@ The tab can be used in two modes that is selected with the radio buttons
 to the right
 
 To setup the LPS anchor system mode (TWR or TDoA), see the [Configure
-LPS positioning mode wirelessly](https://www.bitcraze.io/documentation/repository/lps-node-firmware/master/) documentation.
+LPS positioning mode wirelessly](# documentation.
 
 ### Position estimate mode
 
 Displays the configured anchor positions and the estimated position of
-the Crazyflie. Can be used to make sure the system is set up correctly
+the Aeroflie. Can be used to make sure the system is set up correctly
 and that the estimated position is reasonable.
 
 ![cfclient positioning](/docs/images/cfclient_position_estimate.png)
 
-1.  Plot showing anchors and Crazyflie
+1.  Plot showing anchors and Aeroflie
 2.  Sets the graph mode
     -   *Position estimate* - Normal viewing mode
     -   *Anchor identification* - Enhanced mode where anchor id and
-        marker becomes larger when Crazyflie is closer
-3.  Indicates if anchors are communicating with Crazyflie (i.e anchors
+        marker becomes larger when Aeroflie is closer
+3.  Indicates if anchors are communicating with Aeroflie (i.e anchors
     are up and running)
 4.  Used to set anchor positions and change mode of the system
 
@@ -67,7 +67,7 @@ rplaced by the contents of the file.
 
 ### Anchor identification mode
 
-displays the configured anchor positions. When the crazyflie is close to
+displays the configured anchor positions. When the aeroflie is close to
 an anchor this is indicated in the graphs by highlighting it. This mode
 is useful to identify anchors and verify that the system is correctly
 configured. **NOTE:** Only orks in TWR mode.
@@ -78,8 +78,8 @@ width="700"}
 1.  Sets the graph mode
     -   *Position estimate* - Normal viewing mode
     -   *Anchor identification* - Enhanced mode where anchor id and
-        marker becomes larger when Crazyflie is close to an anchor
-2.  Plot showing anchors and Crazyflie. In this example anchor 1 is close
-to the Crazyflie.
+        marker becomes larger when Aeroflie is close to an anchor
+2.  Plot showing anchors and Aeroflie. In this example anchor 1 is close
+to the Aeroflie.
 3.  Current system mode indication. The system must be in TWR mode for
     the anchor identification mode to be available.

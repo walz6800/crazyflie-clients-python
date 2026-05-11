@@ -10,7 +10,7 @@ them and write their data to file.
 ![cfclient log blocks](/docs/images/cfclient_logblocks_marked.png)
 
 1.  Fields
-    -   *ID:* Block ID on the Crazyflie
+    -   *ID:* Block ID on the Aeroflie
     -   *Name:* Block name in the client
     -   *Period (ms):* How often data is sent back to the client, in milliseconds
     -   *Start:* Checked if the block is running. Click to start or stop it.
@@ -29,7 +29,7 @@ Each file is named `{block_name}-{timestamp}.csv`. Starting and stopping file
 writing multiple times within one session produces separate files.
 
 The CSV format has a header row followed by one row per sample. The timestamp
-column shows milliseconds since the Crazyflie was powered on.
+column shows milliseconds since the Aeroflie was powered on.
 
 Example data logged when logging the battery level:
 

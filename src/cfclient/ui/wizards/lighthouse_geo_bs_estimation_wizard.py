@@ -6,7 +6,7 @@
 #  +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
 #   ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
 #
-#  Copyright (C) 2022-2023 Bitcraze AB
+#  Copyright (C) 2022-2023 Waymark AB
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -228,7 +228,7 @@ class RecordOriginSamplePage(LighthouseBasestationGeometryWizardBasePage):
     def __init__(self, cf: Crazyflie, parent=None):
         super(RecordOriginSamplePage, self).__init__(cf)
         self.explanation_text.setText(
-            'Step 1. Put the Crazyflie where you want the origin of your coordinate system.\n')
+            'Step 1. Put the Aeroflie where you want the origin of your coordinate system.\n')
         pixmap = QtGui.QPixmap(cfclient.module_path + "/ui/wizards/bslh_1.png")
         pixmap = pixmap.scaledToWidth(PICTURE_WIDTH)
         self.explanation_picture.setPixmap(pixmap)
@@ -237,7 +237,7 @@ class RecordOriginSamplePage(LighthouseBasestationGeometryWizardBasePage):
 class RecordXAxisSamplePage(LighthouseBasestationGeometryWizardBasePage):
     def __init__(self, cf: Crazyflie, parent=None):
         super(RecordXAxisSamplePage, self).__init__(cf)
-        self.explanation_text.setText('Step 2. Put the Crazyflie on the positive X-axis,' +
+        self.explanation_text.setText('Step 2. Put the Aeroflie on the positive X-axis,' +
                                       f'  exactly {REFERENCE_DIST} meters from the origin.\n' +
                                       'This will be used to define the X-axis as well as scaling of the system.')
         pixmap = QtGui.QPixmap(cfclient.module_path + "/ui/wizards/bslh_2.png")
@@ -248,7 +248,7 @@ class RecordXAxisSamplePage(LighthouseBasestationGeometryWizardBasePage):
 class RecordXYPlaneSamplesPage(LighthouseBasestationGeometryWizardBasePage):
     def __init__(self, cf: Crazyflie, parent=None):
         super(RecordXYPlaneSamplesPage, self).__init__(cf, show_add_measurements=True)
-        self.explanation_text.setText('Step 3. Put the Crazyflie somewhere in the XY-plane, but not on the X-axis.\n' +
+        self.explanation_text.setText('Step 3. Put the Aeroflie somewhere in the XY-plane, but not on the X-axis.\n' +
                                       'This position is used to map the the XY-plane to the floor.\n' +
                                       'You can sample multiple positions to get a more precise definition.')
         pixmap = QtGui.QPixmap(cfclient.module_path + "/ui/wizards/bslh_3.png")
@@ -262,7 +262,7 @@ class RecordXYPlaneSamplesPage(LighthouseBasestationGeometryWizardBasePage):
 class RecordXYZSpaceSamplesPage(LighthouseBasestationGeometryWizardBasePage):
     def __init__(self, cf: Crazyflie, parent=None):
         super(RecordXYZSpaceSamplesPage, self).__init__(cf)
-        self.explanation_text.setText('Step 4. Move the Crazyflie around, try to cover all of the flying space,\n' +
+        self.explanation_text.setText('Step 4. Move the Aeroflie around, try to cover all of the flying space,\n' +
                                       'make sure all the base stations are received.\n' +
                                       'Avoid moving too fast, you can increase the record time if needed.\n')
         pixmap = QtGui.QPixmap(cfclient.module_path + "/ui/wizards/bslh_4.png")
@@ -351,7 +351,7 @@ class EstimateGeometryThread(QtCore.QObject):
                            x_axis: list[LhCfPoseSample],
                            xy_plane: list[LhCfPoseSample],
                            samples: list[LhCfPoseSample]) -> dict[int, Pose]:
-        """Estimate the geometry of the system based on samples recorded by a Crazyflie"""
+        """Estimate the geometry of the system based on samples recorded by a Aeroflie"""
         matched_samples = [origin] + x_axis + xy_plane + LighthouseSampleMatcher.match(samples, min_nr_of_bs_in_match=2)
         initial_guess, cleaned_matched_samples = LighthouseInitialEstimator.estimate(matched_samples,
                                                                                      LhDeck4SensorPositions.positions)

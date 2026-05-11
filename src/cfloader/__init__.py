@@ -7,9 +7,9 @@
 #  +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
 #   ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
 #
-#  Copyright (C) 2011-2013 Bitcraze AB
+#  Copyright (C) 2011-2013 Waymark AB
 #
-#  Crazyflie Nano Quadcopter Client
+#  Aeroflie Nano Quadcopter Client
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -76,9 +76,9 @@ def main():
         print(tr("                             Example: stm32-fw"))
         print()
         print(tr("CRTP options:"))
-        print(tr("   -c, --cold-boot         : Cold boot the Crazyflie (default). Restart"))
-        print(tr("                             Crazyflie to flash."))
-        print(tr("   -w, --warm-boot <uri>   : Warm boot the Crazyflie with the given URI."))
+        print(tr("   -c, --cold-boot         : Cold boot the Aeroflie (default). Restart"))
+        print(tr("                             Aeroflie to flash."))
+        print(tr("   -w, --warm-boot <uri>   : Warm boot the Aeroflie with the given URI."))
         sys.exit(0)
 
     # Parse command line parameters
@@ -160,7 +160,7 @@ def main():
             print(tr("Reset to bootloader mode ..."))
             sys.stdout.flush()
         else:  # The connection is done by a cold boot ...
-            print(tr("Restart the Crazyflie you want to bootload in the next")),
+            print(tr("Restart the Aeroflie you want to bootload in the next")),
             print(tr(" 10 seconds ...")),
 
             sys.stdout.flush()

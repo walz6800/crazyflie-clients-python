@@ -7,9 +7,9 @@
 #  +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
 #   ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
 #
-#  Copyright (C) 2011-2025 Bitcraze AB
+#  Copyright (C) 2011-2025 Waymark AB
 #
-#  Crazyflie Nano Quadcopter Client
+#  Aeroflie Nano Quadcopter Client
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -41,7 +41,7 @@ from cfclient.ui.tab_toolbox import TabToolbox
 
 from cflib.crazyflie.mem import MemoryElement
 
-__author__ = 'Bitcraze AB'
+__author__ = 'Waymark AB'
 __all__ = ['LEDRingTab']
 
 logger = logging.getLogger(__name__)
@@ -79,12 +79,12 @@ class LEDRingTab(TabToolbox, led_ring_tab_class):
         # Populate dropdown when all params are updated
         self._helper.cf.param.all_updated.add_callback(self._ring_populate_dropdown)
 
-        # Always wrap callbacks from Crazyflie API though QT Signal/Slots
+        # Always wrap callbacks from Aeroflie API though QT Signal/Slots
         # to avoid manipulating the UI when rendering it
         self._connected_signal.connect(self._connected)
         self._disconnected_signal.connect(self._disconnected)
 
-        # Connect the Crazyflie API callbacks to the signals
+        # Connect the Aeroflie API callbacks to the signals
         self._helper.cf.connected.add_callback(
             self._connected_signal.emit)
 
@@ -171,7 +171,7 @@ class LEDRingTab(TabToolbox, led_ring_tab_class):
         logger.info("LED write done callback")
 
     def _connected(self, link_uri):
-        """Callback when the Crazyflie has been connected"""
+        """Callback when the Aeroflie has been connected"""
         mems = self._helper.cf.mem.get_mems(MemoryElement.TYPE_DRIVER_LED)
         if len(mems) > 0:
             self._mem = mems[0]
@@ -188,7 +188,7 @@ class LEDRingTab(TabToolbox, led_ring_tab_class):
         self._led_ring_headlight.setEnabled(True)
 
     def _disconnected(self, link_uri):
-        """Callback for when the Crazyflie has been disconnected"""
+        """Callback for when the Aeroflie has been disconnected"""
         for btn in self._btns:
             btn.setEnabled(False)
             btn.setStyleSheet("background-color: none")

@@ -4,12 +4,12 @@
 
 
 """
-Code showing how to control the Crazyflie using the ZMQ input socket.
-This code will ramp the Crazyflie motors from 25% to 45%
+Code showing how to control the Aeroflie using the ZMQ input socket.
+This code will ramp the Aeroflie motors from 25% to 45%
 
 To work, ZMQ has to be enabled in the client configuration and the client needs
-to be connected to a Crazyflie.
-Search in bitcraze.io for 'ZMQ implementation of the cfclient' under header 'input devices'
+to be connected to a Aeroflie.
+Search in waymark.io for 'ZMQ implementation of the cfclient' under header 'input devices'
 for the protocol documentation.
 """
 

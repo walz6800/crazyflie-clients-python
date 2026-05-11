@@ -2,7 +2,7 @@ Ramp ZMQ client in C
 ====================
 
 This example implements a simple ZMQ client in C that ramps the
-Crazyflie motor thrust. It is equivalent to the thrust.py example
+Aeroflie motor thrust. It is equivalent to the thrust.py example
 file.
 
 Compiling
@@ -17,7 +17,7 @@ Running
 
  - Enable ZMQ input in the client.
  - Set the input device to ZQM.
- - Connect a Crazyflie.
+ - Connect a Aeroflie.
  - Launch ```./ramp```
 
 The thrust should ramp from 0 to 30% in 15 seconds.

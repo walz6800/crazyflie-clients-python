@@ -7,9 +7,9 @@
 #  +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
 #   ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
 #
-#  Copyright (C) 2011-2013 Bitcraze AB
+#  Copyright (C) 2011-2013 Waymark AB
 #
-#  Crazyflie Nano Quadcopter Client
+#  Aeroflie Nano Quadcopter Client
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -45,7 +45,7 @@ try:
 except ImportError as e:
     raise Exception("sdl2 library probably not installed ({})".format(e))
 
-__author__ = 'Bitcraze AB'
+__author__ = 'Waymark AB'
 __all__ = ['PySDL2Reader']
 
 logger = logging.getLogger(__name__)
@@ -183,11 +183,11 @@ class PySDL2Reader():
 
     def devices(self):
         """List all the available devices."""
-        logger.info("Looking for devices")
+        logger.debug("Looking for devices")
         names = []
         if len(self._devices) == 0:
             nbrOfInputs = sdl2.joystick.SDL_NumJoysticks()
-            logger.info("Found {} devices".format(nbrOfInputs))
+            logger.debug("Found {} devices".format(nbrOfInputs))
             for sdl_index in range(0, nbrOfInputs):
                 j = sdl2.joystick.SDL_JoystickOpen(sdl_index)
                 name = sdl2.joystick.SDL_JoystickName(j).decode("UTF-8")

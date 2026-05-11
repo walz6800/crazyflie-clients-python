@@ -6,9 +6,9 @@
 #  +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
 #   ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
 #
-#  Copyright (C) 2015 Bitcraze AB
+#  Copyright (C) 2015 Waymark AB
 #
-#  Crazyflie Nano Quadcopter Client
+#  Aeroflie Nano Quadcopter Client
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -26,7 +26,7 @@
 #  MA  02110-1301, USA.
 
 """
-Server used to connect to a Crazyflie using ZMQ.
+Server used to connect to a Aeroflie using ZMQ.
 """
 
 import sys
@@ -61,7 +61,7 @@ ZMQ_LOG_PORT = 1
 ZMQ_PARAM_PORT = 2
 # Async event for connection, like connection lost (publish)
 ZMQ_CONN_PORT = 3
-# Control set-poins for Crazyflie (pull)
+# Control set-poins for Aeroflie (pull)
 ZMQ_CTRL_PORT = 4
 
 # Timeout before giving up when verifying param write
@@ -315,7 +315,7 @@ class _CtrlThread(Thread):
 
 
 class ZMQServer():
-    """Crazyflie ZMQ server"""
+    """Aeroflie ZMQ server"""
 
     def __init__(self, base_url, base_port):
         """Start threads and bind ports"""
@@ -356,7 +356,7 @@ class ZMQServer():
 
 
 def main():
-    """Main Crazyflie ZMQ application"""
+    """Main Aeroflie ZMQ application"""
     init_language("zh_CN")
     import argparse
 

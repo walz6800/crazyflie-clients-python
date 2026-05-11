@@ -7,9 +7,9 @@
 #  +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
 #   ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
 #
-#  Copyright (C) 2013-2023 Bitcraze AB
+#  Copyright (C) 2013-2023 Waymark AB
 #
-#  Crazyflie Nano Quadcopter Client
+#  Aeroflie Nano Quadcopter Client
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -45,7 +45,7 @@ from PyQt6.QtCore import QAbstractItemModel, QModelIndex
 
 from cfclient.utils.logdatawriter import LogWriter
 
-__author__ = 'Bitcraze AB'
+__author__ = 'Waymark AB'
 __all__ = ['LogBlockTab']
 
 logblock_tab_class = uic.loadUiType(cfclient.module_path + "/ui/tabs/logBlockTab.ui")[0]
@@ -99,14 +99,14 @@ class LogBlockItem(object):
 
     def _log_error(self, logconfig, msg):
         """
-        Callback when there's an error starting the block in the Crazyflie
+        Callback when there's an error starting the block in the Aeroflie
         """
         # Do nothing here, a pop-up will notify the user that the
         # starting failed
         self._doing_transaction = False
 
     def _set_started(self, conf, started):
-        """Callback when a block has been started in the Crazyflie"""
+        """Callback when a block has been started in the Aeroflie"""
         logger.debug("%s started: %s", self.name, started)
         if started:
             self._block_started = True
@@ -147,7 +147,7 @@ class LogBlockItem(object):
         return self._doing_transaction
 
     def _set_added(self, conf, started):
-        """Callback when a block has been added to the Crazyflie"""
+        """Callback when a block has been added to the Aeroflie"""
         logger.debug("%s added: %s", self.name, started)
 
     def var_list(self):
@@ -326,7 +326,7 @@ class LogBlockTab(TabToolbox, logblock_tab_class):
 
     def __init__(self, helper):
         """Initialize the tab"""
-        super(LogBlockTab, self).__init__(helper, self.tr('Log Blocks'))
+        super(LogBlockTab, self).__init__(helper, 'Log Blocks')
         self.setupUi(self)
 
         self._helper.cf.log.block_added_cb.add_callback(self._block_added)
@@ -345,7 +345,7 @@ class LogBlockTab(TabToolbox, logblock_tab_class):
         self._model.add_block(block, self._helper.cf.connected_ts)
 
     def _disconnected(self, link_uri):
-        """Callback when the Crazyflie is disconnected"""
+        """Callback when the Aeroflie is disconnected"""
         self._model.beginResetModel()
         self._model.reset()
         self._model.endResetModel()

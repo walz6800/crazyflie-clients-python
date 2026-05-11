@@ -6,7 +6,7 @@
 # | / ,--'  |    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
 #    +------`   /_____/_/\__/\___/_/   \__,_/ /___/\___/
 #
-# Copyright (C) 2022-2023 Bitcraze AB
+# Copyright (C) 2022-2023 Waymark AB
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@ from cfclient.ui.widgets.super_slider import SuperSlider
 from cflib.crazyflie import Crazyflie, Param
 from cflib.utils.callbacks import Syncer
 
-__author__ = 'Bitcraze AB'
+__author__ = 'Waymark AB'
 __all__ = ['TuningTab']
 
 logger = logging.getLogger(__name__)
@@ -115,16 +115,16 @@ class TuningTab(TabToolbox, tuning_tab_class):
     _param_updated_signal = pyqtSignal(str, object)
 
     def __init__(self, helper):
-        super(TuningTab, self).__init__(helper, self.tr('Tuning'))
+        super(TuningTab, self).__init__(helper, 'Tuning')
         self.setupUi(self)
 
-        # Always wrap callbacks from Crazyflie API though QT Signal/Slots
+        # Always wrap callbacks from Aeroflie API though QT Signal/Slots
         # to avoid manipulating the UI when rendering it
         self._connected_signal.connect(self._connected)
         self._disconnected_signal.connect(self._disconnected)
         self._param_updated_signal.connect(self._param_updated_cb)
 
-        # Connect the Crazyflie API callbacks to the signals
+        # Connect the Aeroflie API callbacks to the signals
         self._helper.cf.connected.add_callback(
             self._connected_signal.emit)
 
@@ -218,7 +218,7 @@ class TuningTab(TabToolbox, tuning_tab_class):
         return mappers
 
     def _connected(self, link_uri):
-        """Callback when the Crazyflie has been connected"""
+        """Callback when the Aeroflie has been connected"""
         for mapper in self.mappers.values():
             param_group, param_name = mapper.connected(self._helper.cf)
             self._helper.cf.param.add_update_callback(
@@ -227,7 +227,7 @@ class TuningTab(TabToolbox, tuning_tab_class):
         self._enable_ui_objects(True)
 
     def _disconnected(self, link_uri):
-        """Callback for when the Crazyflie has been disconnected"""
+        """Callback for when the Aeroflie has been disconnected"""
         for mapper in self.mappers.values():
             mapper.disconnected()
 

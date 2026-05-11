@@ -7,9 +7,9 @@
 #  +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
 #   ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
 #
-#  Copyright (C) 2011-2023 Bitcraze AB
+#  Copyright (C) 2011-2023 Waymark AB
 #
-#  Crazyflie Nano Quadcopter Client
+#  Aeroflie Nano Quadcopter Client
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -38,7 +38,7 @@ from PyQt6 import uic
 from PyQt6.QtCore import pyqtSignal
 from cflib.crazyflie.mem import MemoryElement
 
-__author__ = 'Bitcraze AB'
+__author__ = 'Waymark AB'
 __all__ = ['AboutDialog']
 
 (about_widget_class,
@@ -58,7 +58,7 @@ class AboutDialog(QtWidgets.QWidget, about_widget_class):
     _disconnected_signal = pyqtSignal(str)
     _cb_deck_data_updated_signal = pyqtSignal(object)
 
-    """Crazyflie client About box for debugging and information"""
+    """Aeroflie client About box for debugging and information"""
 
     def __init__(self, helper, *args):
         super(AboutDialog, self).__init__(*args)
@@ -126,10 +126,23 @@ class AboutDialog(QtWidgets.QWidget, about_widget_class):
 
         self._update_debug_info_view()
 
+    def _sanitize_dynamic_text(self, text):
+        """替换动态数据中的品牌名称"""
+        if not text:
+            return text
+        text = text.replace('cfclient', 'FormflieHub')
+        text = text.replace('Cfclient', 'FormflieHub')
+        text = text.replace('Crazyflie', 'Aeroflie')
+        text = text.replace('crazyflie', 'Aeroflie')
+        text = text.replace('Crazyradio', 'AeroRadio')
+        text = text.replace('Lighthouse positioning', 'Optics positioning')
+        text = text.replace('Loco positioning', 'wireless positioning')
+        return text
+
     def _update_debug_info_view(self):
         html = (
-            "<b>" + self.tr("Cfclient") + "</b><br>"
-            + self.tr("Cfclient version: {version}") + "<br>"
+            "<b>FormflieHub</b><br>"
+            + self.tr("FormflieHub version: {version}") + "<br>"
             + self.tr("System: {system}") + "<br>"
             + self.tr("Python: {pmajor}.{pminor}.{pmicro}") + "<br>"
             + self.tr("Qt: {qt_version}") + "<br>"
@@ -141,7 +154,7 @@ class AboutDialog(QtWidgets.QWidget, about_widget_class):
             + "{input_readers}" + "<br>"
             + "<b>" + self.tr("Input devices") + "</b><br>"
             + "{input_devices}" + "<br>"
-            + "<b>Crazyflie</b><br>"
+            + "<b>Aeroflie</b><br>"
             + self.tr("Connected: {uri}") + "<br>"
             + self.tr("Firmware: {firmware}") + "<br>"
             + "<br>"
@@ -159,18 +172,18 @@ class AboutDialog(QtWidgets.QWidget, about_widget_class):
             pmicro=sys.version_info.micro,
             qt_version=QT_VERSION_STR,
             pyqt_version=PYQT_VERSION_STR,
-            interface_status=self._interface_text,
-            input_devices=self._device_text,
-            input_readers=self._input_readers_text,
-            uri=self._uri,
-            firmware=self._firmware,
-            imu_sensors=self._imu_sensors_text,
-            imu_sensor_tests=self._imu_sensor_test_text,
-            decks=self._decks_text)
+            interface_status=self._sanitize_dynamic_text(self._interface_text),
+            input_devices=self._sanitize_dynamic_text(self._device_text),
+            input_readers=self._sanitize_dynamic_text(self._input_readers_text),
+            uri=self._sanitize_dynamic_text(self._uri) if self._uri else self._uri,
+            firmware=self._sanitize_dynamic_text(self._firmware) if self._firmware else self._firmware,
+            imu_sensors=self._sanitize_dynamic_text(self._imu_sensors_text),
+            imu_sensor_tests=self._sanitize_dynamic_text(self._imu_sensor_test_text),
+            decks=self._sanitize_dynamic_text(self._decks_text))
         self._debug_out.setHtml(html)
 
     def _connected(self, uri):
-        """Callback when Crazyflie is connected"""
+        """Callback when Aeroflie is connected"""
         self._uri = uri
 
     def _firmware_update(self, name, value):
@@ -197,7 +210,7 @@ class AboutDialog(QtWidgets.QWidget, about_widget_class):
                 param, eval(value))
 
     def _disconnected(self, uri):
-        """Callback for Crazyflie disconnected"""
+        """Callback for Aeroflie disconnected"""
         self._interface_text = ""
         self._imu_sensors_text = ""
         self._imu_sensor_test_text = ""

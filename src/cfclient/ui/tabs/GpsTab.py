@@ -7,9 +7,9 @@
 #  +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
 #   ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
 #
-#  Copyright (C) 2011-2023 Bitcraze AB
+#  Copyright (C) 2011-2023 Waymark AB
 #
-#  Crazyflie Nano Quadcopter Client
+#  Aeroflie Nano Quadcopter Client
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -41,7 +41,7 @@ from PyQt6 import QtNetwork
 from PyQt6 import QtWebKit
 from PyQt6 import uic
 
-__author__ = 'Bitcraze AB'
+__author__ = 'Waymark AB'
 __all__ = ['GpsTab']
 
 logger = logging.getLogger(__name__)
@@ -88,7 +88,7 @@ class GpsTab(TabToolbox, gps_tab_class):
         self._connected_signal.connect(self._connected)
         self._disconnected_signal.connect(self._disconnected)
 
-        # Connect the callbacks from the Crazyflie API
+        # Connect the callbacks from the Aeroflie API
         self._helper.cf.disconnected.add_callback(
             self._disconnected_signal.emit)
         self._helper.cf.connected.add_callback(
@@ -133,7 +133,7 @@ class GpsTab(TabToolbox, gps_tab_class):
         self._max_speed = 0.0
 
     def _disconnected(self, link_uri):
-        """Callback for when the Crazyflie has been disconnected"""
+        """Callback for when the Aeroflie has been disconnected"""
         return
 
     def _logging_error(self, log_conf, msg):

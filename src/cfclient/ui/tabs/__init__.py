@@ -7,9 +7,9 @@
 #  +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
 #   ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
 #
-#  Copyright (C) 2011-2017 Bitcraze AB
+#  Copyright (C) 2011-2017 Waymark AB
 #
-#  Crazyflie Nano Quadcopter Client
+#  Aeroflie Nano Quadcopter Client
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -133,7 +133,7 @@ except Exception as e:
     _import_errors.append(('TuningTab', str(e)))
     logger.warning("Failed to load tab TuningTab: %s", e)
 
-__author__ = 'Bitcraze AB'
+__author__ = 'Waymark AB'
 __all__ = []
 
 available = [t for t in [
@@ -141,17 +141,17 @@ available = [t for t in [
     # ExampleTab,
     FlightTab,
     # GpsTab,
+    LighthouseTab,
+    LocoPositioningTab,
     LEDRingTab,
     ColorLEDTab,
     LogBlockTab,
     LogTab,
     ParamTab,
     PlotTab,
-    LocoPositioningTab,
-    LighthouseTab,
-    LogClientTab,
     TuningTab,
     CrtpSharkToolbox,
+    LogClientTab,
 ] if t is not None]
 
 if _import_errors:

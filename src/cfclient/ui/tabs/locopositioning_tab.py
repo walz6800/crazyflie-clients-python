@@ -7,9 +7,9 @@
 #  +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
 #   ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
 #
-#  Copyright (C) 2011-2023 Bitcraze AB
+#  Copyright (C) 2011-2023 Waymark AB
 #
-#  ColonyFlie Nano Quadcopter Client
+#  Aeroflie Nano Quadcopter Client
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -52,9 +52,7 @@ from cfclient.ui.dialogs.anchor_position_dialog import AnchorPositionDialog
 from vispy import scene
 import numpy as np
 
-import copy
-
-__author__ = 'Bitcraze AB'
+__author__ = 'Waymark AB'
 __all__ = ['LocoPositioningTab']
 
 logger = logging.getLogger(__name__)
@@ -124,7 +122,9 @@ class Plot3dLps(scene.SceneCanvas):
     TEXT_OFFSET = np.array((0.0, 0, 0.25))
 
     def __init__(self):
-        scene.SceneCanvas.__init__(self, keys=None)
+        # autoswap=False: Qt QOpenGLWidget 已经处理 FBO 呈现，
+        # 启用在 vispy 端会导致冗余交换和持续 60FPS 渲染从而占用内存
+        scene.SceneCanvas.__init__(self, keys=None, autoswap=False)
         self.unfreeze()
 
         self._view = self.central_widget.add_view()
@@ -376,7 +376,7 @@ class LocoPositioningTab(TabToolbox, locopositioning_tab_class):
     _anchor_data_updated_signal = pyqtSignal(object)
 
     def __init__(self, helper):
-        super(LocoPositioningTab, self).__init__(helper, self.tr('Wirless Positioning'))
+        super(LocoPositioningTab, self).__init__(helper, 'Wireless Positioning')
         self.setupUi(self)
 
         self._anchors = {}
@@ -385,7 +385,7 @@ class LocoPositioningTab(TabToolbox, locopositioning_tab_class):
 
         self._display_mode = DisplayMode.estimated_position
 
-        # Always wrap callbacks from ColonyFlie API though QT Signal/Slots
+        # Always wrap callbacks from Aeroflie API though QT Signal/Slots
         # to avoid manipulating the UI when rendering it
         self._connected_signal.connect(self._connected)
         self._disconnected_signal.connect(self._disconnected)
@@ -455,7 +455,7 @@ class LocoPositioningTab(TabToolbox, locopositioning_tab_class):
         self._configure_anchor_positions_button.clicked.connect(
             self._show_anchor_postion_dialog)
 
-        # Connect the ColonyFlie API callbacks to the signals
+        # Connect the Aeroflie API callbacks to the signals
         self._helper.cf.connected.add_callback(
             self._connected_signal.emit)
 
@@ -474,6 +474,7 @@ class LocoPositioningTab(TabToolbox, locopositioning_tab_class):
         self._anchor_state_timer = QTimer()
         self._anchor_state_timer.setInterval(self.UPDATE_PERIOD_ANCHOR_STATE)
         self._anchor_state_timer.timeout.connect(self._poll_anchor_state)
+        self._anchor_state_timer.start()
         self._anchor_state_machine = None
 
         self._update_position_label(self._helper.pose_logger.position)
@@ -521,8 +522,8 @@ class LocoPositioningTab(TabToolbox, locopositioning_tab_class):
         self._anchors = {}
 
     def _connected(self, link_uri):
-        """Callback when the ColonyFlie has been connected"""
-        logger.debug("ColonyFlie connected to {}".format(link_uri))
+        """Callback when the Aeroflie has been connected"""
+        logger.debug("Aeroflie connected to {}".format(link_uri))
         self._request_param_to_detect_loco_deck()
 
     def _request_param_to_detect_loco_deck(self):
@@ -607,10 +608,34 @@ class LocoPositioningTab(TabToolbox, locopositioning_tab_class):
                         self._helper.cf.param.values[self.PARAM_MDOE_GR][
                             self.PARAM_MODE_NM])
 
+    def _remove_loco_param_callbacks(self):
+        """移除在连接时注册的参数回调，防止回调累积导致内存泄漏"""
+        try:
+            self._helper.cf.param.remove_update_callback(
+                group=self.PARAM_MDOE_GR, name=self.PARAM_MODE_NM,
+                cb=self._loco_mode_updated)
+        except (KeyError, AttributeError):
+            pass
+        try:
+            self._helper.cf.param.remove_update_callback(
+                group='deck', name='bcLoco',
+                cb=self._cb_param_to_detect_loco_deck_signal.emit)
+        except (KeyError, AttributeError):
+            pass
+        try:
+            self._helper.cf.param.remove_update_callback(
+                group='deck', name='bcDWM1000',
+                cb=self._cb_param_to_detect_loco_deck_signal.emit)
+        except (KeyError, AttributeError):
+            pass
+
     def _disconnected(self, link_uri):
-        """Callback for when the ColonyFlie has been disconnected"""
-        logger.debug("ColonyFlie disconnected from {}".format(link_uri))
+        """Callback for when the Aeroflie has been disconnected"""
+        logger.debug("Aeroflie disconnected from {}".format(link_uri))
+        self._graph_timer.stop()
+        self._anchor_state_timer.stop()
         self._stop_polling_anchor_pos()
+        self._remove_loco_param_callbacks()
         self._clear_state()
         self._update_graphics()
         self.is_loco_deck_active = False
@@ -707,8 +732,12 @@ class LocoPositioningTab(TabToolbox, locopositioning_tab_class):
             col = i % 8
             row = int(i / 8)
 
-            label = container.itemAtPosition(row, col).widget()
-            label.deleteLater()
+            item = container.itemAtPosition(row, col)
+            if item is not None:
+                label = item.widget()
+                if label is not None:
+                    container.removeWidget(label)
+                    label.deleteLater()
 
     def _logging_error(self, log_conf, msg):
         """Callback from the log layer when an error occurs"""
@@ -716,12 +745,12 @@ class LocoPositioningTab(TabToolbox, locopositioning_tab_class):
                           self.tr("Error when using log config"),
                           self.tr(" [{0}]: {1}").format(log_conf.name, msg))
 
-    def _start_polling_anchor_pos(self, ColonyFlie):
+    def _start_polling_anchor_pos(self, Aeroflie):
         """Set up a timer to poll anchor positions from the memory sub
         system"""
         if not self._anchor_state_machine:
             self._anchor_state_machine = AnchorStateMachine(
-                ColonyFlie.mem,
+                Aeroflie.mem,
                 self._anchor_active_id_list_updated_signal.emit,
                 None,
                 self._anchor_data_updated_signal.emit
@@ -789,9 +818,8 @@ class LocoPositioningTab(TabToolbox, locopositioning_tab_class):
 
     def _update_graphics(self):
         if self.is_visible() and self.is_loco_deck_active:
-            anchors = copy.deepcopy(self._anchors)
             self._plot_3d.update_data(
-                anchors,
+                self._anchors,
                 self._helper.pose_logger.position,
                 self._display_mode)
             self._update_position_label(self._helper.pose_logger.position)

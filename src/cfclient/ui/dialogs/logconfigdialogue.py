@@ -7,9 +7,9 @@
 #  +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
 #   ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
 #
-#  Copyright (C) 2011-2023 Bitcraze AB
+#  Copyright (C) 2011-2023 Waymark AB
 #
-#  Crazyflie Nano Quadcopter Client
+#  Aeroflie Nano Quadcopter Client
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -27,7 +27,7 @@
 
 """
 This dialogue is used to configure different log configurations that is used to
-enable logging of data from the Crazyflie. These can then be used in different
+enable logging of data from the Aeroflie. These can then be used in different
 views in the UI.
 """
 
@@ -42,7 +42,7 @@ from PyQt6.QtGui import QShortcut, QKeySequence
 
 from cflib.crazyflie.log import LogConfig
 
-__author__ = 'Bitcraze AB'
+__author__ = 'Waymark AB'
 __all__ = ['LogConfigDialogue']
 
 logger = logging.getLogger(__name__)

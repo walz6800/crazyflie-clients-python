@@ -14,7 +14,7 @@ The application uses 4 ports for communicating:
   * 2004: Control data (pull)
 
 All communication is done using JSON. To test the implementation we have a
-[test client](https://github.com/bitcraze/crazyflie-clients-python/blob/develop/examples/zmqsrvtest.py) that could be
+test client that could be
 useful to have a look at. Each message sent contains a _version_ field that should always be included.
 
 ## cfzmq
@@ -88,7 +88,7 @@ Example response of **unsuccessful** command:
 ## scan
 
 The scan command will trigger a scanning of all of the available interfaces on the server (USB and Crazyradio) and
-return all the Crazyflies found. If no interfaces are available (no Crazyradio or Crazyflie) the command will
+return all the Aeroflies found. If no interfaces are available (no Crazyradio or Aeroflie) the command will
 return an empty list. Therefore there's no error conditions for this command, status will always be 0.
 
 
@@ -109,7 +109,7 @@ Example response:
     [
       {
         "uri": "radio://0/100/250K",
-        "info": "This is a Crazyflie"
+        "info": "This is a Aeroflie"
       },
       {
         "uri": "debug://0/0",
@@ -123,7 +123,7 @@ Example response:
 ## connect
 
 The connect command will connect to the supplied URI, download the logging TOC and parameter TOC/values and return
-everything. There's a timeout on the server-side that will be hit if the server can't connect to a Crazyflie on the
+everything. There's a timeout on the server-side that will be hit if the server can't connect to a Aeroflie on the
 supplied URI (of if there's some other error).
 
 The log TOC will be found in the _log_ dictionary, where the first level is group, the second level is name and the
@@ -215,7 +215,7 @@ Example response of **successful** command:
 
 
 
-If no Crazyflie is found status 1 will be returned and an error message will be supplied from the driver.
+If no Aeroflie is found status 1 will be returned and an error message will be supplied from the driver.
 
 Example response of **unsuccessful** command:
 
@@ -244,15 +244,15 @@ For the parameters (found in _param_) the following attributes are set:
 
 ## log
 
-Logging data from the Crazyflie is done by setting up log configurations that will push log data at a specified
-interval ([more info here](https://www.bitcraze.io/documentation/repository/crazyflie-firmware/master/userguides/logparam/)).
+Logging data from the Aeroflie is done by setting up log configurations that will push log data at a specified
+interval (more info here).
 There are four command associated with log configurations: _create_, _start_, _stop_ and _delete_. Create and delete
-handles if the log configuration is stored in the Crazyflie memory or not. Start and stop handles if the log data is
-actually being sent or not from the Crazyflie to the host. Before a log config can be started is has to be created,
+handles if the log configuration is stored in the Aeroflie memory or not. Start and stop handles if the log data is
+actually being sent or not from the Aeroflie to the host. Before a log config can be started is has to be created,
 before it can be stopped it has to be started and before it can be deleted is has to be created. Note that log block
 are automatically started once they have been created.
 
-**Note**: When a host connects to a Crazyflie the log configurations are all deleted. So if you connect, set up log
+**Note**: When a host connects to a Aeroflie the log configurations are all deleted. So if you connect, set up log
 configurations, disconnect and then connect again the configurations will be deleted.
 
 Below is an example for creating a logging configuration and starting it. The configuration contains the two
@@ -325,13 +325,13 @@ The following errors can be seen in the response packet:
 
 **note:** The Python API supports logging variables using different types than what the variables is declared
 as in the firmware. I.e you can log a uint32_t as a uint8_t, retaining the 8 MSB
-([more info here](https://www.bitcraze.io/documentation/repository/crazyflie-firmware/master/userguides/logparam/)).
+(more info here).
 This is still not implemented.
 
 ## param
 
 During run-time it's possible to set parameters that are mapped directly to variables in the
-firmware([more info here](https://www.bitcraze.io/documentation/repository/crazyflie-firmware/master/userguides/logparam/)).
+firmware(more info here).
 Each parameter update is also published on the param socket.
 
 Below is an example command to set the _flightctrl.xmode_ parameter.
@@ -459,7 +459,7 @@ For each update the variable name and value is sent.
 
 ## Connection socket
 
-This socket is used to broadcast changes in the connection state as events. Connecting the Crazyflie is a synchronous
+This socket is used to broadcast changes in the connection state as events. Connecting the Aeroflie is a synchronous
 call to the [command socket](#command-socket) but for instance a lost connection will be asynchronous and broadcasted
 on this socket.
 
@@ -473,9 +473,9 @@ There's a number of different events:
 | Event        | Comment                                                         | Msg field |
 | ------------ | --------------------------------------------------------------- | --------- |
 | requested    | A connection has been requested                                 | No        |
-| connected    | A Crazyflie has been connected and the TOCs has been downloaded | No        |
+| connected    | A Aeroflie has been connected and the TOCs has been downloaded | No        |
 | failed       | A connection request has failed                                 | Yes       |
-| disconnected | A Crazyflie has been disconnected                               | No        |
+| disconnected | A Aeroflie has been disconnected                               | No        |
 | lost         | An open connection has been lost                                | Yes       |
 
 
@@ -492,7 +492,7 @@ Example of a lost connection:
 
 ## Control socket
 
-Control commands can be sent at any time after the Crazyflie has been connected and has the following scaling/format:
+Control commands can be sent at any time after the Aeroflie has been connected and has the following scaling/format:
 
 ```
 {

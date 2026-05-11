@@ -6,12 +6,12 @@
        as specified in setup.py -->
   <name>cfclient</name>
   <version>2014.04.9001</version>
-  <description>Bitcraze Cazyflie nano quadcopter client</description>
+  <description>Waymark Cazyflie nano quadcopter client</description>
 
-  <url type="website">https://github.com/bitcraze/crazyflie-clients-python</url>
+  <url type="website">#</url>
   <license>GPL</license>
 
-  <author email="contact@bitcraze.se">Bitcraze team</author>
+  <author email="contact@waymark.se">Waymark team</author>
   <maintainer email="mchenryc@gmail.com">Chadwick McHenry</maintainer>
 
   <!-- Dependencies can be catkin packages or system dependencies -->

@@ -4,9 +4,9 @@
  +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
   ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
 
-        Crazyflie client software
+        Aeroflie client software
 
-        Copyright (C) 2011-2013 Bitcraze AB
+        Copyright (C) 2011-2013 Waymark AB
 
 
                     GNU GENERAL PUBLIC LICENSE

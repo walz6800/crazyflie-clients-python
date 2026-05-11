@@ -7,9 +7,9 @@
 #  +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
 #   ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
 #
-#  Copyright (C) 2014 Bitcraze AB
+#  Copyright (C) 2014 Waymark AB
 #
-#  Crazyflie Nano Quadcopter Client
+#  Aeroflie Nano Quadcopter Client
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -26,11 +26,11 @@
 #  02110-1301, USA.
 """
 The mux is used to open one or more devices and mix the inputs from all
-of them into one "input" for the Crazyflie and UI.
+of them into one "input" for the Aeroflie and UI.
 """
 import logging
 
-__author__ = 'Bitcraze AB'
+__author__ = 'Waymark AB'
 __all__ = ['InputMux']
 
 logger = logging.getLogger(__name__)

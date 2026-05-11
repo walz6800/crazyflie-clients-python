@@ -6,9 +6,9 @@
 #  | / ,--´  |    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
 #     +------`   /_____/_/\__/\___/_/   \__,_/ /___/\___/
 #
-#  Copyright (C) 2020-2023 Bitcraze AB
+#  Copyright (C) 2020-2023 Waymark AB
 #
-#  Crazyflie Nano Quadcopter Client
+#  Aeroflie Nano Quadcopter Client
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -30,7 +30,7 @@ from PyQt6.QtGui import QFont
 
 import cfclient
 
-__author__ = 'Bitcraze AB'
+__author__ = 'Waymark AB'
 __all__ = ['UiUtils']
 
 ICON_PATH = os.path.join(cfclient.module_path, 'ui', 'icons')
@@ -48,7 +48,7 @@ class UiUtils:
     COLOR_HACKER_BLACK = '#0A0B0B'
     COLOR_HACKER_GREEN = '#00FF2F'
 
-    FONT = QFont()
+    FONT = QFont("Microsoft YaHei", 9)
 
     THEMES = ['Default', 'Navy blue', 'Hacker']
 

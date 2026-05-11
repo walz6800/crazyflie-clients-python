@@ -7,9 +7,9 @@
 #  +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
 #   ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
 #
-#  Copyright (C) 2011-2025 Bitcraze AB
+#  Copyright (C) 2011-2025 Waymark AB
 #
-#  Crazyflie Nano Quadcopter Client
+#  Aeroflie Nano Quadcopter Client
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -46,7 +46,7 @@ from cfclient.utils.input import JoystickReader
 
 from cfclient.ui.tab_toolbox import TabToolbox
 
-__author__ = 'Bitcraze AB'
+__author__ = 'Waymark AB'
 __all__ = ['FlightTab']
 
 logger = logging.getLogger(__name__)
@@ -57,21 +57,21 @@ flight_tab_class = uic.loadUiType(cfclient.module_path +
 MAX_THRUST = 65536.0
 
 TOOLTIP_ALTITUDE_HOLD = QCoreApplication.translate("FlightTab", """\
-Keeps the Crazyflie at its current altitude.
-Thrust control becomes height velocity control. The Crazyflie
+Keeps the Aeroflie at its current altitude.
+Thrust control becomes height velocity control. The Aeroflie
 uses the barometer for height control and uses body-fixed coordinates.""")
 
 TOOLTIP_POSITION_HOLD = QCoreApplication.translate("FlightTab", """\
-Keeps the Crazyflie at its current 3D position. Pitch/Roll/
+Keeps the Aeroflie at its current 3D position. Pitch/Roll/
 Thrust control becomes X/Y/Z velocity control. Uses world coordinates.""")
 
 TOOLTIP_HEIGHT_HOLD = QCoreApplication.translate("FlightTab", """\
-When activated, keeps the Crazyflie at 40cm above the ground.
+When activated, keeps the Aeroflie at 40cm above the ground.
 Thrust control becomes height velocity control. Requires a height
 sensor like the Z-Ranger deck or flow deck. Uses body-fixed coordinates..""")
 
 TOOLTIP_HOVER = QCoreApplication.translate("FlightTab", """\
-When activated, keeps the Crazyflie at 40cm above the ground and tries to
+When activated, keeps the Aeroflie at 40cm above the ground and tries to
 keep the position in X and Y as well. Thrust control becomes height velocity
 control. Requires a flow deck. Uses body-fixed coordinates.""")
 
@@ -119,7 +119,7 @@ class FlightTab(TabToolbox, flight_tab_class):
     LOG_NAME_SUPERVISOR_INFO = 'supervisor.info'
 
     def __init__(self, helper):
-        super(FlightTab, self).__init__(helper, self.tr('Flight Control'))
+        super(FlightTab, self).__init__(helper, 'Flight Control')
         self.setupUi(self)
 
         self.disconnectedSignal.connect(self.disconnected)
@@ -414,7 +414,7 @@ class FlightTab(TabToolbox, flight_tab_class):
 
         if self._can_fly_deprecated == 0:
             self.commanderBox.setEnabled(False)
-            self.commanderBox.setToolTip(self.tr('The Crazyflie reports that flight is not possible'))
+            self.commanderBox.setToolTip(self.tr('The Aeroflie reports that flight is not possible'))
             return
 
         # We cannot know if we have a positioning deck until we get params
@@ -772,3 +772,10 @@ class FlightTab(TabToolbox, flight_tab_class):
                 defaultOption = 2
             self._assist_mode_combo.setCurrentIndex(defaultOption)
             self._assist_mode_combo.currentIndexChanged.emit(defaultOption)
+
+    def _refresh_assist_mode_texts(self):
+        """语言切换时刷新辅助模式下拉框的文本"""
+        assist_texts = ["Altitude hold", "Position hold", "Height hold", "Hover"]
+        for i, text in enumerate(assist_texts):
+            if i < self._assist_mode_combo.count():
+                self._assist_mode_combo.setItemText(i, self.tr(text))

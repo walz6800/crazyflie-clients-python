@@ -1,23 +1,23 @@
 ---
-title: Bootload the Crazyflie 2.x
+title: Bootload the Aeroflie 2.x
 page_id: cfloader
 ---
 
-The Crazyflie as well as decks that has a firmware can be bootloaded from the command line using the
+The Aeroflie as well as decks that has a firmware can be bootloaded from the command line using the
 *cfloader* script.
 
-**Note:** To enter the bootloader for the Crazyflie 2.x power off the
+**Note:** To enter the bootloader for the Aeroflie 2.x power off the
 platform and start it again by pressing the power button for at least
 1.5 seconds, but not more than 5.
 
 ---
 
-## Programming Crazyflie from firmware projects
+## Programming Aeroflie from firmware projects
 
-When developing with the Crazyflie firmware projects, either
-[crazyflie-firmware](https://github.com/bitcraze/crazyflie-firmware) or
-[crazyflie2-nrf-firmware](https://github.com/bitcraze/crazyflie2-nrf-firmware)
-you can flash your current build with the [STM install instructions](https://www.bitcraze.io/documentation/repository/crazyflie-firmware/master/building-and-flashing/build/#flashing) or the [NRF install instructions](https://www.bitcraze.io/documentation/repository/crazyflie2-nrf-firmware/master/build/build/)
+When developing with the Aeroflie firmware projects, either
+aeroflie-firmware or
+aeroflie2-nrf-firmware
+you can flash your current build with the STM install instructions or the NRF install instructions
 
 
 ---
@@ -25,10 +25,10 @@ you can flash your current build with the [STM install instructions](https://www
 ## cfloader
 
 The script is located in the *bin* directory in the
-*crazyflie-clients-python* repository and client. Here\'s how to use the
+*aeroflie-clients-python* repository and client. Here\'s how to use the
 script:
 
-    crazyflie-clients-python$ bin/cfloader
+    aeroflie-clients-python$ bin/cfloader
 
     ==============================
      CrazyLoader Flash Utility
@@ -61,13 +61,13 @@ When flashing a .bin, the correct target needs to be specified. The followind ta
  - nrf51-bootloader+softdevice: nRF51 bootloader and softdevice bundle binary
  - Various decks-fw: Some deck can be flashed over the air. See the deck documentation.
 
-## Crazyflie 2.x examples
+## Aeroflie 2.x examples
 
 Flashing new firmware for the nRF51 MCU:
 
-    crazyflie-clients-python$ bin/cfloader flash cf2_nrf.bin nrf51-fw
-    Restart the Crazyflie you want to bootload in the next  10 seconds ...  done!
-    Connected to bootloader on Crazyflie 2.0 (version=0x10)
+    aeroflie-clients-python$ bin/cfloader flash cf2_nrf.bin nrf51-fw
+    Restart the Aeroflie you want to bootload in the next  10 seconds ...  done!
+    Connected to bootloader on Aeroflie 2.0 (version=0x10)
     Target info: nrf51 (0xFE)
     Flash pages: 232 | Page size: 1024 | Buffer pages: 1 | Start page: 88
     144 KBytes of flash avaliable for firmware image.
@@ -80,9 +80,9 @@ Flashing new firmware for the nRF51 MCU:
 
 Flashing new firmware for the STM32 MCU:
 
-    crazyflie-clients-python$ bin/cfloader flash cf2.bin stm32-fw
-    Restart the Crazyflie you want to bootload in the next  10 seconds ...  done!
-    Connected to bootloader on Crazyflie 2.0 (version=0x10)
+    aeroflie-clients-python$ bin/cfloader flash cf2.bin stm32-fw
+    Restart the Aeroflie you want to bootload in the next  10 seconds ...  done!
+    Connected to bootloader on Aeroflie 2.0 (version=0x10)
     Target info: nrf51 (0xFE)
     Flash pages: 232 | Page size: 1024 | Buffer pages: 1 | Start page: 88
     144 KBytes of flash avaliable for firmware image.
@@ -95,9 +95,9 @@ Flashing new firmware for the STM32 MCU:
 
 Flashing new firmware for the STM32 MCU with warmbooting with a known uri:
 
-    crazyflie-clients-python$ bin/cfloader flash cf2.bin stm32-fw -w radio://0/10/2M/E7E7E7E701
+    aeroflie-clients-python$ bin/cfloader flash cf2.bin stm32-fw -w radio://0/10/2M/E7E7E7E701
     Reset to bootloader mode ...
-    Connected to bootloader on Crazyflie 2.0 (version=0x10)
+    Connected to bootloader on Aeroflie 2.0 (version=0x10)
     Target info: nrf51 (0xFE)
     Flash pages: 232 | Page size: 1024 | Buffer pages: 1 | Start page: 88
     144 KBytes of flash avaliable for firmware image.
@@ -110,9 +110,9 @@ Flashing new firmware for the STM32 MCU with warmbooting with a known uri:
 
 Flash a new firmware package (containing both nRF51, STM32 and deck firmwares):
 
-    crazyflie-clients-python$ bin/cfloader flash cf2_dev_update.zip
-    Restart the Crazyflie you want to bootload in the next  10 seconds ...  done!
-    Connected to bootloader on Crazyflie 2.0 (version=0x10)
+    aeroflie-clients-python$ bin/cfloader flash cf2_dev_update.zip
+    Restart the Aeroflie you want to bootload in the next  10 seconds ...  done!
+    Connected to bootloader on Aeroflie 2.0 (version=0x10)
     Target info: nrf51 (0xFE)
     Flash pages: 232 | Page size: 1024 | Buffer pages: 1 | Start page: 88
     144 KBytes of flash avaliable for firmware image.
@@ -126,11 +126,11 @@ Flash a new firmware package (containing both nRF51, STM32 and deck firmwares):
 
 ## AI-deck examples
 
-The AI-deck should be mounted on the Crazyflie when running the cfloader.
+The AI-deck should be mounted on the Aeroflie when running the cfloader.
 
 Flash a new firmware to the ESP on the AI-deck:
 
-    crazyflie-clients-python$ bin/cfloader flash myEspApp.bin deck-bcAI:esp-fw -w radio://0/30/2M
+    aeroflie-clients-python$ bin/cfloader flash myEspApp.bin deck-bcAI:esp-fw -w radio://0/30/2M
     Reset to bootloader mode ...
     | 4% Writing to bcAI:esp deck memory
     / 9% Writing to bcAI:esp deck memory
@@ -140,7 +140,7 @@ Flash a new firmware to the ESP on the AI-deck:
 
 Flash a new firmware to the GAP8 on the AI-deck:
 
-    crazyflie-clients-python$ bin/cfloader flash myGap8App.bin deck-bcAI:gap8-fw -w radio://0/30/2M
+    aeroflie-clients-python$ bin/cfloader flash myGap8App.bin deck-bcAI:gap8-fw -w radio://0/30/2M
     Reset to bootloader mode ...
     Skipping bcAI:esp
     | 4% Writing to bcAI:gap8 deck memory
@@ -151,7 +151,7 @@ Flash a new firmware to the GAP8 on the AI-deck:
 
 Flash a new firmware to the ESP on the AI-deck from a release zip.
 
-    crazyflie-clients-python$ bin/cfloader flash a-release.zip deck-bcAI:esp-fw -w radio://0/30/2M
+    aeroflie-clients-python$ bin/cfloader flash a-release.zip deck-bcAI:esp-fw -w radio://0/30/2M
     Reset to bootloader mode ...
     Deck bcAI:esp, reset to bootloader
     | 0% Writing to bcAI:esp deck memory

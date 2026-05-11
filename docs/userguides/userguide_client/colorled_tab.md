@@ -4,7 +4,7 @@ page_id: color_led_tab
 sort_order: 4
 ---
 
-The Color LED tab lets you control the Color LED deck(s) attached to your Crazyflie. Use it to test, select colors and adjust brightness. You can control one or multiple decks (together or separately), save your favorite colors to a palette, and see real-time messages from the deck about its status.
+The Color LED tab lets you control the Color LED deck(s) attached to your Aeroflie. Use it to test, select colors and adjust brightness. You can control one or multiple decks (together or separately), save your favorite colors to a palette, and see real-time messages from the deck about its status.
 
 ![cfclient color LED](/docs/images/cfclient_colorled.png)
 
@@ -15,7 +15,7 @@ The tab is divided into 3 sections:
 
 
 ### 1. Deck Position
-The drop down is automatically updated to show the version of the color deck connected to your Crazyflie: **bottom**, **top**, or **both**.
+The drop down is automatically updated to show the version of the color deck connected to your Aeroflie: **bottom**, **top**, or **both**.
 If you have both decks attached, you have the option to control them independently or simultaneously by switching between all three options.
 
 

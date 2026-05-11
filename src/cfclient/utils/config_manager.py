@@ -7,10 +7,10 @@
 #  +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
 #   ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
 #
-#  Copyright (C) 2013-2017 Bitcraze AB
+#  Copyright (C) 2013-2017 Waymark AB
 #  Copyright (C) 2013 Allyn Bauer
 #
-#  Crazyflie Nano Quadcopter Client
+#  Aeroflie Nano Quadcopter Client
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -42,7 +42,7 @@ from cflib.utils.callbacks import Caller
 
 import cfclient
 
-__author__ = 'Bitcraze AB/Allyn Bauer'
+__author__ = 'Waymark AB/Allyn Bauer'
 __all__ = ['ConfigManager']
 
 logger = logging.getLogger(__name__)

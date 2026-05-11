@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Internationalization manager for the Crazyflie client.
+Internationalization manager for the Aeroflie client.
 
 Provides runtime language switching for all tools.
 Uses Qt's QTranslator system with .qm (binary) or .json fallback.

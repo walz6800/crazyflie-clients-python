@@ -4,11 +4,11 @@ page_id: userguide_client
 sort_order: 1
 ---
 
-This page is intended to give an overview on how to use the Crazyflie
+This page is intended to give an overview on how to use the Aeroflie
 client, not for installing it. For install instructions go
-[here](https://github.com/bitcraze/crazyflie-clients-python/blob/develop/README.md).
+here.
 
-The Crazyflie client is used for controlling the Crazyflie, flashing
+The Aeroflie client is used for controlling the Aeroflie, flashing
 firmware, setting parameters and logging data. The main UI is built up
 of a number of [tabs](index.md#tabs-and-toolboxes), where each tab is used for a specific
 functionality.
@@ -16,7 +16,7 @@ functionality.
 This page uses the terms
 [roll/pitch/yaw](http://en.wikipedia.org/wiki/Flight_dynamics_(fixed_wing_aircraft))
 extensively. For that to make any sense for a quadcopter we need to know
-where the front is, so you will need to know [Crazyflie's coordinate system](https://www.bitcraze.io/documentation/system/platform/cf2-coordinate-system/)
+where the front is, so you will need to know Aeroflie's coordinate system
 
 ---
 
@@ -24,19 +24,19 @@ where the front is, so you will need to know [Crazyflie's coordinate system](htt
 
 -   Start up the application
 -   Insert the joystick and Crazyradio (PA)
--   Before you connect to the Crazyflie make sure that the joystick is
+-   Before you connect to the Aeroflie make sure that the joystick is
     working as expected and that the **thrust is zero**. The joystick
     values should be visible in the flight data box under target.
 -   Press *Scan*
 -   Wait for the scanning to complete
 -   In the drop-down menu to the left of the Connect button select the
-    Crazyflie you want to connect to. Connect to the URI e.g.
+    Aeroflie you want to connect to. Connect to the URI e.g.
     radio://0/80/250k.
--   The client will now connect to the Crazyflie and handshake
--   When the handshake is done you can start flying the Crazyflie.
+-   The client will now connect to the Aeroflie and handshake
+-   When the handshake is done you can start flying the Aeroflie.
     Remember the most tricky part is the thrust so start out easy\...
 
-For more info on LED indicators etc. have a look at the [Crazyflie 2.0 and Crazyflie 2.1(+) getting started guide](https://www.bitcraze.io/documentation/tutorials/getting-started-with-crazyflie-2-x/#understanding-leds) user guide.
+For more info on LED indicators etc. have a look at the Aeroflie 2.0 and Aeroflie 2.1(+) getting started guide user guide.
 
 ---
 
@@ -47,9 +47,9 @@ For more info on LED indicators etc. have a look at the [Crazyflie 2.0 and Crazy
 1.  The window title will show the connection status
 2.  Connect/disconnect, scan and the drop-down connection list as well
     as Address and auto reconnect.
-       * *Scan:* Will scan for availible Crazyflies within the chosen address.
+       * *Scan:* Will scan for availible Aeroflies within the chosen address.
        * *Connect:* Will connect to the selected URI in the connection list
-       * *Disconnect:* Will disconnect the current Crazyflie
+       * *Disconnect:* Will disconnect the current Aeroflie
        * *Address:* The address to scan for. If you didn't change this [in the configuration]( #firmware-configuration), then leave the default of 0xE7E7E7E7E7
 3. Battery and link quality (from 0% to 100%)
 4. Tabs with specific functionality (see below for details)
@@ -78,42 +78,42 @@ client.
 
 ### Firmware upgrade
 
-For updating the Crazyflie firmware you can keep being connected to the crazyflie. This will open up a separate dialog
+For updating the Aeroflie firmware you can keep being connected to the aeroflie. This will open up a separate dialog
 that will guide you through the process.
 
-Please note that you need to use a Crazyradio dongle to connect to the Crazyflie when doing firmware upgrades.
+Please note that you need to use a Crazyradio dongle to connect to the Aeroflie when doing firmware upgrades.
 Upgrading using USB is **not** possible.
 
 #### Deck firmware
 
-Some decks have a CPUs or other chips that runs firmware that needs to be updated from time to time as well. The Crazyflie
+Some decks have a CPUs or other chips that runs firmware that needs to be updated from time to time as well. The Aeroflie
 firmware verifies that it is compatible with the deck firmware during start up. If the firmware in a deck that is
 installed needs to be upgraded this will be logged in the console log. Deck firmware is upgraded as a part of the
-Crazyflie firmware upgrade process, just make sure the deck is mounted when you run the upgrade.
+Aeroflie firmware upgrade process, just make sure the deck is mounted when you run the upgrade.
 
 
 ![CFclient Bootloading](/docs/images/bootloader_dialog.png)
 
-To update the firmware in the Crazyflie 2.x do the following:
+To update the firmware in the Aeroflie 2.x do the following:
 
 -   Make sure to have any decks you will be using attached during the update, since some of
 the decks contain their own firmware which will also be updated during the firmware update. Also make sure there is a battery attached.
 -   Go to the menu *Connect-\>Bootloader*
--   Connect to the crazyflie in this dialog, if it is not already connected in the flight tab.
+-   Connect to the aeroflie in this dialog, if it is not already connected in the flight tab.
 -   Chose what to flash by selecting a platform and release:
-    - Use the "From release" tab to automatically use an [official release](https://github.com/bitcraze/crazyflie-release/releases). Make sure to select the right platform (cf2 is the Crazyflie 2.x and cf21bl is the Crazyflie 2.1 Brushless).
+    - Use the "From release" tab to automatically use an official release. Make sure to select the right platform (cf2 is the Aeroflie 2.x and cf21bl is the Aeroflie 2.1 Brushless).
     - Use the "From file" tab if you have some other release file you want to flash.
--   Click \"Program\" and wait for both the STM, NRF and decks to be flashed. Note: the Crazyflie may restart multiple times during this process.
--   Your crazyflie will automatically restart a couple of times.
--   Do not touch or restart your crazyflie untill all flashing is done and you see \"status: idle\" at the bottom.
+-   Click \"Program\" and wait for both the STM, NRF and decks to be flashed. Note: the Aeroflie may restart multiple times during this process.
+-   Your aeroflie will automatically restart a couple of times.
+-   Do not touch or restart your aeroflie untill all flashing is done and you see \"status: idle\" at the bottom.
 - To check the firmware version, under the *View* menu, open up *Tabs-\>Console* tab and look at the output when connecting to the
-Crazyflie 2.x.
+Aeroflie 2.x.
 
-> If you accidently restarted your Crazyflie during flashing or something else happend which caused your Crazyflie to not start up properly, follow [the instructions for recovery mode (cold boot)](/docs/userguides/recovery-mode.md).
+> If you accidently restarted your Aeroflie during flashing or something else happend which caused your Aeroflie to not start up properly, follow [the instructions for recovery mode (cold boot)](/docs/userguides/recovery-mode.md).
 
 ### Firmware configuration
 
-It is possible to set another channel to communicate with the Crazyflie 2.x. It can be wise to do this if there exist other wireless
+It is possible to set another channel to communicate with the Aeroflie 2.x. It can be wise to do this if there exist other wireless
 networks that can interfere, especially WiFi. It is also possible to
 permanently store the trim values for pitch and roll.
 
@@ -140,27 +140,27 @@ stored in a none volatile memory:
 The procedure is described below and the parameters can be changed again
 any time the same way.
 
-First connect to the Crazyflie 2.x with the normal connect button. Then open "Connect->Configure 2.x" to reach the configure 2.x dialog
+First connect to the Aeroflie 2.x with the normal connect button. Then open "Connect->Configure 2.x" to reach the configure 2.x dialog
 
 ![CF2 config](/docs/images/cfclient_cf2_config.png){:width="500"}
 
-Once the settings has been made press the write button to save them permanently in the Crazyflie 2.x EEPROM.  Then restart the Crazyflie and connect to the new address.
+Once the settings has been made press the write button to save them permanently in the Aeroflie 2.x EEPROM.  Then restart the Aeroflie and connect to the new address.
 
 ### Radio Address Configuration
 
-If you can't connect to your Crazyflie via the Crazyradio, you may be searching for the wrong radio address.
-It is possible to find out the current address of your Crazyflie by following these steps:
+If you can't connect to your Aeroflie via the Crazyradio, you may be searching for the wrong radio address.
+It is possible to find out the current address of your Aeroflie by following these steps:
 
--   Plug your Crazyflie to your computer via a USB cable. Make sure the cable you are using is not charging-only.
+-   Plug your Aeroflie to your computer via a USB cable. Make sure the cable you are using is not charging-only.
 -   Press the Scan button and select the usb://0 interface.
--   Press the Connect button. The Crazyflie is now connected.
+-   Press the Connect button. The Aeroflie is now connected.
 -   Open “Connect->Configure 2.x” to reach the configure 2.x dialog, where you can find out the radio address.
 
 ![cfclient usb radio config](/docs/images/cfclient_usb_radio_config.png){:width="500"}
 
 ### Logging
 
-The Crazyflie logging framework allows to log the state of Crazyflie
+The Aeroflie logging framework allows to log the state of Aeroflie
 variables in real-time. This subsystem is used by the client to show
 information like pose or battery level.
 
@@ -176,12 +176,12 @@ configuration\", You then see the following toolbox:
 
 ![cfclient logging configuration](/docs/images/client_log-configuration_anotated.png){:align-center}
 
-1.  List of log variable in the Crazyflie
+1.  List of log variable in the Aeroflie
 2.  Log variables in the current log block
-3.  Add the selected Crazyflie log variable in the log block
+3.  Add the selected Aeroflie log variable in the log block
 4.  Remove the selected log block variable from the log block
 5.  Period at which the variables are sampled and the block is send by
-    the Crazyflie to the client. The minimum possible period is 10ms
+    the Aeroflie to the client. The minimum possible period is 10ms
     (100Hz) and it can be set by step of 10ms up to 2550ms.
 6.  Bytes used by the variables in the log block.
 7.  File-tree structure where you can sort the log-blocks into categories.
@@ -196,7 +196,7 @@ things such as the max roll/pitch and thrust.
 
 ### Input devices
 
-In order to control the Crazyflie you are connected to you will need
+In order to control the Aeroflie you are connected to you will need
 some input-device. Normally this would be a gamepad, but any
 input-device with at least 4 analog axis will do. Here\'s
 [a list](/docs/userguides/inputdevices.md) of some input-devices
@@ -259,12 +259,12 @@ The current input device and mapping can be selected from the *Input
 device* menu.
 
 The *Input device* menu contains a number of different \"modes\" that
-can be used for controlling a Crazyflie. Currently there\'s thee to
+can be used for controlling a Aeroflie. Currently there\'s thee to
 choose from. The alternatives will only be enabled if there\'s enough
 input devices connected to use them.
 
 -   *Normal:* Just like it says this is the normal mode using only one
-    controller to control a Crazyflie
+    controller to control a Aeroflie
 -   *Teacher (RP):* This mode requires two input-devices, where one will
     be configured for roll and pitch and the other one for the rest of
     the functionality. By using the *Mux switch* functionality (mapped
@@ -314,7 +314,7 @@ width="700"}
 ## ZMQ backends
 
 The UI is normally used to get/set parameters, view logged data and send
-control commands to the Crazyflie. Aside from this there\'s also the
+control commands to the Aeroflie. Aside from this there\'s also the
 possibility to connect via ZMQ to the client and control several things:
 
 -   [Parameters](/docs/functional-areas/cfclient_zmq.md#parameters):

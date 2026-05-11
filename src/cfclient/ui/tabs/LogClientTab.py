@@ -7,9 +7,9 @@
 #  +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
 #   ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
 #
-#  Copyright (C) 2011-2023 Bitcraze AB
+#  Copyright (C) 2011-2023 Waymark AB
 #
-#  Crazyflie Nano Quadcopter Client
+#  Aeroflie Nano Quadcopter Client
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -33,11 +33,12 @@ import logging
 
 from PyQt6 import uic
 from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtGui import QTextCursor
 
 import cfclient
 from cfclient.ui.tab_toolbox import TabToolbox
 
-__author__ = 'Bitcraze AB'
+__author__ = 'Waymark AB'
 __all__ = ['LogClientTab']
 
 logger = logging.getLogger(__name__)
@@ -68,18 +69,32 @@ class LogClientTab(TabToolbox, log_client_tab_class):
     _update = pyqtSignal(str)
 
     def __init__(self, helper):
-        super(LogClientTab, self).__init__(helper, self.tr('Log Client'))
+        super(LogClientTab, self).__init__(helper, 'Log Hub')
         self.setupUi(self)
 
         self._update.connect(self.printText)
         self._clearButton.clicked.connect(self.clear)
 
+        # 最大保留行数，防止 QTextDocument 文本无界增长导致内存泄漏
+        self._max_blocks = 5000
+
         cflogger = logging.getLogger(None)
-        cflogger.addHandler(LogHandler(self._update))
+        self._log_handler = LogHandler(self._update)
+        cflogger.addHandler(self._log_handler)
 
     def printText(self, text):
-        logger.debug("[%s]", text)
+        # 直接插入文本，不再次记录日志以避免无限递归循环
         self.syslog.insertPlainText(text + '\n')
+        # 超过上限时删除最早的行，QTextEdit 无 setMaximumBlockCount
+        doc = self.syslog.document()
+        if doc.blockCount() > self._max_blocks + 200:
+            excess = doc.blockCount() - self._max_blocks
+            block = doc.findBlockByNumber(excess)
+            if block.isValid():
+                cursor = QTextCursor(doc.begin())
+                end = QTextCursor(block)
+                cursor.setPosition(end.position(), QTextCursor.MoveMode.KeepAnchor)
+                cursor.removeSelectedText()
 
     def clear(self):
         self.syslog.clear()

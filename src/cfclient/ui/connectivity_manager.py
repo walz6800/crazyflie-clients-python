@@ -7,9 +7,9 @@
 #  +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
 #   ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
 #
-#  Copyright (C) 2021-2023 Bitcraze AB
+#  Copyright (C) 2021-2023 Waymark AB
 #
-#  Crazyflie Nano Quadcopter Client
+#  Aeroflie Nano Quadcopter Client
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -28,7 +28,7 @@
 from collections import namedtuple
 from PyQt6.QtCore import pyqtSignal, QObject
 
-__author__ = 'Bitcraze AB'
+__author__ = 'Waymark AB'
 __all__ = ['ConnectivityManager']
 
 
@@ -158,12 +158,17 @@ class ConnectivityManager(QObject):
             ui_elements.connect_button.setEnabled(can_connect)
 
     def _update_ui(self):
+        # 刷新下拉框提示文本以支持语言切换
+        for ui_elements in self._ui_elements:
+            if ui_elements.interface_combo.count() > 0:
+                ui_elements.interface_combo.setItemText(0, self._prompt_text())
+
         if self._is_enabled:
             if self._state == self.UIState.DISCONNECTED:
                 can_connect = self.get_interface() is not None
                 for ui_elements in self._ui_elements:
                     ui_elements.connect_button.setText(self.tr("Connect"))
-                    ui_elements.connect_button.setToolTip(self.tr("Connect to the Crazyflie on the selected interface (Ctrl+I)"))
+                    ui_elements.connect_button.setToolTip(self.tr("Connect to the Aeroflie on the selected interface (Ctrl+I)"))
                     ui_elements.connect_button.setEnabled(can_connect)
                     ui_elements.scan_button.setText(self.tr("Scan"))
                     ui_elements.scan_button.setEnabled(True)
@@ -172,14 +177,14 @@ class ConnectivityManager(QObject):
             elif self._state == self.UIState.CONNECTED:
                 for ui_elements in self._ui_elements:
                     ui_elements.connect_button.setText(self.tr("Disconnect"))
-                    ui_elements.connect_button.setToolTip(self.tr("Disconnect from the Crazyflie (Ctrl+I)"))
+                    ui_elements.connect_button.setToolTip(self.tr("Disconnect from the Aeroflie (Ctrl+I)"))
                     ui_elements.scan_button.setEnabled(False)
                     ui_elements.address_spinner.setEnabled(False)
                     ui_elements.interface_combo.setEnabled(False)
             elif self._state == self.UIState.CONNECTING:
                 for ui_elements in self._ui_elements:
                     ui_elements.connect_button.setText(self.tr("Cancel"))
-                    ui_elements.connect_button.setToolTip(self.tr("Cancel connecting to the Crazyflie"))
+                    ui_elements.connect_button.setToolTip(self.tr("Cancel connecting to the Aeroflie"))
                     ui_elements.scan_button.setEnabled(False)
                     ui_elements.address_spinner.setEnabled(False)
                     ui_elements.interface_combo.setEnabled(False)

@@ -7,9 +7,9 @@
 #  +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
 #   ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
 #
-#  Copyright (C) 2011-2023 Bitcraze AB
+#  Copyright (C) 2011-2023 Waymark AB
 #
-#  Crazyflie Nano Quadcopter Client
+#  Aeroflie Nano Quadcopter Client
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -38,7 +38,7 @@ from PyQt6.QtGui import QCloseEvent
 
 from cfclient.utils.config import Config
 
-__author__ = 'Bitcraze AB'
+__author__ = 'Waymark AB'
 __all__ = ['TabToolbox']
 
 logger = logging.getLogger(__name__)
@@ -59,10 +59,12 @@ class TabToolbox(QtWidgets.QWidget):
     def __init__(self, helper, tab_toolbox_name):
         super(TabToolbox, self).__init__()
         self._helper = helper
-        self.tab_toolbox_name = tab_toolbox_name
+        # 保存原始英文名称作为配置键值（稳定不变）和初始显示名
+        self._tab_config_key = tab_toolbox_name
+        self.tab_toolbox_name = self.tr(tab_toolbox_name)
 
-        # Dock widget for toolbox behavior
-        self.dock_widget = self.ClosingDockWidget(tab_toolbox_name)
+        # Dock widget for toolbox behavior (set window title via translated name)
+        self.dock_widget = self.ClosingDockWidget(self.tab_toolbox_name)
         self.dock_widget.tab_toolbox = self
 
         self._display_state = self.DS_HIDDEN
@@ -77,8 +79,12 @@ class TabToolbox(QtWidgets.QWidget):
             self._dock_area = Qt.DockWidgetArea.RightDockWidgetArea
 
     def get_tab_toolbox_name(self):
-        """Return the name that will be shown in the tab or toolbox"""
-        return self.tab_toolbox_name
+        """返回当前语言的显示名称，用于标签页或工具箱标题"""
+        return self.tr(self._tab_config_key)
+
+    def get_tab_config_key(self):
+        """返回稳定的英文配置键值，用于配置文件存储"""
+        return self._tab_config_key
 
     def is_visible(self):
         return self._display_state != self.DS_HIDDEN
@@ -109,9 +115,15 @@ class TabToolbox(QtWidgets.QWidget):
     def disable(self):
         pass
 
+    # 不应在启动时自动打开的标签页（含 OpenGL 重量级组件，需用户手动打开）
+    # 同时包含中英文名称，因为配置文件可能存储了任意语言的版本
+    MANUAL_OPEN_TABS = {'Optics Positioning', 'Wireless Positioning',
+                        '光学定位', '无线定位'}
+
     @classmethod
     def read_open_tab_config(cls):
-        return cls._read_open_config(TabToolbox.CONF_KEY_OPEN_TABS)
+        config = cls._read_open_config(TabToolbox.CONF_KEY_OPEN_TABS)
+        return [name for name in config if name not in cls.MANUAL_OPEN_TABS]
 
     @classmethod
     def read_open_toolbox_config(cls):
@@ -125,7 +137,7 @@ class TabToolbox(QtWidgets.QWidget):
             # Python will return a list of an empty string if value is empty, filter it
             config = list(filter(None, value.split(",")))
         except KeyError:
-            logger.info(f'No config found for {key}')
+            logger.debug(f'No config found for {key}')
 
         return config
 
@@ -142,7 +154,7 @@ class TabToolbox(QtWidgets.QWidget):
 
     def _add_to_open_config(self, key):
         config = self._read_open_config(key)
-        name = self.tab_toolbox_name
+        name = self._tab_config_key
 
         if name not in config:
             config.append(name)
@@ -150,7 +162,7 @@ class TabToolbox(QtWidgets.QWidget):
 
     def _remove_from_open_config(self, key):
         config = self._read_open_config(key)
-        name = self.tab_toolbox_name
+        name = self._tab_config_key
 
         if name in config:
             config.remove(name)
@@ -165,14 +177,14 @@ class TabToolbox(QtWidgets.QWidget):
 
         config = self._read_toolbox_area_config()
 
-        if self.tab_toolbox_name in config.keys():
-            result = Qt.DockWidgetArea(config[self.tab_toolbox_name])
+        if self._tab_config_key in config.keys():
+            result = Qt.DockWidgetArea(config[self._tab_config_key])
 
         return result
 
     def _store_toolbox_area_config(self, area):
         config = self._read_toolbox_area_config()
-        config[self.tab_toolbox_name] = area.value
+        config[self._tab_config_key] = area.value
         self._write_toolbox_area_config(config)
 
     def _read_toolbox_area_config(self):
@@ -183,7 +195,7 @@ class TabToolbox(QtWidgets.QWidget):
             # Python will return a list of an empty string if value is empty, filter it
             composite_config = list(filter(None, value.split(",")))
         except KeyError:
-            logger.info(f'No config found for {key}')
+            logger.debug(f'No config found for {key}')
 
         config = {}
         for composite in composite_config:

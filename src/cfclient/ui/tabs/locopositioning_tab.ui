@@ -101,7 +101,7 @@
             </sizepolicy>
            </property>
            <property name="title">
-            <string>ColonyFlie status</string>
+            <string>Aeroflie status</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>

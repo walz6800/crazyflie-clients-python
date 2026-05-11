@@ -6,7 +6,7 @@
 #  +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
 #   ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
 #
-#  Copyright (C) 2021-2023 Bitcraze AB
+#  Copyright (C) 2021-2023 Waymark AB
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -35,7 +35,7 @@ from cflib.localization import LighthouseSweepAngleAverageReader
 from cflib.crazyflie.mem import LighthouseBsGeometry
 from cfclient.ui.wizards.lighthouse_geo_bs_estimation_wizard import LighthouseBasestationGeometryWizard
 
-__author__ = 'Bitcraze AB'
+__author__ = 'Waymark AB'
 __all__ = ['LighthouseBsGeometryDialog']
 
 logger = logging.getLogger(__name__)

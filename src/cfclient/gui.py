@@ -6,9 +6,9 @@
 #  +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
 #   ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
 #
-#  Copyright (C) 2011-2023 Bitcraze AB
+#  Copyright (C) 2011-2023 Waymark AB
 #
-#  Crazyflie Nano Quadcopter Client
+#  Aeroflie Nano Quadcopter Client
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -37,7 +37,7 @@ import logging
 
 import cfclient
 
-__author__ = 'Bitcraze AB'
+__author__ = 'Waymark AB'
 __all__ = []
 
 
@@ -59,6 +59,14 @@ def main():
     """
     app = None
 
+    # 在 PyInstaller frozen 模式（console=False）下，sys.stdout/sys.stderr 为 None，
+    # 会导致 argparse 等模块在输出错误信息时崩溃。将其重定向到 devnull。
+    if getattr(sys, 'frozen', False):
+        if sys.stdout is None:
+            sys.stdout = open(os.devnull, 'w')
+        if sys.stderr is None:
+            sys.stderr = open(os.devnull, 'w')
+
     # Connect ctrl-c (SIGINT) signal
     signal.signal(signal.SIGINT, lambda sig, frame: handle_sigint(app))
 
@@ -72,7 +80,7 @@ def main():
     qtlogger.setLevel(logging.ERROR)
 
     parser = argparse.ArgumentParser(
-        description="cfclient - Crazyflie graphical control client")
+        description="cfclient - Aeroflie graphical control client")
     parser.add_argument('--debug', '-d', nargs=1, default='info', type=str,
                         help="set debug level "
                              "[minimal, info, debug, debugfile]")
@@ -150,7 +158,7 @@ def main():
                 info = (bundle.localizedInfoDictionary() or
                         bundle.infoDictionary())
                 if info:
-                    info['CFBundleName'] = 'Crazyflie'
+                    info['CFBundleName'] = 'Aeroflie'
         except ImportError:
             logger.info("Foundation not found. Menu will show python as "
                         "application name")
@@ -188,7 +196,7 @@ def main():
     init_cflib_translator(lang)
 
     app.setWindowIcon(QIcon(cfclient.module_path + "/ui/icons/icon-256.png"))
-    app.setApplicationName(app.translate("gui", "Crazyflie client"))
+    app.setApplicationName(app.translate("gui", "Aeroflie client"))
     # Make sure the right icon is set in Windows 7+ taskbar
     if os.name == 'nt':
         import ctypes

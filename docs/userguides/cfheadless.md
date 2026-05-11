@@ -10,7 +10,7 @@ command line and is suited for headless hosts like the Raspberry Pi.
 
 
 The script is located in the *bin* directory in the
-*crazyflie-clients-python* repository and client. Here\'s how to use the
+*aeroflie-clients-python* repository and client. Here\'s how to use the
 script:
 ```
 $ bin/cfheadless -h
@@ -36,8 +36,8 @@ pressing Ctrl+C
 ## Examples
 
 
-Connect to a Crazyflie at channel 100 and speed 250Kbit using input
+Connect to a Aeroflie at channel 100 and speed 250Kbit using input
 mapping *PS3\_Mode\_1*
 ```
-crazyflie-clients-python$ bin/cfheadless -u radio://0/100/250K -PS3_Mode_1
+aeroflie-clients-python$ bin/cfheadless -u radio://0/100/250K -PS3_Mode_1
 ```

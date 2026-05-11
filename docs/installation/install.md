@@ -20,7 +20,7 @@ pip3 install --upgrade pip
 
 #### Setting udev permissions
 
-Using Crazyradio on Ubuntu/Linux requires that you set udev permissions. See the cflib [installation guide](https://www.bitcraze.io/documentation/repository/crazyflie-lib-python/master/installation/usb_permissions/) for more information.
+Using Crazyradio on Ubuntu/Linux requires that you set udev permissions. See the cflib installation guide for more information.
 
 ### Windows
 
@@ -45,7 +45,7 @@ If you're using Python 3.13, you need to install [Visual Studio](https://visuals
 
 #### Install Crazyradio drivers
 
-To use Crazyradio you will need to [install the drivers](https://www.bitcraze.io/documentation/repository/crazyradio-firmware/master/building/usbwindows/).
+To use Crazyradio you will need to install the drivers.
 
 ### macOS
 
@@ -107,8 +107,8 @@ If you are planning to do development work with the cfclient, install from sourc
 1. Clone the repository
 
     ```bash
-    git clone https://github.com/bitcraze/crazyflie-clients-python
-    cd crazyflie-clients-python
+    git clone #
+    cd aeroflie-clients-python
     ```
 2. Create and activate a Python virtual environment to isolate dependencies. See the [official Python venv documentation](https://docs.python.org/3/library/venv.html) for setup instructions.
 3. Install the client from source
@@ -135,7 +135,7 @@ If you want help maintaining Python coding standards, you can install hooks that
 
 ```bash
 pip install pre-commit
-cd crazyflie-clients-python
+cd aeroflie-clients-python
 pre-commit install
 pre-commit run --all-files
 ```
@@ -158,7 +158,7 @@ In VSCode for instance, the launch.json should look something like this:
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Crazyflie client",
+            "name": "Aeroflie client",
             "type": "python",
             "request": "launch",
             "module": "cfclient.gui"
@@ -167,5 +167,5 @@ In VSCode for instance, the launch.json should look something like this:
 }
 ```
 
-As noted earlier, it is common that work on the client also involve work in the [crazyflie-lib-python](https://github.com/bitcraze/crazyflie-lib-python).
-The `launch.json` documented here can also be used in the crazyflie lib project to debug lib-related code.
+As noted earlier, it is common that work on the client also involve work in the aeroflie-lib-python.
+The `launch.json` documented here can also be used in the aeroflie lib project to debug lib-related code.

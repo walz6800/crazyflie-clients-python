@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>ColonyFlie Nano Quadcopter Control</string>
+   <string>Aeroflie Nano Quadcopter Control</string>
   </property>
   <property name="statusTip">
    <string/>
@@ -526,7 +526,7 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Configure 2.x</string>
+    <string>Configure</string>
    </property>
    <property name="menuRole">
     <enum>QAction::NoRole</enum>

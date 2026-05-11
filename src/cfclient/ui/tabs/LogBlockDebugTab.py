@@ -7,9 +7,9 @@
 #  +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
 #   ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
 #
-#  Copyright (C) 2013-2023 Bitcraze AB
+#  Copyright (C) 2013-2023 Waymark AB
 #
-#  Crazyflie Nano Quadcopter Client
+#  Aeroflie Nano Quadcopter Client
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -26,7 +26,7 @@
 #  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 """
-Shows all the parameters available in the Crazyflie and also gives the ability
+Shows all the parameters available in the Aeroflie and also gives the ability
 to edit them.
 """
 
@@ -36,7 +36,7 @@ from PyQt6.QtCore import Qt, pyqtSignal
 import cfclient
 from cfclient.ui.tab_toolbox import TabToolbox
 
-__author__ = 'Bitcraze AB'
+__author__ = 'Waymark AB'
 __all__ = ['LogBlockDebugTab']
 
 logblock_tab_class = uic.loadUiType(cfclient.module_path + "/ui/tabs/logBlockDebugTab.ui")[0]
@@ -94,5 +94,5 @@ class LogBlockDebugTab(TabToolbox, logblock_tab_class):
             self._block_tree.expandItem(item)
 
     def _disconnected(self, link_uri):
-        """Callback when the Crazyflie is disconnected"""
+        """Callback when the Aeroflie is disconnected"""
         self._block_tree.clear()

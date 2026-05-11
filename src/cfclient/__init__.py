@@ -6,9 +6,9 @@
 #  +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
 #   ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
 #
-#  Copyright (C) 2011-2013 Bitcraze AB
+#  Copyright (C) 2011-2013 Waymark AB
 #
-#  Crazyflie Nano Quadcopter Client
+#  Aeroflie Nano Quadcopter Client
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -29,14 +29,21 @@ import os
 from appdirs import AppDirs
 import sys
 
+# ============================================================
+# 自定义版本号：设为你想要的版本即可，设为空字符串 "" 则自动检测
+CUSTOM_VERSION = "1.0.0"
+# ============================================================
+
 # Path used all over the application
 if not hasattr(sys, 'frozen'):
     module_path = os.path.dirname(__file__)
 else:
     module_path = os.path.join(sys._MEIPASS, 'cfclient')
-config_path = AppDirs("cfclient", "Bitcraze").user_config_dir
+config_path = AppDirs("cfclient", "Waymark").user_config_dir
 
-if not hasattr(sys, 'frozen'):
+if CUSTOM_VERSION:
+    VERSION = CUSTOM_VERSION
+elif not hasattr(sys, 'frozen'):
     from importlib.metadata import version, PackageNotFoundError
     try:
         VERSION = version("cfclient")

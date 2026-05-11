@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# PyInstaller spec file for cfclient (Crazyflie PC Client)
+# PyInstaller spec file for cfclient (Aeroflie PC Client)
 # Build with: pyinstaller cfclient.spec
 
 import os
@@ -242,7 +242,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='wcfCtrlSystem',
+    name='FormflieHub',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

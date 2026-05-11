@@ -4,15 +4,15 @@ page_id: crtpsniffer_tab
 sort_order: 13
 ---
 
-The CRTP sniffer tab captures and displays all [CRTP (Crazyflie Real-time Transfer Protocol)](https://www.bitcraze.io/documentation/repository/crazyflie-firmware/master/functional-areas/crtp/)
-packets sent to and received from the Crazyflie in real time.
+The CRTP sniffer tab captures and displays all CRTP (Aeroflie Real-time Transfer Protocol)
+packets sent to and received from the Aeroflie in real time.
 It is useful for debugging communication between the client and the drone.
 
 ![cfclient CRTP sniffer tab](/docs/images/cfclient_crtpsniffer_enabled.png)
 
 1.  Fields
     -   *ms:* Timestamp in milliseconds since the sniffer was enabled
-    -   *Direction:* `IN` for packets received from the Crazyflie, `OUT` for packets sent to it
+    -   *Direction:* `IN` for packets received from the Aeroflie, `OUT` for packets sent to it
     -   *Port/Chan:* The CRTP port and channel of the packet, formatted as `port/channel`
     -   *Data:* The packet payload as a hexadecimal string
 

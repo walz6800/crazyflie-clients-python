@@ -1,5 +1,5 @@
 ---
-title: Log Client Tab
+title: Log Hub Tab
 page_id: logclient_tab
 sort_order: 11
 ---

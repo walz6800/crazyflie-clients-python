@@ -4,7 +4,7 @@ page_id: plotter_tab
 sort_order: 8
 ---
 
-The plotter tab can be used to visualize data logged from the Crazyflie.
+The plotter tab can be used to visualize data logged from the Aeroflie.
 
 ![cfclient plotter](/docs/images/cfclient_plotter.png)
 

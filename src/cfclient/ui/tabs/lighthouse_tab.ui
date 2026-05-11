@@ -47,7 +47,7 @@
             </size>
            </property>
            <property name="title">
-            <string>Crazyflie status</string>
+            <string>Aeroflie status</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>

@@ -6,7 +6,7 @@
 #  +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
 #   ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
 #
-#  Copyright (C) 2021-2023 Bitcraze AB
+#  Copyright (C) 2021-2023 Waymark AB
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -31,7 +31,7 @@ import cfclient
 from PyQt6 import QtWidgets
 from PyQt6 import uic
 
-__author__ = 'Bitcraze AB'
+__author__ = 'Waymark AB'
 __all__ = ['LighthouseSystemTypeDialog']
 
 logger = logging.getLogger(__name__)

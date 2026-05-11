@@ -270,7 +270,7 @@ class LighthouseTab(TabToolbox, lighthouse_tab_class):
     UPDATE_PERIOD_LOG = 100
 
     # Frame rate (updates per second)
-    FPS = 2
+    FPS = 5  # 200ms 刷新一次，兼顾响应速度与 CPU 负载
 
     STATUS_NOT_RECEIVING = 0
     STATUS_MISSING_DATA = 1
@@ -342,10 +342,22 @@ class LighthouseTab(TabToolbox, lighthouse_tab_class):
 
         self._lh_status = self.STATUS_NOT_RECEIVING
 
+        # 缓存每个 QLabel 的当前样式名，避免每帧重复调用 setStyleSheet 导致内存泄漏
+        self._bs_indicator_state = {}
+
+        # 缓存上一次 3D 渲染的姿态，避免重复 OpenGL 绘制
+        self._last_pose = None
+
         self._graph_timer = QTimer()
         self._graph_timer.setInterval(int(1000 / self.FPS))
         self._graph_timer.timeout.connect(self._update_graphics)
         self._graph_timer.start()
+
+        # 3D 渲染在独立慢速定时器中运行（1Hz），避免高频 OpenGL 调用导致内存泄漏
+        self._plot_timer = QTimer()
+        self._plot_timer.setInterval(1000)
+        self._plot_timer.timeout.connect(self._update_3d_plot)
+        self._plot_timer.start()
 
         self._basestation_geometry_dialog = LighthouseBsGeometryDialog(self)
         self._basestation_mode_dialog = LighthouseBsModeDialog(self)
@@ -359,6 +371,8 @@ class LighthouseTab(TabToolbox, lighthouse_tab_class):
         self._save_sys_config_button.clicked.connect(self._save_sys_config_button_clicked)
 
         self._is_connected = False
+        # 标记本连接周期内是否已执行过收到数据后的标签页重载
+        self._tab_reloaded = False
         self._update_ui()
 
     def write_and_store_geometry(self, geometries):
@@ -385,41 +399,110 @@ class LighthouseTab(TabToolbox, lighthouse_tab_class):
         self._plot_layout.addWidget(self._plot_3d.native)
 
     def _connected(self, link_uri):
-        """Callback when the ColonyFlie has been connected"""
-        logger.debug("ColonyFlie connected to {}".format(link_uri))
+        """Callback when the Aeroflie has been connected"""
+        logger.info("[LH] _connected: uri=%s, tab_visible=%s, lh_active=%s, tab_reloaded=%s",
+                    link_uri, self.is_visible(), self.is_lighthouse_deck_active,
+                    self._tab_reloaded)
 
         self._basestation_geometry_dialog.reset()
         self._is_connected = True
 
-        if self._helper.cf.param.get_value('deck.bcLighthouse4') == '1':
+        deck_val = self._helper.cf.param.get_value('deck.bcLighthouse4')
+        logger.info("[LH] _connected: deck.bcLighthouse4=%s, log_toc=%s",
+                    deck_val, self._helper.cf.log.toc is not None)
+        if deck_val == '1':
             self._lighthouse_deck_detected()
+        else:
+            logger.info("[LH] _connected: lighthouse deck NOT detected, value=%s", deck_val)
 
         self._update_ui()
+
+    def _reload_tab(self):
+        """模拟断开再连接，重新初始化标签页状态（不中断实际连接）。
+        在首次收到基站数据或标签页首次显示时调用，解决 Windows 首次连接 TOC 不完整导致的显示异常。"""
+        logger.info("[LH] _reload_tab: START, tab_visible=%s, lh_active=%s, tab_reloaded=%s",
+                    self.is_visible(), self.is_lighthouse_deck_active,
+                    self._tab_reloaded)
+        self._tab_reloaded = True
+        # 模拟断开：清空状态、删除 QLabel、清空 3D 场景
+        self._clear_state()
+        self._update_graphics()
+        self._plot_3d.clear()
+        self._basestation_geometry_dialog.close()
+        self.is_lighthouse_deck_active = False
+        self._is_connected = False
+        self._update_ui()
+        logger.info("[LH] _reload_tab: cleared state, lh_active=False")
+
+        # 模拟连接：重新检测 deck、注册日志块（此时 TOC 已完整）、创建矩阵
+        self._basestation_geometry_dialog.reset()
+        self._is_connected = True
+        deck_val = self._helper.cf.param.get_value('deck.bcLighthouse4')
+        logger.info("[LH] _reload_tab: re-check deck=%s, toc_items=%d",
+                    deck_val,
+                    len(self._helper.cf.log.toc.toc) if self._helper.cf.log.toc else -1)
+        if deck_val == '1':
+            self._lighthouse_deck_detected()
+        self._update_ui()
+        logger.info("[LH] _reload_tab: DONE, lh_active=%s", self.is_lighthouse_deck_active)
+
+    def enable(self):
+        """标签页被打开时调用。"""
+        super().enable()
+        logger.info("[LH] enable: connected=%s, lh_active=%s, tab_reloaded=%s",
+                    self._helper.cf.is_connected(), self.is_lighthouse_deck_active,
+                    self._tab_reloaded)
+        if not self._helper.cf.is_connected():
+            logger.info("[LH] enable: not connected, skip")
+            return
+        self._is_connected = True
+        if not self.is_lighthouse_deck_active:
+            # 未检测到 deck，尝试检测
+            deck_val = self._helper.cf.param.get_value('deck.bcLighthouse4')
+            logger.info("[LH] enable: deck=%s", deck_val)
+            if deck_val == '1':
+                self._lighthouse_deck_detected()
+            self._update_ui()
+        elif not self._tab_reloaded:
+            # 已检测到 deck 但尚未重载（场景2：连接时标签页隐藏，TOC 可能为空）
+            # 直接调用重载，不延迟 — 日志显示此时 TOC 已完整，延迟反导致竞态
+            logger.info("[LH] enable: triggering _reload_tab immediately")
+            self._reload_tab()
 
     def _lighthouse_deck_detected(self):
         """Called when the Optics deck has been detected. Enables the tab,
         starts logging and polling of the memory sub system as well as starts
         timers for updating graphics"""
+        logger.info("[LH] _lighthouse_deck_detected: lh_active=%s", self.is_lighthouse_deck_active)
         if not self.is_lighthouse_deck_active:
             self.is_lighthouse_deck_active = True
-
+            # 记录 TOC 中 lighthouse 变量的存在情况
+            lh_vars = [self.LOG_STATUS, self.LOG_RECEIVE,
+                       self.LOG_CALIBRATION_EXISTS, self.LOG_CALIBRATION_CONFIRMED,
+                       self.LOG_CALIBRATION_UPDATED, self.LOG_GEOMETERY_EXISTS,
+                       self.LOG_ACTIVE, self.LOG_AVAILABLE]
+            toc_status = {v: self._is_in_log_toc(v) for v in lh_vars}
+            logger.info("[LH] _lighthouse_deck_detected: TOC status=%s", toc_status)
+            logger.info("[LH] _lighthouse_deck_detected: log_blocks count=%d",
+                        len(self._helper.cf.log.log_blocks))
             try:
-                self._register_logblock(
-                    "lhStatus",
-                    [self.LOG_STATUS, self.LOG_RECEIVE, self.LOG_CALIBRATION_EXISTS, self.LOG_CALIBRATION_CONFIRMED,
-                        self.LOG_CALIBRATION_UPDATED, self.LOG_GEOMETERY_EXISTS, self.LOG_ACTIVE, self.LOG_AVAILABLE],
+                block = self._register_logblock(
+                    "lhStatus", lh_vars,
                     self._status_report_signal.emit,
                     self._log_error_signal.emit)
+                logger.info("[LH] _lighthouse_deck_detected: registered lhStatus, "
+                            "added=%s, valid=%s, started=%s, var_count=%d",
+                            block.added, block.valid, block.started,
+                            len(block.variables))
             except KeyError as e:
-                logger.warning(str(e))
+                logger.warning("[LH] _lighthouse_deck_detected: KeyError - %s", e)
             except AttributeError as e:
-                logger.warning(str(e))
-
+                logger.warning("[LH] _lighthouse_deck_detected: AttributeError - %s", e)
             self._populate_status_matrix()
-
-            # Now that we know we have a lighthouse deck, setup the memory helper and config writer
             self._lh_memory_helper = LighthouseMemHelper(self._helper.cf)
             self._lh_config_writer = LighthouseConfigWriter(self._helper.cf)
+            logger.info("[LH] _lighthouse_deck_detected: DONE, bs_available=%s",
+                        self._bs_available)
 
     def _start_read_of_geo_data(self):
         if not self._is_geometry_read_ongoing:
@@ -431,6 +514,9 @@ class LighthouseTab(TabToolbox, lighthouse_tab_class):
         self._lh_geos = dict(filter(lambda key_value: key_value[1].valid, geometries.items()))
         self._basestation_geometry_dialog.geometry_updated(self._lh_geos)
         self._is_geometry_read_ongoing = False
+        # 几何数据一次加载即完成，直接推送到 3D 画布，不依赖定时器
+        if self._lh_geos:
+            self._plot_3d.update_base_station_geos(self._lh_geos)
 
     def _is_matching_current_geo_data(self, geometries):
         return geometries == self._lh_geos.keys()
@@ -445,6 +531,9 @@ class LighthouseTab(TabToolbox, lighthouse_tab_class):
 
     def _status_report_received(self, timestamp, data, logconf):
         """Callback from the logging system when the status is updated."""
+        # 忽略断开连接后的残留信号，避免在 _connected 之前被调用导致状态异常
+        if not self._is_connected:
+            return
 
         if self.LOG_RECEIVE in data:
             bit_mask = data[self.LOG_RECEIVE]
@@ -475,7 +564,7 @@ class LighthouseTab(TabToolbox, lighthouse_tab_class):
             bit_mask = data[self.LOG_AVAILABLE]
             self._adjust_bitmask(bit_mask, self._bs_available)
 
-        self._update_basestation_status_indicators()
+        # UI 刷新移到 _update_graphics 中统一以 2Hz 执行，避免 10Hz 日志回调高频刷 QLabel 导致卡顿
 
     def _disconnected(self, link_uri):
         """Callback for when the ColonyFlie has been disconnected"""
@@ -486,12 +575,16 @@ class LighthouseTab(TabToolbox, lighthouse_tab_class):
         self._basestation_geometry_dialog.close()
         self.is_lighthouse_deck_active = False
         self._is_connected = False
+        self._tab_reloaded = False
         self._update_ui()
 
     def _register_logblock(self, logblock_name, variables, data_cb, error_cb,
                            update_period=UPDATE_PERIOD_LOG):
         """Register log data to listen for. One logblock can only contain a limited
         number of parameters."""
+        # 先删除可能存在的旧同名日志块，避免列表中的重复或空块残留
+        self._remove_old_logblock(logblock_name)
+
         lg = LogConfig(logblock_name, update_period)
         for variable in variables:
             if self._is_in_log_toc(variable):
@@ -502,6 +595,18 @@ class LighthouseTab(TabToolbox, lighthouse_tab_class):
         lg.error_cb.add_callback(error_cb)
         lg.start()
         return lg
+
+    def _remove_old_logblock(self, name):
+        """从 cflib log_blocks 列表中移除指定名称的旧日志块。"""
+        blocks = self._helper.cf.log.log_blocks
+        for b in list(blocks):
+            if b.name == name:
+                logger.debug("Removing old log block: %s (id=%d)", name, b.id)
+                try:
+                    b.delete()
+                except Exception:
+                    pass
+                blocks.remove(b)
 
     def _is_in_log_toc(self, variable):
         toc = self._helper.cf.log.toc
@@ -519,14 +624,42 @@ class LighthouseTab(TabToolbox, lighthouse_tab_class):
                           self.tr(" [{0}]: {1}").format(log_conf.name, msg))
 
     def _update_graphics(self):
-        if self.is_visible() and self.is_lighthouse_deck_active:
-            self._plot_3d.update_cf_pose(self._helper.pose_logger.position,
-                                         self._rpy_to_rot(self._helper.pose_logger.rpy_rad))
-            self._plot_3d.update_base_station_geos(self._lh_geos)
-            self._plot_3d.update_base_station_visibility(self._bs_data_to_estimator)
+        if not self.is_visible():
+            return
+        # 位置和状态数据来自 PoseLogger，不依赖 lighthouse deck，
+        # 只要已连接就应该更新（解决 Windows 首次连接时位置不显示的时序问题）
+        if self._is_connected:
             self._update_position_label(self._helper.pose_logger.position)
             self._update_status_label(self._lh_status)
-            self._mask_status_matrix(self._bs_available)
+        # 基站矩阵和 QLabel 指示灯依赖 lighthouse deck 固件数据
+        if self.is_lighthouse_deck_active:
+            if self._bs_available:
+                self._mask_status_matrix(self._bs_available)
+            elif self._bs_receives_light:
+                self._mask_status_matrix(self._bs_receives_light)
+            # 统一在 _update_graphics (5Hz) 中刷新 QLabel，避免日志回调 10Hz 高频刷界面导致卡顿
+            self._update_basestation_status_indicators()
+
+    def _update_3d_plot(self):
+        """3D 渲染定时器回调（1Hz）。
+        独立于 _update_graphics，避免高频 OpenGL 调用导致 GPU 内存泄漏。
+        仅在姿态变化超过阈值时更新，减少无意义的 GPU 上传。"""
+        if not self.is_visible() or not self._is_connected:
+            return
+        if not self.is_lighthouse_deck_active or not self._lh_geos:
+            return
+
+        current_pose = self._helper.pose_logger.position
+        # 姿态变化不足 1cm 时跳过 3D 更新，传感器噪声不会触发重绘
+        if self._last_pose is not None and current_pose and len(current_pose) == 3:
+            dist = sum((self._last_pose[i] - current_pose[i]) ** 2 for i in range(3))
+            if dist < 0.0001:  # 1cm² threshold
+                return
+
+        self._plot_3d.update_cf_pose(current_pose,
+                                     self._rpy_to_rot(self._helper.pose_logger.rpy_rad))
+        self._plot_3d.update_base_station_visibility(self._bs_data_to_estimator)
+        self._last_pose = list(current_pose) if current_pose else None
 
     def _update_ui(self):
         enabled = self._is_connected and self.is_lighthouse_deck_active
@@ -566,7 +699,10 @@ class LighthouseTab(TabToolbox, lighthouse_tab_class):
         self._bs_calibration_data_updated.clear()
         self._bs_geometry_data_exists.clear()
         self._bs_data_to_estimator.clear()
-        self._update_basestation_status_indicators()
+        self._bs_available.clear()
+        # 重置状态缓存，确保下次刷新时 stylesheet 被正确重设
+        self._bs_indicator_state.clear()
+        self._last_pose = None
         self._clear_state_indicator()
         self._lh_status = self.STATUS_NOT_RECEIVING
 
@@ -576,7 +712,10 @@ class LighthouseTab(TabToolbox, lighthouse_tab_class):
             for col in range(1, 17):
                 item = container.itemAtPosition(row, col)
                 if item is not None:
-                    item.widget().deleteLater()
+                    w = item.widget()
+                    # 先从布局中移除（立即生效），再标记删除（延迟到事件循环）
+                    container.removeWidget(w)
+                    w.deleteLater()
 
     def _rpy_to_rot(self, rpy):
         # http://planning.cs.uiuc.edu/node102.html
@@ -657,26 +796,33 @@ class LighthouseTab(TabToolbox, lighthouse_tab_class):
                     temp_set = self._bs_stats[stats_id]
 
                     if bs in temp_set:
-                        # If the status bar for calibration data is handled, have an intermediate status
-                        # else just have red or green.
                         if stats_indicator_id == 2:
-                            label.setStyleSheet(STYLE_BLUE_BACKGROUND)
-                            label.setToolTip(self.tr('Calibration data from cache'))
-
                             calib_confirm = bs in self._bs_stats[stats_id + 1]
                             calib_updated = bs in self._bs_stats[stats_id + 2]
 
-                            if calib_confirm:
-                                label.setStyleSheet(STYLE_GREEN_BACKGROUND)
-                                label.setToolTip(self.tr('Calibration data verified'))
                             if calib_updated:
-                                label.setStyleSheet(STYLE_ORANGE_BACKGROUND)
-                                label.setToolTip(self.tr('Calibration data updated, the geometry probably needs to be re-estimated'))
+                                new_style = STYLE_ORANGE_BACKGROUND
+                                new_tip = self.tr('Calibration data updated, the geometry probably needs to be re-estimated')
+                            elif calib_confirm:
+                                new_style = STYLE_GREEN_BACKGROUND
+                                new_tip = self.tr('Calibration data verified')
+                            else:
+                                new_style = STYLE_BLUE_BACKGROUND
+                                new_tip = self.tr('Calibration data from cache')
                         else:
-                            label.setStyleSheet(STYLE_GREEN_BACKGROUND)
+                            new_style = STYLE_GREEN_BACKGROUND
+                            new_tip = ''
                     else:
-                        label.setStyleSheet(STYLE_RED_BACKGROUND)
-                        label.setToolTip('')
+                        new_style = STYLE_RED_BACKGROUND
+                        new_tip = ''
+
+                    # 只在样式实际变化时才调用 setStyleSheet，避免每帧重复设置导致内存泄漏
+                    key = (bs, stats_indicator_id)
+                    old_style = self._bs_indicator_state.get(key)
+                    if old_style != new_style:
+                        label.setStyleSheet(new_style)
+                        label.setToolTip(new_tip)
+                        self._bs_indicator_state[key] = new_style
 
     def _load_sys_config_button_clicked(self):
         names = QFileDialog.getOpenFileName(self, self.tr('Open file'), self._helper.current_folder, FILE_REGEX_YAML)

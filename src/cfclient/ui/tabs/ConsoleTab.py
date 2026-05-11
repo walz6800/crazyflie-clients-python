@@ -7,9 +7,9 @@
 #  +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
 #   ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
 #
-#  Copyright (C) 2011-2023 Bitcraze AB
+#  Copyright (C) 2011-2023 Waymark AB
 #
-#  Crazyflie Nano Quadcopter Client
+#  Aeroflie Nano Quadcopter Client
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -26,7 +26,7 @@
 #  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 """
-The console tab is used as a console for printouts from the Crazyflie.
+The console tab is used as a console for printouts from the Aeroflie.
 """
 
 import logging
@@ -38,7 +38,7 @@ from PyQt6.QtGui import QTextCursor
 import cfclient
 from cfclient.ui.tab_toolbox import TabToolbox
 
-__author__ = 'Bitcraze AB'
+__author__ = 'Waymark AB'
 __all__ = ['ConsoleTab']
 
 logger = logging.getLogger(__name__)
@@ -48,17 +48,17 @@ console_tab_class = uic.loadUiType(cfclient.module_path +
 
 
 class ConsoleTab(TabToolbox, console_tab_class):
-    """Console tab for showing printouts from Crazyflie"""
+    """Console tab for showing printouts from Aeroflie"""
     _link_established_signal = pyqtSignal(str)
     _connected_signal = pyqtSignal(str)
     _disconnected_signal = pyqtSignal(str)
     _update = pyqtSignal(str)
 
     def __init__(self, helper):
-        super(ConsoleTab, self).__init__(helper, self.tr('Console'))
+        super(ConsoleTab, self).__init__(helper, 'Console')
         self.setupUi(self)
 
-        # Always wrap callbacks from Crazyflie API though QT Signal/Slots
+        # Always wrap callbacks from Aeroflie API though QT Signal/Slots
         # to avoid manipulating the UI when rendering it
         self._link_established_signal.connect(self._link_established)
         self._connected_signal.connect(self._connected)
@@ -89,7 +89,7 @@ class ConsoleTab(TabToolbox, console_tab_class):
             self._helper.cf.param.set_value("system.storageStats", '1'))
 
     def printText(self, text):
-        # Make sure we get printouts from the Crazyflie into the log (such as
+        # Make sure we get printouts from the Aeroflie into the log (such as
         # build version and test ok/fail)
         logger.debug("[%s]", text)
         scrollbar = self.console.verticalScrollBar()
@@ -111,14 +111,14 @@ class ConsoleTab(TabToolbox, console_tab_class):
         self.console.clear()
 
     def _connected(self, link_uri):
-        """Callback when the Crazyflie has been connected"""
+        """Callback when the Aeroflie has been connected"""
         self._dumpSystemLoadButton.setEnabled(True)
         self._propellerTestButton.setEnabled(True)
         self._batteryTestButton.setEnabled(True)
         self._storageStatsButton.setEnabled(True)
 
     def _disconnected(self, link_uri):
-        """Callback for when the Crazyflie has been disconnected"""
+        """Callback for when the Aeroflie has been disconnected"""
         self._dumpSystemLoadButton.setEnabled(False)
         self._dumpAssertInformation.setEnabled(False)
         self._propellerTestButton.setEnabled(False)

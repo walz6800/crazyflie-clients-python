@@ -7,9 +7,9 @@
 #  +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
 #   ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
 #
-#  Copyright (C) 2014 Bitcraze AB
+#  Copyright (C) 2014 Waymark AB
 #
-#  Crazyflie Nano Quadcopter Client
+#  Aeroflie Nano Quadcopter Client
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -27,7 +27,7 @@
 #  USA.
 
 """
-Leap Motion reader for controlling the Crazyflie. Note that this reader needs
+Leap Motion reader for controlling the Aeroflie. Note that this reader needs
 the Leap Motion SDK to be manually copied. See src/leapsdk/__init__.py for
 more info.
 """
@@ -40,7 +40,7 @@ except Exception as e:
 
 import logging
 
-__author__ = 'Bitcraze AB'
+__author__ = 'Waymark AB'
 __all__ = ['LeapmotionReader']
 
 logger = logging.getLogger(__name__)

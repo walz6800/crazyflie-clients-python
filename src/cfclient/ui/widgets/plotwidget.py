@@ -7,9 +7,9 @@
 #  +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
 #   ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
 #
-#  Copyright (C) 2011-2023 Bitcraze AB
+#  Copyright (C) 2011-2023 Waymark AB
 #
-#  Crazyflie Nano Quadcopter Client
+#  Aeroflie Nano Quadcopter Client
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -44,7 +44,7 @@ from PyQt6.QtWidgets import *  # noqa
 
 import cfclient
 
-__author__ = 'Bitcraze AB'
+__author__ = 'Waymark AB'
 __all__ = ['PlotWidget']
 
 logger = logging.getLogger(__name__)
@@ -81,6 +81,9 @@ except Exception:
 class PlotItemWrapper:
     """Wrapper for PlotDataItem to handle what data is shown"""
 
+    # 最大保留数据点数，防止内存无界增长（10Hz 下约可存储 2.7 小时）
+    MAX_POINTS = 100000
+
     def __init__(self, curve):
         """Initialize"""
         self.data = []
@@ -96,6 +99,11 @@ class PlotItemWrapper:
         """
         self.data.append(p)
         self.ts.append(ts)
+        # 超过上限时丢弃最旧的数据，防止内存无限增长
+        if len(self.data) > self.MAX_POINTS:
+            excess = len(self.data) - self.MAX_POINTS
+            del self.data[:excess]
+            del self.ts[:excess]
 
     def show_data(self, start, stop):
         """

@@ -7,9 +7,9 @@
 #  +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
 #   ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
 #
-#  Copyright (C) 2011-2024 Bitcraze AB
+#  Copyright (C) 2011-2024 Waymark AB
 #
-#  Crazyflie Nano Quadcopter Client
+#  Aeroflie Nano Quadcopter Client
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -43,7 +43,7 @@ from cflib.crazyflie.log import LogVariable, LogConfig
 
 from PyQt6 import QtGui
 
-__author__ = 'Bitcraze AB'
+__author__ = 'Waymark AB'
 __all__ = ['LogVariable', 'LogConfigReader']
 
 logger = logging.getLogger(__name__)
@@ -302,7 +302,7 @@ class LogConfigReader():
         self.dsList = new_dsList
 
     def _connected(self, link_uri):
-        """Callback that is called once Crazyflie is connected"""
+        """Callback that is called once Aeroflie is connected"""
 
         self._read_config_files()
         self._read_config_categories()

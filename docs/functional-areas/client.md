@@ -24,14 +24,14 @@ manifest, it should be called *manifest.json*:
          "target":"stm32",
          "type":"fw",
          "release":"2023.11",
-         "repository":"crazyflie-firmware"
+         "repository":"aeroflie-firmware"
       },
       "cf2_nrf-2024.2.bin":{
          "platform":"cf2",
          "target":"nrf51",
          "type":"fw",
          "release":"2024.2",
-         "repository":"crazyflie2-nrf-firmware",
+         "repository":"aeroflie2-nrf-firmware",
          "requires":[
             "sd-s130"
          ]
@@ -41,7 +41,7 @@ manifest, it should be called *manifest.json*:
          "target":"nrf51",
          "type":"bootloader+softdevice",
          "release":"2024.2",
-         "repository":"crazyflie2-nrf-bootloader",
+         "repository":"aeroflie2-nrf-bootloader",
          "provides":[
             "sd-s130"
          ]
@@ -74,7 +74,7 @@ attributes:
 |  target         | stm32, nrf51, <deck>:<cpu>            |Select the target MCU on the target platform|
 |  type           | fw, bootloader, bootloader+softdevice |Describe what\'s contained in the binary|
 |  release        | A version string                      | The release name of the file |
-|  repository     | A repository string                   | The binary's project git repository. If not a complete address, is on the Bitcraze's github project |
+|  repository     | A repository string                   | The binary's project git repository. If not a complete address, is on the Waymark's github project |
 |  requires       | A list of requirement                 | Requirement before flashing the firmware. Is used to specify a required softdevice |
 |  provices       | A requiremet provided by this file    | Used to describe what a softdevice binary provides |
 

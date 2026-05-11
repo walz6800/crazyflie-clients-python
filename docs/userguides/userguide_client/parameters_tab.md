@@ -4,16 +4,16 @@ page_id: parameter_tab
 sort_order: 7
 ---
 
-The Crazyflie supports parameters, variables stored in the Crazyflie
+The Aeroflie supports parameters, variables stored in the Aeroflie
 that can be changed in real-time. The parameter tab can be used to view
 and update parameters. For more information about parameters see
-[logging and parameter frameworks](https://www.bitcraze.io/documentation/repository/crazyflie-firmware/master/userguides/logparam/).
+logging and parameter frameworks.
 
 ![cfclient parameter list](/docs/images/cfclient_param.png)
 
 1.  Parameter information fields
        * *Name:* The name of the parameter or group.
-       * *Type:* The C-type of the variable stored in the Crazyflie (you cannot set values outside this)
+       * *Type:* The C-type of the variable stored in the Aeroflie (you cannot set values outside this)
        * *Access:* RW parameters can be written from the client while RO parameters can only be read
        * *Persistent:* Indicates if it is possible to store this parameter's value in eeprom
        * *Value:* The value of the parameter

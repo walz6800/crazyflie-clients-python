@@ -7,9 +7,9 @@
 #  +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
 #   ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
 #
-#  Copyright (C) 2011-2025 Bitcraze AB
+#  Copyright (C) 2011-2025 Waymark AB
 #
-#  Crazyflie Nano Quadcopter Client
+#  Aeroflie Nano Quadcopter Client
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -41,7 +41,7 @@ import cfclient
 from cfclient.ui.tab_toolbox import TabToolbox
 from cfclient.utils.config import Config
 
-__author__ = 'Bitcraze AB'
+__author__ = 'Waymark AB'
 __all__ = ['ColorLEDTab']
 
 logger = logging.getLogger(__name__)
@@ -381,7 +381,7 @@ class ColorLEDTab(TabToolbox, color_led_tab_class):
             self._deck_controller.write_color(pos, color_uint32)
 
     def _on_position_changed(self, _):
-        """Handle position dropdown changes by fetching current color from Crazyflie"""
+        """Handle position dropdown changes by fetching current color from Aeroflie"""
         if not self._isConnected:
             return
 
@@ -412,7 +412,7 @@ class ColorLEDTab(TabToolbox, color_led_tab_class):
 
     def _fetch_color_from_position(self, position):
         """
-        Fetch current color from Crazyflie for given position
+        Fetch current color from Aeroflie for given position
 
         Args:
             position: 0 for bottom, 1 for top
@@ -448,7 +448,7 @@ class ColorLEDTab(TabToolbox, color_led_tab_class):
 
     def _update_ui_from_rgb(self, rgb):
         """
-        Update UI controls from RGB values without writing back to Crazyflie
+        Update UI controls from RGB values without writing back to Aeroflie
 
         Args:
             rgb: tuple (r, g, b)
@@ -511,7 +511,7 @@ class ColorLEDTab(TabToolbox, color_led_tab_class):
         """ Show event for proper initial SV area sizing """
         super().showEvent(a0)
         self._update_sv_area(self.sv_area, self._hue)
-        # Update preview without writing to Crazyflie
+        # Update preview without writing to Aeroflie
         self._updating_from_fetch = True
         try:
             self._update_preview()

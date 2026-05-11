@@ -7,9 +7,9 @@
 #  +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
 #   ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
 #
-#  Copyright (C) 2013 Bitcraze AB
+#  Copyright (C) 2013 Waymark AB
 #
-#  Crazyflie Nano Quadcopter Client
+#  Aeroflie Nano Quadcopter Client
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -37,7 +37,7 @@ import logging
 
 import cfclient
 
-__author__ = 'Bitcraze AB'
+__author__ = 'Waymark AB'
 __all__ = ['LogWriter']
 
 logger = logging.getLogger(__name__)
@@ -71,7 +71,7 @@ class LogWriter():
             self._header_written = True
 
     def _new_data(self, timestamp, data, logconf):
-        """Callback when new data arrives from the Crazyflie"""
+        """Callback when new data arrives from the Aeroflie"""
         if self._file:
             s = "%d" % timestamp
             for col in self._header_values:

@@ -7,9 +7,9 @@
 #  +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
 #   ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
 #
-#  Copyright (C) 2011-2023 Bitcraze AB
+#  Copyright (C) 2011-2023 Waymark AB
 #
-#  Crazyflie Nano Quadcopter Client
+#  Aeroflie Nano Quadcopter Client
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -25,7 +25,7 @@
 #  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
 Dialogue used to select and configure an inputdevice. This includes mapping
-buttons and axis to match controls for the Crazyflie.
+buttons and axis to match controls for the Aeroflie.
 """
 import logging
 
@@ -39,7 +39,7 @@ from cfclient.utils.config_manager import ConfigManager
 from PyQt6 import QtWidgets
 from PyQt6 import uic
 
-__author__ = 'Bitcraze AB'
+__author__ = 'Waymark AB'
 __all__ = ['InputConfigDialogue']
 
 logger = logging.getLogger(__name__)

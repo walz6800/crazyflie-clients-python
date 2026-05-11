@@ -7,9 +7,9 @@
 #  +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
 #   ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
 #
-#  Copyright (C) 2011-2023 Bitcraze AB
+#  Copyright (C) 2011-2023 Waymark AB
 #
-#  Crazyflie Nano Quadcopter Client
+#  Aeroflie Nano Quadcopter Client
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -26,7 +26,7 @@
 #  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 """
-Shows all the parameters available in the Crazyflie and also gives the ability
+Shows all the parameters available in the Aeroflie and also gives the ability
 to edit them.
 """
 
@@ -46,7 +46,7 @@ import cfclient
 from cfclient.ui.tab_toolbox import TabToolbox
 from cfclient.utils.logconfigreader import FILE_REGEX_YAML
 
-__author__ = 'Bitcraze AB'
+__author__ = 'Waymark AB'
 __all__ = ['ParamTab']
 
 param_tab_class = uic.loadUiType(cfclient.module_path + "/ui/tabs/paramTab.ui")[0]
@@ -340,7 +340,7 @@ class ParamTab(TabToolbox, param_tab_class):
 
     def __init__(self, helper):
         """Create the parameter tab"""
-        super(ParamTab, self).__init__(helper, self.tr('Parameters'))
+        super(ParamTab, self).__init__(helper, 'Parameters')
         self.setupUi(self)
 
         self.cf = helper.cf

@@ -17,7 +17,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>ColonyFlie config</string>
+   <string>Aeroflie config</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_3">
    <item row="0" column="0">

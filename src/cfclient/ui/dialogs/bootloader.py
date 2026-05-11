@@ -7,9 +7,9 @@
 #  +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
 #   ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
 #
-#  Copyright (C) 2011-2023 Bitcraze AB
+#  Copyright (C) 2011-2023 Waymark AB
 #
-#  Crazyflie Nano Quadcopter Client
+#  Aeroflie Nano Quadcopter Client
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -26,32 +26,24 @@
 #  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 """
-The bootloader dialog is used to update the Crazyflie firmware and to
-read/write the configuration block in the Crazyflie flash.
+The bootloader dialog is used to update the Aeroflie firmware and to
+read/write the configuration block in the Aeroflie flash.
 """
 from __future__ import annotations
 
 from cflib.bootloader import Bootloader
 from cfclient.ui.connectivity_manager import ConnectivityManager
 
-import tempfile
 import logging
-import json
 import os
-import re
-import threading
-from urllib.request import urlopen
-from urllib.error import URLError
-import zipfile
 
 from PyQt6 import QtWidgets, uic
-from PyQt6.QtCore import pyqtSlot, pyqtSignal, QThread, Qt
-from PyQt6.QtGui import QPixmap
+from PyQt6.QtCore import pyqtSlot, pyqtSignal, QThread
 
 import cfclient
 import cflib.crazyflie
 
-__author__ = 'Bitcraze AB'
+__author__ = 'Waymark AB'
 __all__ = ['BootloaderDialog']
 
 logger = logging.getLogger(__name__)
@@ -59,15 +51,9 @@ logger = logging.getLogger(__name__)
 service_dialog_class = uic.loadUiType(cfclient.module_path +
                                       "/ui/dialogs/bootloader.ui")[0]
 
-# This url is used to fetch all the releases from the FirmwareDownloader
-RELEASE_URL = 'https://api.github.com/repos/bitcraze/'\
-              'crazyflie-release/releases'
-
-ICON_PATH = os.path.join(cfclient.module_path, 'ui', 'icons')
-
 
 class BootloaderDialog(QtWidgets.QWidget, service_dialog_class):
-    """Tab for update the Crazyflie firmware and for reading/writing the config
+    """Tab for update the Aeroflie firmware and for reading/writing the config
     block in flash"""
 
     class UIState:
@@ -79,9 +65,6 @@ class BootloaderDialog(QtWidgets.QWidget, service_dialog_class):
         FW_SCANNING = 5
         FLASHING = 6
         RESET = 7
-
-    _release_firmwares_found = pyqtSignal(object)
-    _release_downloaded = pyqtSignal(str, object)
 
     def __init__(self, helper, *args):
         super(BootloaderDialog, self).__init__(*args)
@@ -100,7 +83,6 @@ class BootloaderDialog(QtWidgets.QWidget, service_dialog_class):
         self.programButton.clicked.connect(self.programAction)
         self.coldBootButton.clicked.connect(self.initiateColdboot)
         self.resetButton.clicked.connect(self.resetCopter)
-        self.sourceTab.currentChanged.connect(self._update_program_button_state)
 
         self._helper.connectivity_manager.register_ui_elements(
             ConnectivityManager.UiElementsContainer(
@@ -124,44 +106,11 @@ class BootloaderDialog(QtWidgets.QWidget, service_dialog_class):
         self._cold_boot_error_message = None
         self._state = self.UIState.DISCONNECTED
 
-        self._releases = {}
-        self._platform_widget_names = {}
-        self._release_firmwares_found.connect(self._populate_firmware_dropdown)
-        self._release_downloaded.connect(self.release_zip_downloaded)
-        self.firmware_downloader = FirmwareDownloader(self._release_firmwares_found, self._release_downloaded)
-        self.firmware_downloader.get_firmware_releases()
-
-        self.firmware_downloader.start()
         self.clt.start()
-
-        self._platform_filter_checkboxes = []
-
-        self._set_image(self.image_1, os.path.join(ICON_PATH, "bolt.webp"))
-        self._set_image(self.image_2, os.path.join(ICON_PATH, "cf21.webp"))
-        self._set_image(self.image_3, os.path.join(ICON_PATH, "bl.webp"))
-        self._set_image(self.image_4, os.path.join(ICON_PATH, "flapper.webp"))
-        self._set_image(self.image_5, os.path.join(ICON_PATH, "tag.webp"))
 
     def _ui_connection_fail(self, message):
         self._cold_boot_error_message = message
         self.setUiState(self.UIState.DISCONNECTED)
-
-    def _set_image(self, image_label, image_path):
-        IMAGE_WIDTH = 100
-        IMAGE_HEIGHT = 100
-
-        pixmap = QPixmap(image_path)
-
-        if pixmap.isNull():
-            logger.warning(f"Failed to load image: {image_path}")
-            image_label.setText(self.tr("Missing image"))
-        else:
-            scaled_pixmap = pixmap.scaled(
-                IMAGE_WIDTH, IMAGE_HEIGHT,
-                Qt.AspectRatioMode.KeepAspectRatio,
-                Qt.TransformationMode.SmoothTransformation
-            )
-            image_label.setPixmap(scaled_pixmap)
 
     def setUiState(self, state):
         self._state = state
@@ -183,22 +132,20 @@ class BootloaderDialog(QtWidgets.QWidget, service_dialog_class):
             self._cold_boot_error_message = None
             self.resetButton.setEnabled(False)
             self.programButton.setEnabled(False)
-            self.setStatusLabel(self.tr("Trying to connect cold bootloader, restart the Crazyflie to connect"))
+            self.setStatusLabel(self.tr("Trying to connect cold bootloader, restart the Aeroflie to connect"))
             self.coldBootButton.setEnabled(False)
             self.setSourceSelectionUiEnabled(True)
             self._helper.connectivity_manager.set_enable(False)
         elif (state == self.UIState.COLD_CONNECTED):
             self._cold_boot_error_message = None
             self.resetButton.setEnabled(True)
-            if any(button.isChecked() for button in self._platform_filter_checkboxes):
-                self.programButton.setEnabled(True)
-            else:
-                self.programButton.setToolTip(self.tr("Select a platform before programming."))
+            self.programButton.setEnabled(bool(self.imagePathLine.text()))
+            if not self.imagePathLine.text():
+                self.programButton.setToolTip(self.tr("Choose a firmware file to program."))
             self.setStatusLabel(self.tr("Connected to bootloader"))
             self.coldBootButton.setEnabled(False)
             self.imagePathBrowseButton.setEnabled(True)
             self.imagePathLine.setEnabled(True)
-            self.firmwareDropdown.setEnabled(True)
             self._helper.connectivity_manager.set_enable(False)
         elif (state == self.UIState.FW_CONNECTING):
             self._cold_boot_error_message = None
@@ -219,10 +166,9 @@ class BootloaderDialog(QtWidgets.QWidget, service_dialog_class):
                 self.setStatusLabel(self.tr("Connected using USB"))
                 self.setSourceSelectionUiEnabled(False)
             else:
-                if any(button.isChecked() for button in self._platform_filter_checkboxes):
-                    self.programButton.setEnabled(True)
-                else:
-                    self.programButton.setToolTip(self.tr("Select a platform before programming."))
+                self.programButton.setEnabled(bool(self.imagePathLine.text()))
+                if not self.imagePathLine.text():
+                    self.programButton.setToolTip(self.tr("Choose a firmware file to program."))
                 self.setStatusLabel(self.tr("Connected in firmware mode"))
                 self.setSourceSelectionUiEnabled(True)
         elif (state == self.UIState.FW_SCANNING):
@@ -254,7 +200,6 @@ class BootloaderDialog(QtWidgets.QWidget, service_dialog_class):
     def setSourceSelectionUiEnabled(self, enabled):
         self.imagePathBrowseButton.setEnabled(enabled)
         self.imagePathLine.setEnabled(enabled)
-        self.firmwareDropdown.setEnabled(enabled)
 
     def setStatusLabel(self, text):
         self.connectionStatus.setText(self.tr("Status: <b>%s</b>") % text)
@@ -271,53 +216,9 @@ class BootloaderDialog(QtWidgets.QWidget, service_dialog_class):
 
     def closeEvent(self, event):
         self.clt.terminate_flashing()
-        # Remove downloaded-firmware files.
-        self.firmware_downloader.bootload_complete.emit()
-
-    def _populate_firmware_dropdown(self, releases):
-        """ Callback from firmware-downloader that retrieves all
-            the latest firmware-releases.
-        """
-        platforms = set()
-        for release in releases:
-            release_name = release[0]
-            downloads = release[1:]
-
-            downloads.sort(key=self.download_sorter)
-
-            for download in downloads:
-                download_name, download_link = download
-                platform = self._extract_platform(download_name)
-                # Ignore old releases that do not use the standard file naming convention
-                if platform:
-                    widget_name = '%s - %s' % (release_name, download_name)
-                    if platform not in self._platform_widget_names:
-                        self._platform_widget_names[platform] = []
-                    self._platform_widget_names[platform].append(widget_name)
-                    self._releases[widget_name] = download_link
-
-                    platforms.add(platform)
-
-        for platform in sorted(platforms, reverse=True):
-            RADIO_BUTTON_WIDTH = 100
-
-            radio_button = QtWidgets.QRadioButton(platform)
-
-            radio_button.setFixedWidth(RADIO_BUTTON_WIDTH)
-
-            radio_button.toggled.connect(self._update_firmware_dropdown)
-            radio_button.toggled.connect(self._update_program_button_state)
-
-            self._platform_filter_checkboxes.append(radio_button)
-            self.filterLayout.insertWidget(0, radio_button)
-
-        self.firmwareDropdown.setSizeAdjustPolicy(QtWidgets.QComboBox.SizeAdjustPolicy.AdjustToContents)
-        self._update_firmware_dropdown(True)
-
-    def _has_selected_file(self) -> bool:
-        return bool(self.imagePathLine.text())
 
     def _update_program_button_state(self):
+        """根据连接状态和文件选择情况更新烧录按钮的启用状态"""
         is_connected = self._state in (
             self.UIState.COLD_CONNECTED,
             self.UIState.FW_CONNECTED
@@ -328,60 +229,11 @@ class BootloaderDialog(QtWidgets.QWidget, service_dialog_class):
             self.programButton.setToolTip(self.tr("Connect your device before programming."))
             return
 
-        current_tab = self.sourceTab.currentWidget()
-
-        if current_tab == self.tabFromFile:
-            has_file = bool(self.imagePathLine.text())
-            self.programButton.setEnabled(has_file)
-
-            self.programButton.setToolTip(
-                "" if has_file else self.tr("Choose a firmware file to program.")
-            )
-        else:
-            any_platform_checked = any(
-                button.isChecked() for button in self._platform_filter_checkboxes
-            )
-
-            self.programButton.setEnabled(any_platform_checked)
-            self.programButton.setToolTip(
-                "" if any_platform_checked else "Select a platform before programming."
-            )
-
-    def _update_firmware_dropdown(self, active: bool):
-        if active:
-            platform = None
-            for button in self._platform_filter_checkboxes:
-                if button.isChecked():
-                    platform = button.text()
-
-            if platform:
-                self.firmwareDropdown.clear()
-                for widget_name in self._platform_widget_names[platform]:
-                    self.firmwareDropdown.addItem(widget_name)
-
-    def _extract_platform(self, download_name: str) -> str | None:
-        # Download name is something like 'firmware-cf2-2022.12.zip'
-        found = re.search('firmware-(\\w+)-', download_name)
-        if found:
-            groups = found.groups()
-            if len(groups) == 1:
-                return groups[0]
-        return None
-
-    def download_sorter(self, element):
-        '''Sort downloads to display cf2 before bolt and tag'''
-        name = element[0]
-        if 'cf2' in name:
-            return '0' + name
-        else:
-            return '1' + name
-
-    def release_zip_downloaded(self, release_name, release_path):
-        """ Callback when a release is successfully downloaded and
-            save to release_path.
-        """
-        self.downloadStatus.setText(self.tr('Downloaded'))
-        self.clt.program.emit(release_path, '')
+        has_file = bool(self.imagePathLine.text())
+        self.programButton.setEnabled(has_file)
+        self.programButton.setToolTip(
+            "" if has_file else self.tr("Choose a firmware file to program.")
+        )
 
     def _load_thread_connection_event(self, new_sate):
         if self._state != self.UIState.FLASHING:
@@ -423,33 +275,22 @@ class BootloaderDialog(QtWidgets.QWidget, service_dialog_class):
         else:
             self.clt.set_boot_mode(self.clt.WARM_BOOT)
 
-        # call the flasher
-        if self.sourceTab.currentWidget() == self.tabFromFile:
-            if self.imagePathLine.text() == "":
-                msgBox = QtWidgets.QMessageBox()
-                msgBox.setText(self.tr("Please choose an image file to program."))
-                msgBox.exec_()
+        if self.imagePathLine.text() == "":
+            msgBox = QtWidgets.QMessageBox()
+            msgBox.setText(self.tr("Please choose an image file to program."))
+            msgBox.exec_()
+            return
 
-                return
+        self.setUiState(self.UIState.FLASHING)
 
-            self.setUiState(self.UIState.FLASHING)
-
-            # by default, flash everything in the zip (if possible)
-            mcu_to_flash = None
-            self.clt.program.emit(self.imagePathLine.text(), mcu_to_flash)
-        else:
-            self.setUiState(self.UIState.FLASHING)
-
-            requested_release = self.firmwareDropdown.currentText()
-            download_url = self._releases[requested_release]
-            self.downloadStatus.setText(self.tr('Fetching...'))
-            self.firmware_downloader.download_release(requested_release, download_url)
+        # by default, flash everything in the zip (if possible)
+        mcu_to_flash = None
+        self.clt.program.emit(self.imagePathLine.text(), mcu_to_flash)
 
     @pyqtSlot(bool)
     def programDone(self, success):
         if success:
             self.statusLabel.setText(self.tr('Status: <b>Programing complete!</b>'))
-            self.downloadStatus.setText('')
         else:
             self.statusLabel.setText(self.tr('Status: <b>Programing failed!</b>'))
 
@@ -557,88 +398,3 @@ class CrazyloadThread(QThread):
             pass
         self._bl.close()
         self.disconnectedSignal.emit()
-
-
-class FirmwareDownloader(QThread):
-    """ Uses github API to retrieves firmware-releases. """
-
-    bootload_complete = pyqtSignal()
-
-    def __init__(self, qtsignal_get_all_firmwares, qtsignal_get_release):
-        super(FirmwareDownloader, self).__init__()
-
-        self._qtsignal_get_all_firmwares = qtsignal_get_all_firmwares
-        self._qtsignal_get_release = qtsignal_get_release
-
-        self._tempDirectory = tempfile.TemporaryDirectory()
-
-        self.moveToThread(self)
-
-    def get_firmware_releases(self):
-        """ Wrapper-function """
-        threading.Thread(target=self._get_firmware_releases,
-                         args=(self._qtsignal_get_all_firmwares, )).start()
-
-    def download_release(self, release_name, url):
-        """ Wrapper-function """
-        threading.Thread(target=self._download_release,
-                         args=(self._qtsignal_get_release,
-                               release_name, url)).start()
-
-    def _get_firmware_releases(self, signal):
-        """ Gets the firmware releases from the github API
-            and returns a list of format [rel-name, {release: download-link}].
-            Returns None if the request fails.
-        """
-        response = {}
-        try:
-            with urlopen(RELEASE_URL) as resp:
-                response = json.load(resp)
-        except URLError:
-            logger.warning(
-                'Failed to make web request to get firmware-release')
-
-        release_list = []
-
-        for release in response:
-            release_name = release['name']
-            if release_name:
-                releases = [release_name]
-                for download in release['assets']:
-                    releases.append((download['name'], download['browser_download_url']))
-                release_list.append(releases)
-
-        if release_list:
-            signal.emit(release_list)
-        else:
-            logger.warning('Failed to parse firmware-releases in web request')
-
-    def _download_release(self, signal, release_name, url):
-        """ Downloads the given release and calls the callback signal
-            if successful.
-        """
-        filepath = os.path.join(self._tempDirectory.name, release_name.split(' ')[-1])
-        try:
-            # Check if we have an old file saved and if so, ensure it's a valid
-            # zipfile and then call signal
-            with open(filepath, 'rb') as f:
-                previous_release = zipfile.ZipFile(f)
-                # testzip returns None if it's OK.
-                if previous_release.testzip() is None:
-                    logger.info('Using same firmware-release file at'
-                                '%s' % filepath)
-                    signal.emit(release_name, filepath)
-                    return
-        except FileNotFoundError:
-            try:
-                # Fetch the file with a new web request and save it to
-                # a temporary file.
-                with urlopen(url) as response:
-                    with open(filepath, 'wb') as release_file:
-                        release_file.write(response.read())
-                    logger.info('Created temporary firmware-release file at'
-                                '%s' % filepath)
-                    signal.emit(release_name, filepath)
-            except URLError:
-                logger.warning('Failed to make web request to get requested'
-                               ' firmware-release')

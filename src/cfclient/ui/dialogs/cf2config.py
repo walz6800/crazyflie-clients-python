@@ -7,9 +7,9 @@
 #  +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
 #   ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
 #
-#  Copyright (C) 2011-2023 Bitcraze AB
+#  Copyright (C) 2011-2023 Waymark AB
 #
-#  Crazyflie Nano Quadcopter Client
+#  Aeroflie Nano Quadcopter Client
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -24,8 +24,8 @@
 #  this program; if not, write to the Free Software Foundation, Inc.,
 #  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
-The bootloader dialog is used to update the Crazyflie firmware and to
-read/write the configuration block in the Crazyflie flash.
+The bootloader dialog is used to update the Aeroflie firmware and to
+read/write the configuration block in the Aeroflie flash.
 """
 import logging
 
@@ -36,7 +36,7 @@ from PyQt6 import QtWidgets
 from PyQt6 import uic
 from PyQt6.QtCore import pyqtSignal
 
-__author__ = 'Bitcraze AB'
+__author__ = 'Waymark AB'
 __all__ = ['Cf2ConfigDialog']
 
 logger = logging.getLogger(__name__)
@@ -46,7 +46,7 @@ service_dialog_class = uic.loadUiType(cfclient.module_path +
 
 
 class Cf2ConfigDialog(QtWidgets.QWidget, service_dialog_class):
-    """Tab for update the Crazyflie firmware and for reading/writing the config
+    """Tab for update the Aeroflie firmware and for reading/writing the config
     block in flash"""
 
     connected_signal = pyqtSignal(str)

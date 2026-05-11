@@ -7,9 +7,9 @@
 #  +------+    / /_/ / / /_/ /__/ /  / /_/ / / /_/  __/
 #   ||  ||    /_____/_/\__/\___/_/   \__,_/ /___/\___/
 #
-#  Copyright (C) 2011-2023 Bitcraze AB
+#  Copyright (C) 2011-2023 Waymark AB
 #
-#  ColonyFlie Nano Quadcopter Client
+#  Aeroflie Nano Quadcopter Client
 #
 #  This program is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License
@@ -24,9 +24,10 @@
 #  this program; if not, write to the Free Software Foundation, Inc., 51
 #  Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
-The main file for the ColonyFlie control application.
+The main file for the Aeroflie control application.
 """
 import logging
+import os
 import sys
 import usb
 
@@ -72,7 +73,7 @@ from .dialogs.inputconfigdialogue import InputConfigDialogue
 from .dialogs.logconfigdialogue import LogConfigDialogue
 
 
-__author__ = 'Bitcraze AB'
+__author__ = 'Waymark AB'
 __all__ = ['MainUI']
 
 logger = logging.getLogger(__name__)
@@ -289,7 +290,7 @@ class MainUI(QtWidgets.QMainWindow, main_window_class):
         self._mux_group = QActionGroup(self._menu_inputdevice)
         self._mux_group.setExclusive(True)
         for m in self.joystickReader.available_mux():
-            node = QAction(m.name,
+            node = QAction(self.tr(m.name),
                            self._menu_inputdevice,
                            checkable=True,
                            enabled=False)
@@ -299,7 +300,7 @@ class MainUI(QtWidgets.QMainWindow, main_window_class):
             self._all_mux_nodes += (node,)
             mux_subnodes = ()
             for name in m.supported_roles():
-                sub_node = QMenu(self.tr("    {}").format(name),
+                sub_node = QMenu("    " + self.tr(name),
                                  self._menu_inputdevice,
                                  enabled=False)
                 self._menu_inputdevice.addMenu(sub_node)
@@ -434,10 +435,15 @@ class MainUI(QtWidgets.QMainWindow, main_window_class):
         if not checked:
             return
         lang_code = self.sender().objectName()
-        I18nManager.load_language(lang_code)
-        init_cflib_translator(lang_code)
-        from cfclient.utils.config import Config
+        old_lang = I18nManager.current_language()
+
+        if lang_code == old_lang:
+            return
+
+        # 即时切换语言，无需确认弹窗
         Config().set("language", lang_code)
+        Config().save_file()
+        I18nManager.load_language(lang_code)
         self._retranslate_ui()
 
     def _retranslate_ui(self):
@@ -459,6 +465,65 @@ class MainUI(QtWidgets.QMainWindow, main_window_class):
             code = cb.objectName()
             if code in lang_names:
                 cb.setText(lang_names[code])
+
+        # Refresh Tabs menu action items and tab/dock titles (get fresh translated names)
+        for tab_toolbox in self.loaded_tab_toolboxes.values():
+            translated_name = tab_toolbox.get_tab_toolbox_name()
+            if hasattr(tab_toolbox, 'tab_action_item') and tab_toolbox.tab_action_item:
+                tab_toolbox.tab_action_item.setText(translated_name)
+            if hasattr(tab_toolbox, 'toolbox_action_item') and tab_toolbox.toolbox_action_item:
+                tab_toolbox.toolbox_action_item.setText(translated_name)
+            # 更新 QTabWidget 中标签页标题
+            tab_index = self.tab_widget.indexOf(tab_toolbox)
+            if tab_index >= 0:
+                self.tab_widget.setTabText(tab_index, translated_name)
+            # 更新 dock widget 标题（工具箱模式下使用）
+            tab_toolbox.dock_widget.setWindowTitle(translated_name)
+            # 同步内部的 tab_toolbox_name 字段
+            tab_toolbox.tab_toolbox_name = translated_name
+            # Re-translate the .ui-based tab content
+            try:
+                tab_toolbox.retranslateUi(tab_toolbox)
+            except Exception:
+                pass
+            # 这些方法需要独立于 retranslateUi 执行 ——
+            # 即使 retranslateUi 因 C++ 对象被删除而失败，也能正确刷新
+            try:
+                if hasattr(tab_toolbox, '_refresh_assist_mode_texts'):
+                    tab_toolbox._refresh_assist_mode_texts()
+                if hasattr(tab_toolbox, '_refresh_translations'):
+                    tab_toolbox._refresh_translations()
+            except Exception:
+                pass
+
+        # Refresh about dialog
+        if hasattr(self, '_about_dialog'):
+            try:
+                self._about_dialog.retranslateUi(self._about_dialog)
+                # 重新替换版本号（retranslateUi 会重置为模板文本）
+                self._about_dialog._name_label.setText(
+                    self._about_dialog._name_label.text().replace('#version#', cfclient.VERSION))
+                self._about_dialog._update_debug_info_view()
+            except Exception:
+                pass
+
+        # Refresh other dialogs
+        for dlg_attr in ['_cf2config_dialog', '_logconfig_dialog',
+                          '_inputconfig_dialog', '_bootloader_dialog']:
+            if hasattr(self, dlg_attr):
+                dlg = getattr(self, dlg_attr)
+                if dlg:
+                    try:
+                        dlg.retranslateUi(dlg)
+                    except Exception:
+                        pass
+
+        # Update mux menu items
+        for mux_node in self._all_mux_nodes:
+            (mux, sub_nodes) = mux_node.data()
+            mux_node.setText(self.tr(mux.name))
+            for role_name, sub_node in zip(mux.supported_roles(), sub_nodes):
+                sub_node.setTitle("    " + self.tr(role_name))
 
         # Update input device menu
         for menu in self._all_role_menus:
@@ -484,13 +549,6 @@ class MainUI(QtWidgets.QMainWindow, main_window_class):
 
         # Refresh status bar
         self._update_input_device_footer()
-
-        # Refresh all loaded tabs
-        for tab_toolbox in self.loaded_tab_toolboxes.values():
-            try:
-                tab_toolbox.retranslateUi(tab_toolbox)
-            except Exception:
-                pass
 
     def disable_input(self, disable):
         """
@@ -542,7 +600,7 @@ class MainUI(QtWidgets.QMainWindow, main_window_class):
         if self.uiState == UIState.DISCONNECTED:
             self.setWindowTitle(self.tr("Not connected"))
             canConnect = self._connectivity_manager.get_interface() is not None
-            self.menuItemConnect.setText(self.tr("Connect to ColonyFlie"))
+            self.menuItemConnect.setText(self.tr("Connect to Aeroflie"))
             self.menuItemConnect.setEnabled(canConnect)
             self._connectivity_manager.set_state(ConnectivityManager.UIState.DISCONNECTED)
             self.batteryBar.setValue(3000)
@@ -726,7 +784,16 @@ class MainUI(QtWidgets.QMainWindow, main_window_class):
     def closeEvent(self, event):
         Config().save_file()
         self.cf.close_link()
-        self.hide()
+        # 停止后台定时器和线程，防止进程残留
+        if hasattr(self, 'joystickReader'):
+            if hasattr(self.joystickReader, '_discovery_timer'):
+                self.joystickReader._discovery_timer.stop()
+            if hasattr(self.joystickReader, '_read_timer'):
+                self.joystickReader._read_timer.stop()
+        if hasattr(self, 'scanner'):
+            self.scanner.quit()
+            self.scanner.wait(1000)
+        event.accept()
 
     def resizeEvent(self, event):
         Config().set("window_size", [event.size().width(),
@@ -759,7 +826,7 @@ class MainUI(QtWidgets.QMainWindow, main_window_class):
                 radio.close()
             except usb.core.USBError as e:
                 if e.errno == 13:  # Permission denied
-                    link = "<a href='https://www.bitcraze.io/documentation/repository/ColonyFlie-lib-python/master/installation/usb_permissions/'>" + self.tr("Install USB Permissions") + "</a>" # noqa
+                    link = "<a href='#'>" + self.tr("Install USB Permissions") + "</a>" # noqa
                     msg = QMessageBox()
                     msg.setIcon(QMessageBox.Icon.Information)
                     msg.setTextFormat(Qt.TextFormat.RichText)
@@ -819,7 +886,7 @@ class MainUI(QtWidgets.QMainWindow, main_window_class):
 
         if len(self.joystickReader.available_devices()) > 0:
             mux = self.joystickReader._selected_mux
-            msg = self.tr("Using {} mux with ").format(mux.name)
+            msg = self.tr("Using {} mux with ").format(self.tr(mux.name))
             for key in list(mux._devs.keys())[:-1]:
                 if mux._devs[key]:
                     msg += "{}, ".format(self._get_dev_status(mux._devs[key]))
