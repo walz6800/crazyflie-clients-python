@@ -46,14 +46,14 @@
             <item>
              <widget class="QRadioButton" name="_radio_btn_v1">
               <property name="text">
-               <string>Lighthouse V1</string>
+               <string>Optics V1</string>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QRadioButton" name="_radio_btn_v2">
               <property name="text">
-               <string>Lighthouse V2</string>
+               <string>Optics V2</string>
               </property>
              </widget>
             </item>

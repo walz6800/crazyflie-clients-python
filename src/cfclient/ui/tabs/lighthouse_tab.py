@@ -295,7 +295,8 @@ class LighthouseTab(TabToolbox, lighthouse_tab_class):
     _calibration_read_signal = pyqtSignal(object)
 
     def __init__(self, helper):
-        super(LighthouseTab, self).__init__(helper, self.tr('Optics Positioning'))
+        # 传入原始英文名称，TabToolbox.__init__ 会调用 self.tr() 进行翻译
+        super(LighthouseTab, self).__init__(helper, 'Optics Positioning')
         self.setupUi(self)
 
         # Always wrap callbacks from ColonyFlie API though QT Signal/Slots
@@ -374,6 +375,38 @@ class LighthouseTab(TabToolbox, lighthouse_tab_class):
         # 标记本连接周期内是否已执行过收到数据后的标签页重载
         self._tab_reloaded = False
         self._update_ui()
+
+    def retranslateUi(self, _widget=None):
+        """重新翻译所有 UI 字符串，支持中英文实时切换。"""
+        # 不能调用 lighthouse_tab_class.retranslateUi()，因为其中的 label_3 位于
+        # _basestation_stats_container 的 (0,1) 位置，在 _clear_state_indicator 中
+        # 被 deleteLater() 销毁后，再次访问其 C++ 对象会抛出 RuntimeError，
+        # 被 main.py 的 except Exception: pass 吞掉，导致后续所有控件翻译跳过。
+        self.label_2.setText(self.tr("Status:"))
+        self.label_5.setText(self.tr("Geometry"))
+        self.label_6.setText(self.tr("Receiving"))
+        self.label_7.setText(self.tr("Position:"))
+        self.label_8.setText(self.tr("Calibration"))
+        self.label_15.setText(self.tr("Estimator"))
+        self.groupBox.setTitle(self.tr("System Management"))
+        self.groupBox_2.setTitle(self.tr("Basestation Status"))
+        self.groupBox_4.setTitle(self.tr("Aeroflie status"))
+        self._manage_estimate_geometry_button.setText(self.tr("Manage geometry"))
+        self._change_system_type_button.setText(self.tr("Change system type"))
+        self._manage_basestation_mode_button.setText(self.tr("Set BS channel"))
+        self._save_sys_config_button.setText(self.tr("Save system config"))
+        self._load_sys_config_button.setText(self.tr("Load system config"))
+        # 翻译子对话框（setupUi 调用时这些属性尚未创建，需要检查）
+        for attr in ('_basestation_geometry_dialog', '_basestation_mode_dialog',
+                     '_system_type_dialog'):
+            if hasattr(self, attr):
+                getattr(self, attr).retranslateUi(getattr(self, attr))
+
+    def changeEvent(self, event):
+        from PyQt6.QtCore import QEvent
+        if event.type() == QEvent.Type.LanguageChange:
+            self.retranslateUi()
+        super().changeEvent(event)
 
     def write_and_store_geometry(self, geometries):
         if self._lh_config_writer:

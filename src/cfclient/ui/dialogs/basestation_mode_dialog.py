@@ -64,14 +64,31 @@ class LighthouseBsModeDialog(QtWidgets.QWidget, basestation_mode_widget_class):
         self._channel = 1
         self._device = None
 
-        self._basestation_port_display.setText('No basestation found!')
+        self.retranslateUi()
 
-        self._basestation_port_display.setText(self._device)
+    def retranslateUi(self, _widget=None):
+        """Re-translate all UI strings for language switching."""
+        self.setWindowTitle(self.tr("Basestation configuration"))
+        self.label.setText(self.tr("Optics V2 Basestation Configuration Tool"))
+        self.label_5.setText(self.tr("Connect only 1 basestation with a micro usb  at the time "))
+        self._scan_basestation_button.setText(self.tr("Scan basestation"))
+        self.label_2.setText(self.tr("Change channel"))
+        self.label_3.setText(self.tr("USB port: "))
+        self.label_4.setText(self.tr("Current channel:"))
+        self.label_8.setText(self.tr("Current ID"))
+        self._set_basestation_button.setText(self.tr("Set channel"))
+        self._basestation_port_display.setText(self.tr('No basestation found!'))
+
+    def changeEvent(self, event):
+        from PyQt6.QtCore import QEvent
+        if event.type() == QEvent.Type.LanguageChange:
+            self.retranslateUi()
+        super().changeEvent(event)
 
     def _set_basestation_dev(self):
         self._device = self._find_basestation()
         if self._device is None:
-            self._basestation_port_display.setText('No basestation found!')
+            self._basestation_port_display.setText(self.tr('No basestation found!'))
             self._set_basestation_button.setEnabled(False)
             self._display_current_channel.setText('')
             self._display_current_id.setText('')
@@ -93,7 +110,7 @@ class LighthouseBsModeDialog(QtWidgets.QWidget, basestation_mode_widget_class):
                 parts = line.split()
                 confirm_mode = int(parts[2])
         if confirm_mode == 0:
-            self._display_current_channel.setText('0 (not supported)')
+            self._display_current_channel.setText(self.tr('0 (not supported)'))
         else:
             self._display_current_channel.setText(str(confirm_mode))
         ser.close()
@@ -118,9 +135,9 @@ class LighthouseBsModeDialog(QtWidgets.QWidget, basestation_mode_widget_class):
             ser = serial.Serial(dev, timeout=0.4)
         except serial.SerialException:
             self._basestation_mode_status.setText(
-                'Permission denied: cannot access serial port.\n'
-                'Try running: \"sudo usermod -aG dialout [username]\" '
-                'and then restart your computer.'
+                self.tr('Permission denied: cannot access serial port.\n'
+                'Try running: "sudo usermod -aG dialout [username]" '
+                'and then restart your computer.')
             )
 
             self._set_basestation_button.setEnabled(True)
@@ -142,9 +159,9 @@ class LighthouseBsModeDialog(QtWidgets.QWidget, basestation_mode_widget_class):
                 parts = line.split()
                 confirm_mode = int(parts[2])
         if confirm_mode is self._channel:
-            self._basestation_mode_status.setText('Success !')
+            self._basestation_mode_status.setText(self.tr('Success!'))
         else:
-            self._basestation_mode_status.setText('Try again !')
+            self._basestation_mode_status.setText(self.tr('Try again!'))
         self._display_current_channel.setText(str(confirm_mode))
         self._set_basestation_button.setEnabled(True)
         ser.close()
@@ -178,7 +195,7 @@ class LighthouseBsModeDialog(QtWidgets.QWidget, basestation_mode_widget_class):
         self._channel = 1
         self._device = None
         self._set_basestation_button.setEnabled(False)
-        self._basestation_port_display.setText('No basestation found!')
+        self._basestation_port_display.setText(self.tr('No basestation found!'))
         self._display_current_channel.setText('')
         self._basestation_mode_status.setText('')
         self._set_channel_spinbox.setValue(self._channel)

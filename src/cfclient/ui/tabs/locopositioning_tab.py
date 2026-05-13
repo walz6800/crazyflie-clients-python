@@ -195,12 +195,17 @@ class Plot3dLps(scene.SceneCanvas):
             width=1.0, color='blue', parent=parent, marker_size=0.0)
 
     def update_data(self, anchors, pos, display_mode):
-        self._cf.set_data(pos=np.array([pos]), face_color=self.POSITION_BRUSH)
+        self.update_cf_position(pos)
 
         for id, anchor in anchors.items():
             self._update_anchor(id, anchor, display_mode)
 
         self._purge_anchors(anchors.keys())
+
+    def update_cf_position(self, pos):
+        """仅更新无人机位置标记，不触碰 anchor visual。
+        用于定时器高频回调，避免每帧向 GPU 上传不变的 anchor 数据。"""
+        self._cf.set_data(pos=np.array([pos]), face_color=self.POSITION_BRUSH)
 
     def _update_anchor(self, id, anchor, display_mode):
         if anchor.is_active():
@@ -362,8 +367,8 @@ class LocoPositioningTab(TabToolbox, locopositioning_tab_class):
     PARAM_MODE_NM = 'mode'
     PARAM_MODE = PARAM_MDOE_GR + '.' + PARAM_MODE_NM
 
-    # Frame rate (updates per second)
-    FPS = 2
+    # 界面刷新帧率（每秒更新次数，200ms 一次）
+    FPS = 5
 
     _connected_signal = pyqtSignal(str)
     _disconnected_signal = pyqtSignal(str)
@@ -379,7 +384,11 @@ class LocoPositioningTab(TabToolbox, locopositioning_tab_class):
         super(LocoPositioningTab, self).__init__(helper, 'Wireless Positioning')
         self.setupUi(self)
 
+        # 状态变量必须在 _clear_state() 之前初始化，因为 _clear_state 会访问它们
         self._anchors = {}
+        self._indicator_state = {}
+        self._last_pose = None
+        self._is_connected = False
         self._clear_state()
         self._refs = []
 
@@ -471,6 +480,12 @@ class LocoPositioningTab(TabToolbox, locopositioning_tab_class):
         self._graph_timer.timeout.connect(self._update_graphics)
         self._graph_timer.start()
 
+        # 3D 渲染在独立慢速定时器中运行（1Hz），避免高频 OpenGL 调用导致 GPU 内存泄漏
+        self._plot_timer = QTimer()
+        self._plot_timer.setInterval(1000)
+        self._plot_timer.timeout.connect(self._update_3d_plot)
+        self._plot_timer.start()
+
         self._anchor_state_timer = QTimer()
         self._anchor_state_timer.setInterval(self.UPDATE_PERIOD_ANCHOR_STATE)
         self._anchor_state_timer.timeout.connect(self._poll_anchor_state)
@@ -517,13 +532,24 @@ class LocoPositioningTab(TabToolbox, locopositioning_tab_class):
         self._clear_anchors()
         self._update_ranging_status_indicators()
         self._id_anchor_button.setEnabled(True)
+        # 重置状态缓存和姿态缓存，确保重连后样式和 3D 渲染被正确刷新
+        self._indicator_state.clear()
+        self._last_pose = None
 
     def _clear_anchors(self):
+        """清除 anchor 数据并释放 vispy GPU 资源"""
         self._anchors = {}
+        # _clear_state() 可能在 _set_up_plots() 之前被 __init__ 调用，
+        # 此时 _plot_3d 尚未创建，需要检查属性存在性
+        if hasattr(self, '_plot_3d'):
+            for context in self._plot_3d._anchor_contexts.values():
+                for visual in context:
+                    visual.parent = None
+            self._plot_3d._anchor_contexts.clear()
 
     def _connected(self, link_uri):
         """Callback when the Aeroflie has been connected"""
-        logger.debug("Aeroflie connected to {}".format(link_uri))
+        self._is_connected = True
         self._request_param_to_detect_loco_deck()
 
     def _request_param_to_detect_loco_deck(self):
@@ -544,10 +570,7 @@ class LocoPositioningTab(TabToolbox, locopositioning_tab_class):
         """Callback from the parameter sub system when the Loco deck detection
         parameter has been updated"""
         if value == '1':
-            logger.debug("Loco deck installed, enabling LPS tab")
             self._loco_deck_detected()
-        else:
-            logger.debug("No Loco deck installed")
 
     def _loco_deck_detected(self):
         """Called when the loco deck has been detected. Enables the tab,
@@ -631,9 +654,7 @@ class LocoPositioningTab(TabToolbox, locopositioning_tab_class):
 
     def _disconnected(self, link_uri):
         """Callback for when the Aeroflie has been disconnected"""
-        logger.debug("Aeroflie disconnected from {}".format(link_uri))
-        self._graph_timer.stop()
-        self._anchor_state_timer.stop()
+        self._is_connected = False
         self._stop_polling_anchor_pos()
         self._remove_loco_param_callbacks()
         self._clear_state()
@@ -699,9 +720,16 @@ class LocoPositioningTab(TabToolbox, locopositioning_tab_class):
             self._update_lps_state(lps_state)
 
     def _update_ranging_status_indicators(self):
+        """更新 anchor 指示灯 QLabel 矩阵，使用样式缓存避免重复 setStyleSheet"""
         container = self._anchor_stats_container
 
         ids = sorted(self._anchors.keys())
+
+        # 当 anchor ID 集合变化时，labels 位置会发生移位，必须清空缓存重新应用样式。
+        # 否则新创建的 label widget 会因缓存命中而跳过 setStyleSheet，显示为无背景色。
+        cached_ids = set(self._indicator_state.keys())
+        if cached_ids != set(ids):
+            self._indicator_state.clear()
 
         # Update existing labels or add new if needed
         count = 0
@@ -720,10 +748,11 @@ class LocoPositioningTab(TabToolbox, locopositioning_tab_class):
 
             label.setText(str(id))
 
-            if self._anchors[id].is_active():
-                label.setStyleSheet(STYLE_GREEN_BACKGROUND)
-            else:
-                label.setStyleSheet(STYLE_RED_BACKGROUND)
+            new_style = STYLE_GREEN_BACKGROUND if self._anchors[id].is_active() else STYLE_RED_BACKGROUND
+            old_style = self._indicator_state.get(id)
+            if new_style != old_style:
+                label.setStyleSheet(new_style)
+                self._indicator_state[id] = new_style
 
             count += 1
 
@@ -780,12 +809,18 @@ class LocoPositioningTab(TabToolbox, locopositioning_tab_class):
     def _anchor_data_updated(self, position_dict):
         """Callback from the anchor state machine when the anchor positions
          are updated"""
+        prev_count = len(self._anchors)
         for id, anchor_data in position_dict.items():
             anchor = self._get_create_anchor(id)
             if anchor_data.is_valid:
                 anchor.set_position(anchor_data.position)
 
         self._update_positions_in_config_dialog()
+        # Anchor 数据首次加载或数量变化时，触发一次完整的 3D 场景更新。
+        # Anchor 位置是固定的（物理基站不移动），无需定时器重复刷新。
+        if len(self._anchors) != prev_count:
+            self._plot_3d.update_data(
+                self._anchors, self._helper.pose_logger.position, self._display_mode)
 
     def _parse_range_param_name(self, name):
         """Parse a parameter name for a ranging distance and return the number
@@ -817,12 +852,42 @@ class LocoPositioningTab(TabToolbox, locopositioning_tab_class):
         return anchor_number in self._anchors
 
     def _update_graphics(self):
-        if self.is_visible() and self.is_loco_deck_active:
-            self._plot_3d.update_data(
-                self._anchors,
-                self._helper.pose_logger.position,
-                self._display_mode)
+        """UI 刷新定时器回调（5Hz）。
+        位置标签不依赖 loco deck，只要已连接就更新；
+        QLabel 指示灯和 3D 渲染由独立定时器/回调驱动。"""
+        if not self.is_visible():
+            return
+        # 位置数据来自 PoseLogger，不依赖 loco deck，
+        # 只要已连接就应该更新（解决位置数据永不刷新的问题）
+        if self._is_connected:
             self._update_position_label(self._helper.pose_logger.position)
+        # QLabel 指示灯依赖 loco deck 固件数据，定时刷新确保 UI 同步
+        if self.is_loco_deck_active and self._anchors:
+            self._update_ranging_status_indicators()
+        elif self.is_loco_deck_active:
+            # loco deck 已激活但锚点尚未加载，跳过指示灯刷新
+            pass
+
+    def _update_3d_plot(self):
+        """3D 渲染定时器回调（1Hz）。
+        仅更新无人机位置标记（CF marker），不触碰 anchor visual。
+        Anchor 位置是固定的（物理基站不移动），仅在 _anchor_data_updated 回调中更新。
+        这样 GPU 上传从 16 次/秒（8 anchor × 2 visual）降为 0-1 次/秒（仅 CF marker）。"""
+        if not self.is_visible() or not self._is_connected:
+            return
+        if not self.is_loco_deck_active:
+            return
+
+        current_pose = self._helper.pose_logger.position
+        # 姿态变化不足 5cm 时跳过更新，传感器噪声不会触发 GPU 上传
+        if self._last_pose is not None and current_pose and len(current_pose) == 3:
+            dist = sum((self._last_pose[i] - current_pose[i]) ** 2 for i in range(3))
+            if dist < 0.0005:  # 5cm² 阈值（约 2.2cm 线性距离）
+                return
+
+        # 仅更新 CF 位置标记，anchor 数据未变化无需重复上传 GPU
+        self._plot_3d.update_cf_position(current_pose)
+        self._last_pose = list(current_pose) if current_pose else None
 
     def _update_position_label(self, position):
         if len(position) == 3:

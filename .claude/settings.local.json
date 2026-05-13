@@ -5,7 +5,9 @@
       "Bash(python -c \"import sys; print\\('\\\\n'.join\\(sys.path\\)\\)\")",
       "Bash(pip show *)",
       "Bash(dir \"D:\\\\Python\\\\Python310\\\\lib\\\\site-packages\\\\cflib\\\\resources\" /b)",
-      "Bash(dir \"D:\\\\Python\\\\Python310\\\\lib\\\\site-packages\\\\cflib\" /b /s *.py)"
+      "Bash(dir \"D:\\\\Python\\\\Python310\\\\lib\\\\site-packages\\\\cflib\" /b /s *.py)",
+      "Bash(cd *)",
+      "Bash(taskkill *)"
     ]
   }
 }

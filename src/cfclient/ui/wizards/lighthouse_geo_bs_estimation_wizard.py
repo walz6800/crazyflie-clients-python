@@ -99,7 +99,7 @@ class LighthouseBasestationGeometryWizard(QtWidgets.QWizard):
         self.addPage(self.get_xyzspace_page)
         self.addPage(self.get_geometry_page)
 
-        self.setWindowTitle("Lighthouse Base Station Geometry Wizard")
+        self.setWindowTitle(self.tr("Optics Base Station Geometry Wizard"))
         self.resize(WINDOW_STARTING_WIDTH, WINDOW_STARTING_HEIGHT)
 
 
@@ -130,7 +130,7 @@ class LighthouseBasestationGeometryWizardBasePage(QtWidgets.QWizardPage):
         self.status_text.setFrameStyle(QtWidgets.QFrame.Shape.Panel | QtWidgets.QFrame.Shadow.Plain)
         self.layout.addWidget(self.status_text)
 
-        self.start_action_button = QtWidgets.QPushButton("Start Measurement")
+        self.start_action_button = QtWidgets.QPushButton(self.tr("Start Measurement"))
         self.start_action_button.clicked.connect(self._action_btn_clicked)
         action_button_h_box = QtWidgets.QHBoxLayout()
         action_button_h_box.addStretch()
@@ -159,15 +159,15 @@ class LighthouseBasestationGeometryWizardBasePage(QtWidgets.QWizardPage):
         self.is_done = False
         self.reader.start_angle_collection()
         self.timeout_timer.start(TIMEOUT_TIME)
-        self.status_text.setText(self.str_pad('Collecting sweep angles...'))
+        self.status_text.setText(self.str_pad(self.tr('Collecting sweep angles...')))
         self.start_action_button.setDisabled(True)
 
     def _timeout_cb(self):
         if self.is_done is not True:
-            self.status_text.setText(self.str_pad('No sweep angles recorded! \n' +
-                                     'Make sure that the lighthouse base stations are turned on!'))
+            self.status_text.setText(self.str_pad(self.tr('No sweep angles recorded! \n' +
+                                     'Make sure that the optics base stations are turned on!')))
             self.reader.stop_angle_collection()
-            self.start_action_button.setText("Restart Measurement")
+            self.start_action_button.setText(self.tr("Restart Measurement"))
             self.start_action_button.setDisabled(False)
         elif self.too_few_bs:
             self.timeout_timer.stop()
@@ -183,32 +183,32 @@ class LighthouseBasestationGeometryWizardBasePage(QtWidgets.QWizardPage):
         amount_of_basestations = len(recorded_angles.keys())
 
         if amount_of_basestations < 2:
-            self.status_text.setText(self.str_pad('Recording Done!' +
+            self.status_text.setText(self.str_pad(self.tr("Recording Done!") +
                                                   f' Visible Base stations: {self.visible_basestations}\n' +
-                                                  'Received too few base stations,' +
-                                                  'we need at least two. Please try again!'))
+                                                  self.tr('Received too few base stations,') +
+                                                  self.tr('we need at least two. Please try again!')))
             self.too_few_bs = True
             self.is_done = True
             if self.show_add_measurements and len(self.recorded_angles_result) > 0:
                 self.too_few_bs = False
                 self.completeChanged.emit()
-            self.start_action_button.setText("Restart Measurement")
+            self.start_action_button.setText(self.tr("Restart Measurement"))
             self.start_action_button.setDisabled(False)
         else:
             self.too_few_bs = False
-            status_text_string = f'Recording Done! Visible Base stations: {self.visible_basestations}\n'
+            status_text_string = self.tr('Recording Done! Visible Base stations: {}').format(self.visible_basestations) + '\n'
             if self.show_add_measurements:
                 self.recorded_angles_result.append(self.get_sample())
-                status_text_string += f'Total measurements added: {len(self.recorded_angles_result)}\n'
+                status_text_string += self.tr('Total measurements added: {}').format(len(self.recorded_angles_result)) + '\n'
             self.status_text.setText(self.str_pad(status_text_string))
             self.is_done = True
             self.completeChanged.emit()
 
             if self.show_add_measurements:
-                self.start_action_button.setText("Add more measurements")
+                self.start_action_button.setText(self.tr("Add more measurements"))
                 self.start_action_button.setDisabled(False)
             else:
-                self.start_action_button.setText("Restart Measurement")
+                self.start_action_button.setText(self.tr("Restart Measurement"))
             self.start_action_button.setDisabled(False)
 
     def get_sample(self):
@@ -228,7 +228,7 @@ class RecordOriginSamplePage(LighthouseBasestationGeometryWizardBasePage):
     def __init__(self, cf: Crazyflie, parent=None):
         super(RecordOriginSamplePage, self).__init__(cf)
         self.explanation_text.setText(
-            'Step 1. Put the Aeroflie where you want the origin of your coordinate system.\n')
+            self.tr('Step 1. Put the Aeroflie where you want the origin of your coordinate system.\n'))
         pixmap = QtGui.QPixmap(cfclient.module_path + "/ui/wizards/bslh_1.png")
         pixmap = pixmap.scaledToWidth(PICTURE_WIDTH)
         self.explanation_picture.setPixmap(pixmap)
@@ -237,9 +237,9 @@ class RecordOriginSamplePage(LighthouseBasestationGeometryWizardBasePage):
 class RecordXAxisSamplePage(LighthouseBasestationGeometryWizardBasePage):
     def __init__(self, cf: Crazyflie, parent=None):
         super(RecordXAxisSamplePage, self).__init__(cf)
-        self.explanation_text.setText('Step 2. Put the Aeroflie on the positive X-axis,' +
-                                      f'  exactly {REFERENCE_DIST} meters from the origin.\n' +
-                                      'This will be used to define the X-axis as well as scaling of the system.')
+        self.explanation_text.setText(self.tr('Step 2. Put the Aeroflie on the positive X-axis,') +
+                                      f'  {self.tr("exactly")} {REFERENCE_DIST} {self.tr("meters from the origin")}.\n' +
+                                      self.tr('This will be used to define the X-axis as well as scaling of the system.'))
         pixmap = QtGui.QPixmap(cfclient.module_path + "/ui/wizards/bslh_2.png")
         pixmap = pixmap.scaledToWidth(PICTURE_WIDTH)
         self.explanation_picture.setPixmap(pixmap)
@@ -248,9 +248,9 @@ class RecordXAxisSamplePage(LighthouseBasestationGeometryWizardBasePage):
 class RecordXYPlaneSamplesPage(LighthouseBasestationGeometryWizardBasePage):
     def __init__(self, cf: Crazyflie, parent=None):
         super(RecordXYPlaneSamplesPage, self).__init__(cf, show_add_measurements=True)
-        self.explanation_text.setText('Step 3. Put the Aeroflie somewhere in the XY-plane, but not on the X-axis.\n' +
+        self.explanation_text.setText(self.tr('Step 3. Put the Aeroflie somewhere in the XY-plane, but not on the X-axis.\n' +
                                       'This position is used to map the the XY-plane to the floor.\n' +
-                                      'You can sample multiple positions to get a more precise definition.')
+                                      'You can sample multiple positions to get a more precise definition.'))
         pixmap = QtGui.QPixmap(cfclient.module_path + "/ui/wizards/bslh_3.png")
         pixmap = pixmap.scaledToWidth(PICTURE_WIDTH)
         self.explanation_picture.setPixmap(pixmap)
@@ -262,9 +262,9 @@ class RecordXYPlaneSamplesPage(LighthouseBasestationGeometryWizardBasePage):
 class RecordXYZSpaceSamplesPage(LighthouseBasestationGeometryWizardBasePage):
     def __init__(self, cf: Crazyflie, parent=None):
         super(RecordXYZSpaceSamplesPage, self).__init__(cf)
-        self.explanation_text.setText('Step 4. Move the Aeroflie around, try to cover all of the flying space,\n' +
+        self.explanation_text.setText(self.tr('Step 4. Move the Aeroflie around, try to cover all of the flying space,\n' +
                                       'make sure all the base stations are received.\n' +
-                                      'Avoid moving too fast, you can increase the record time if needed.\n')
+                                      'Avoid moving too fast, you can increase the record time if needed.\n'))
         pixmap = QtGui.QPixmap(cfclient.module_path + "/ui/wizards/bslh_4.png")
         pixmap = pixmap.scaledToWidth(PICTURE_WIDTH)
         self.explanation_picture.setPixmap(pixmap)
@@ -280,7 +280,7 @@ class RecordXYZSpaceSamplesPage(LighthouseBasestationGeometryWizardBasePage):
         h_box = QtWidgets.QHBoxLayout()
         self.seconds_explanation_text = QtWidgets.QLabel()
         self.fill_record_times_line_edit = QtWidgets.QLineEdit(str(DEFAULT_RECORD_TIME))
-        self.seconds_explanation_text.setText('Enter the number of seconds you want to record:')
+        self.seconds_explanation_text.setText(self.tr('Enter the number of seconds you want to record:'))
         h_box.addStretch()
         h_box.addWidget(self.seconds_explanation_text)
         h_box.addWidget(self.fill_record_times_line_edit)
@@ -289,14 +289,14 @@ class RecordXYZSpaceSamplesPage(LighthouseBasestationGeometryWizardBasePage):
 
     def _record_timer_cb(self):
         self.record_time_current += 1
-        self.status_text.setText(self.str_pad('Collecting sweep angles...' +
-                                 f' seconds remaining: {self.record_time_total-self.record_time_current}'))
+        self.status_text.setText(self.str_pad(self.tr('Collecting sweep angles...') +
+                                 f' {self.tr("seconds remaining")}: {self.record_time_total-self.record_time_current}'))
 
         if self.record_time_current == self.record_time_total:
             self.reader.stop()
             self.status_text.setText(self.str_pad(
-                'Recording Done!'+f' Got {len(self.recorded_angles_result)} samples!'))
-            self.start_action_button.setText("Restart measurements")
+                self.tr("Recording Done!") + ' ' + self.tr("Got {} samples!").format(len(self.recorded_angles_result))))
+            self.start_action_button.setText(self.tr("Restart measurements"))
             self.start_action_button.setDisabled(False)
             self.is_done = True
             self.completeChanged.emit()
@@ -308,8 +308,8 @@ class RecordXYZSpaceSamplesPage(LighthouseBasestationGeometryWizardBasePage):
         self.record_time_current = 0
         self.record_time_total = int(self.fill_record_times_line_edit.text())
         self.record_timer.start(1000)
-        self.status_text.setText(self.str_pad('Collecting sweep angles...' +
-                                 f' seconds remaining: {self.record_time_total}'))
+        self.status_text.setText(self.str_pad(self.tr('Collecting sweep angles...') +
+                                 f' {self.tr("seconds remaining")}: {self.record_time_total}'))
 
         self.start_action_button.setDisabled(True)
 
@@ -360,7 +360,7 @@ class EstimateGeometryThread(QtCore.QObject):
                                                   cleaned_matched_samples,
                                                   LhDeck4SensorPositions.positions)
         if not solution.success:
-            raise Exception("No lighthouse base station geometry solution could be found!")
+            raise Exception("No optics base station geometry solution could be found!")
 
         start_x_axis = 1
         start_xy_plane = 1 + len(x_axis)
@@ -390,14 +390,14 @@ class EstimateBSGeometryPage(LighthouseBasestationGeometryWizardBasePage):
                  xyplane_page: RecordXYPlaneSamplesPage, xyzspace_page: RecordXYZSpaceSamplesPage, parent=None):
 
         super(EstimateBSGeometryPage, self).__init__(cf)
-        self.explanation_text.setText('Step 5. Press the button to estimate the geometry and check the result.\n' +
+        self.explanation_text.setText(self.tr('Step 5. Press the button to estimate the geometry and check the result.\n' +
                                       'If the positions of the base stations look reasonable, press finish to close ' +
                                       'the wizard,\n' +
-                                      'if not restart the wizard.')
+                                      'if not restart the wizard.'))
         pixmap = QtGui.QPixmap(cfclient.module_path + "/ui/wizards/bslh_5.png")
         pixmap = pixmap.scaledToWidth(640)
         self.explanation_picture.setPixmap(pixmap)
-        self.start_action_button.setText('Estimate Geometry')
+        self.start_action_button.setText(self.tr('Estimate Geometry'))
         self.origin_page = origin_page
         self.xaxis_page = xaxis_page
         self.xyplane_page = xyplane_page
@@ -406,7 +406,7 @@ class EstimateBSGeometryPage(LighthouseBasestationGeometryWizardBasePage):
 
     def _action_btn_clicked(self):
         self.start_action_button.setDisabled(True)
-        self.status_text.setText(self.str_pad('Estimating geometry...'))
+        self.status_text.setText(self.str_pad(self.tr('Estimating geometry...')))
         origin = self.origin_page.get_sample()
         x_axis = [self.xaxis_page.get_sample()]
         xy_plane = self.xyplane_page.get_samples()
@@ -425,15 +425,15 @@ class EstimateBSGeometryPage(LighthouseBasestationGeometryWizardBasePage):
     def _geometry_estimated_finished(self):
         self.bs_poses = self.worker.get_poses()
         self.start_action_button.setDisabled(False)
-        self.status_text.setText(self.str_pad('Geometry estimated! (X,Y,Z) in meters \n' +
+        self.status_text.setText(self.str_pad(self.tr('Geometry estimated! (X,Y,Z) in meters') + ' \n' +
                                  self._print_base_stations_poses(self.bs_poses)))
         self.is_done = True
         self.completeChanged.emit()
 
     def _geometry_estimated_failed(self):
         self.bs_poses = self.worker.get_poses()
-        self.status_text.setText(self.str_pad('Geometry estimate failed! \n' +
-                                              'Hit Cancel to close the wizard and start again'))
+        self.status_text.setText(self.str_pad(self.tr('Geometry estimate failed!') + ' \n' +
+                                              self.tr('Hit Cancel to close the wizard and start again')))
 
     def _print_base_stations_poses(self, base_stations: dict[int, Pose]):
         """Pretty print of base stations pose"""

@@ -62,6 +62,22 @@ class LighthouseSystemTypeDialog(QtWidgets.QWidget, lighthouse_system_widget_cla
         self._radio_btn_v2.toggled.connect(self._type_toggled)
 
         self._curr_type = 0
+        self.retranslateUi()
+
+    def retranslateUi(self, _widget=None):
+        """Re-translate all UI strings for language switching."""
+        self.setWindowTitle(self.tr("System type"))
+        self.label_2.setText(self.tr("Note: Calibration and geometry data is lost if the system type is changed."))
+        self.groupBox.setTitle(self.tr("System type"))
+        self._radio_btn_v1.setText(self.tr("Optics V1"))
+        self._radio_btn_v2.setText(self.tr("Optics V2"))
+        self._close_button.setText(self.tr("Close"))
+
+    def changeEvent(self, event):
+        from PyQt6.QtCore import QEvent
+        if event.type() == QEvent.Type.LanguageChange:
+            self.retranslateUi()
+        super().changeEvent(event)
 
     def get_system_type(self):
         system_type = self.VALUE_V2

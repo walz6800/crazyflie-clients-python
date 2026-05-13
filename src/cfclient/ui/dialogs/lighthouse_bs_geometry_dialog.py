@@ -168,6 +168,17 @@ class LighthouseBsGeometryDialog(QtWidgets.QWidget, basestation_geometry_widget_
 
         self._update_ui()
 
+    def retranslateUi(self, _widget=None):
+        """重新翻译所有 UI 字符串，支持中英文实时切换。"""
+        # 调用 .ui 文件自动生成的 retranslateUi 翻译所有静态控件文本
+        basestation_geometry_widget_class.retranslateUi(self, self)
+
+    def changeEvent(self, event):
+        from PyQt6.QtCore import QEvent
+        if event.type() == QEvent.Type.LanguageChange:
+            self.retranslateUi()
+        super().changeEvent(event)
+
     def reset(self):
         self._newly_estimated_geometry = {}
         self._update_ui()

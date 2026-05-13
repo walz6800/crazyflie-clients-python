@@ -290,6 +290,8 @@ class MainUI(QtWidgets.QMainWindow, main_window_class):
         self._mux_group = QActionGroup(self._menu_inputdevice)
         self._mux_group.setExclusive(True)
         for m in self.joystickReader.available_mux():
+            if m.name in ("Teacher (RP)", "Teacher (RPYT)"):
+                continue  # 移除教师/学生 Mux
             node = QAction(self.tr(m.name),
                            self._menu_inputdevice,
                            checkable=True,
@@ -303,6 +305,7 @@ class MainUI(QtWidgets.QMainWindow, main_window_class):
                 sub_node = QMenu("    " + self.tr(name),
                                  self._menu_inputdevice,
                                  enabled=False)
+                sub_node.setProperty("role_name", name)  # 存储原始英文 key，避免翻译后取回中文导致 KeyError
                 self._menu_inputdevice.addMenu(sub_node)
                 mux_subnodes += (sub_node,)
                 self._all_role_menus += ({"muxmenu": node,
@@ -925,7 +928,7 @@ class MainUI(QtWidgets.QMainWindow, main_window_class):
                                 and dev_node is not self.sender():
                             dev_node.setChecked(False)
 
-            role_in_mux = str(self.sender().parent().title()).strip()
+            role_in_mux = str(self.sender().parent().property("role_name")).strip()
             logger.info("Role of {} is {}".format(device.name,
                                                   role_in_mux))
 
