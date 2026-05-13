@@ -142,6 +142,7 @@ class JoystickReader(object):
             Config().get("input_device_blacklist")))
 
         self._available_devices = {}
+        self._previous_device_ids = set()  # 追踪设备变化，用于检测插拔
 
         # TODO: The polling interval should be set from config file
         self._read_timer = PeriodicTimer(INPUT_READ_PERIOD, self.read_input)
@@ -197,6 +198,8 @@ class JoystickReader(object):
         self.has_pressure_sensor = available
 
     def _do_device_discovery(self):
+        # 强制重新扫描底层设备，检测插拔
+        readers.rescan_devices()
         devs = self.available_devices()
 
         # This is done so that devs can easily get access
@@ -204,9 +207,15 @@ class JoystickReader(object):
         for d in devs:
             d.input = self
 
-        if len(devs):
+        # 只在设备列表实际变化时通知 UI（支持连接和断开检测）
+        current_ids = set(d.id for d in devs)
+        if current_ids != self._previous_device_ids:
+            self._previous_device_ids = current_ids
+            # 设备全部断开时，立即停止读取并关闭设备，防止后续 read_input 中对
+            # 已断开设备的无效访问抛出异常
+            if len(devs) == 0:
+                self.pause_input()
             self.device_discovery.call(devs)
-            self._discovery_timer.stop()
 
     def available_mux(self):
         return self._mux

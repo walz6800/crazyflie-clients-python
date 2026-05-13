@@ -953,7 +953,22 @@ class MainUI(QtWidgets.QMainWindow, main_window_class):
         self._update_input_device_footer()
 
     def device_discovery(self, devs):
-        """Called when new devices have been added"""
+        """Called when devices have been added or removed"""
+        # 清除所有角色菜单中的旧设备项（支持设备断开检测）
+        for menu in self._all_role_menus:
+            menu["rolemenu"].clear()
+
+        # 清空设备列表
+        self._available_devices = ()
+
+        # 无设备：禁用所有 MUX 节点后返回
+        if len(devs) == 0:
+            for mux_node in self._all_mux_nodes:
+                mux_node.setEnabled(False)
+            self._update_input_device_footer()
+            return
+
+        # --- 以下为有设备时的处理（连接原逻辑不变） ---
         for menu in self._all_role_menus:
             role_menu = menu["rolemenu"]
             mux_menu = menu["muxmenu"]
@@ -1010,6 +1025,8 @@ class MainUI(QtWidgets.QMainWindow, main_window_class):
             (mux, sub_nodes) = mux_node.data()
             if len(mux.supported_roles()) <= len(self._available_devices):
                 mux_node.setEnabled(True)
+            else:
+                mux_node.setEnabled(False)
 
         # TODO: Currently only supports selecting default mux
         if self._all_mux_nodes[0].isEnabled():

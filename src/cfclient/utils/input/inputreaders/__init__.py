@@ -69,14 +69,19 @@ for reader in input_readers:
 
 
 def devices():
-    # Todo: Support rescanning and adding/removing devices
-    if len(available_devices) == 0:
-        for r in initialized_readers:
-            devs = r.devices()
-            for dev in devs:
-                available_devices.append(InputDevice(dev["name"],
-                                                     dev["id"],
-                                                     r))
+    """返回缓存的设备列表（可能为空）。"""
+    return available_devices
+
+
+def rescan_devices():
+    """重新扫描设备并更新缓存，支持设备插拔检测。返回新的设备列表。"""
+    available_devices.clear()
+    for r in initialized_readers:
+        devs = r.devices()
+        for dev in devs:
+            available_devices.append(InputDevice(dev["name"],
+                                                 dev["id"],
+                                                 r))
     return available_devices
 
 
