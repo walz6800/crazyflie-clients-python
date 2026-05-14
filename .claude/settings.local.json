@@ -7,7 +7,10 @@
       "Bash(dir \"D:\\\\Python\\\\Python310\\\\lib\\\\site-packages\\\\cflib\\\\resources\" /b)",
       "Bash(dir \"D:\\\\Python\\\\Python310\\\\lib\\\\site-packages\\\\cflib\" /b /s *.py)",
       "Bash(cd *)",
-      "Bash(taskkill *)"
+      "Bash(taskkill *)",
+      "Skill(superpowers:brainstorming)",
+      "Skill(superpowers:brainstorming:*)",
+      "Bash(powershell -Command \"Stop-Process -Name FormflieHub -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 1; Write-Output 'Done'\")"
     ]
   }
 }

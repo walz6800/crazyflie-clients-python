@@ -74,7 +74,7 @@ class _SDLEventDispatcher(Thread):
                     try:
                         if self._callback:
                             self._callback(ev.jdevice.which, ev)
-                    except AttributeError:
+                    except Exception:
                         pass
             time.sleep(0.01)
 
@@ -181,7 +181,9 @@ class PySDL2Reader():
         return self._js[device_id].read()
 
     def _dispatch_events(self, device_id, event):
-        self._js[device_id].add_event(event)
+        # 防护：只在 _js 已注册时才入队，避免扫描空窗期 KeyError
+        if device_id in self._js:
+            self._js[device_id].add_event(event)
 
     def devices(self):
         """List all the available devices. 每次调用重新扫描，支持设备插拔检测。"""
@@ -189,11 +191,7 @@ class PySDL2Reader():
         names = []
         # 每次都重新扫描，不缓存，以便检测设备断开
         self._devices.clear()
-        # 强制 SDL2 处理待处理的设备事件（断开后 event_dispatcher.enable=False，
-        # 导致 SDL_JOYDEVICEADDED 事件未被处理，SDL_NumJoysticks() 返回旧数据）
-        was_enabled = self._event_dispatcher.enable
-        self._event_dispatcher.enable = True
-        time.sleep(0.05)
+        # 先扫描设备并创建 _JS 对象（此时分发器未启用，_js 已就绪，不会 KeyError）
         nbrOfInputs = sdl2.joystick.SDL_NumJoysticks()
         logger.debug("Found {} devices".format(nbrOfInputs))
         for sdl_index in range(0, nbrOfInputs):
@@ -208,8 +206,10 @@ class PySDL2Reader():
                 self._js[sdl_id] = _JS(sdl_index, sdl_id, name)
             names.append(name)
             sdl2.joystick.SDL_JoystickClose(j)
-        # 恢复事件分发器状态（无设备时保持 disable 以避免 Linux 崩溃）
+        # 短暂启用分发器消费待处理事件，确保下次 SDL_NumJoysticks() 返回最新状态
+        # （此时 _js 已就绪，收到事件可安全入队）
+        was_enabled = self._event_dispatcher.enable
+        self._event_dispatcher.enable = True
+        time.sleep(0.05)
         self._event_dispatcher.enable = was_enabled
-        # 注意：不清理 _js 中的过期条目，因为 mux 可能仍持有对旧 InputDevice 的引用，
-        # read() 会对不在 _js 中的 device_id 返回空数据，防止 KeyError 竞态崩溃。
         return self._devices
